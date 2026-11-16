@@ -35,7 +35,7 @@ The same edition as a page channel: one morning digest of five stories, plus a f
 - `.github/workflows/social-bot.yml` ("Morrow Brief bot") answers messages every 5 minutes, or hands the bot to a Cloudflare Worker for instant replies. Run by hand it can also report the bot's status and set its name and command menu.
 - Setup, post formats, failure handling and what is not verified yet: [docs/SOCIAL.md](docs/SOCIAL.md).
 
-Nothing is posted until the secrets are added, and no post has been sent to a real platform yet.
+The bot is live: [@Morrow_brief_bot](https://t.me/Morrow_brief_bot). The pages are not: no channel or Buffer account is connected yet, so the publish job builds each day's posts and cards but sends nothing.
 
 ## Notes
 

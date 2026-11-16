@@ -6,8 +6,11 @@ the day's edition.
 
 > Tech and markets, read across the outlets. One brief a day, every story sourced.
 
-Nothing here is live yet. The code is tested, but no page account, API key or bot token exists, so no post has
-been sent. [What is not verified](#what-is-not-verified) lists every part that has only been tested against fakes.
+Live now: the Telegram bot, [@Morrow_brief_bot](https://t.me/Morrow_brief_bot), and the publish job, which
+builds the day's posts and cards on every run. Not live yet: the pages themselves. No Telegram channel, Buffer
+key or Instagram, Threads or X account is connected, so every post target is recorded as `skipped` and nothing
+has been posted. [What has been run for real](#what-has-been-run-for-real) and
+[What is not verified](#what-is-not-verified) say exactly where the line is.
 
 ## Why this page, when AI news channels already exist
 
@@ -187,10 +190,11 @@ Until these steps are done the workflow runs, records every target as `skipped` 
 1. Create the page accounts: a Telegram channel, an Instagram professional account, Threads and X. Suggested
    handle `morrowbrief`, with `readmorrow` or `morrowdaily` as fallbacks. None of these has been checked for
    availability.
-2. In Telegram, create a bot with @BotFather and add it to the channel as an admin that can post. Run the
-   "Morrow Brief bot" workflow with action `setup` once to give it its name and command menu. For a public
-   channel `TELEGRAM_CHAT_ID` can be the `@handle`; for a private one, read the numeric id from the poller's run
-   log after adding the bot.
+2. The bot already exists: @Morrow_brief_bot, with its token stored as the secret `TELEGRAM_BOT_TOKEN` and its
+   name and command menu set. Add it to the channel as an admin that can post. For a public channel
+   `TELEGRAM_CHAT_ID` can be the `@handle`; for a private one, read the numeric id from the poller's run log
+   after adding the bot. (For a new bot: create it with @BotFather, then run the "Morrow Brief bot" workflow
+   with action `setup` once.)
 3. In Buffer, connect the Instagram, Threads and X accounts and create an API key. A separate Buffer account for
    Morrow Brief keeps it apart from any personal channels.
 4. List the channel ids:
@@ -213,10 +217,23 @@ For the bot, either:
 - create a Cloudflare Worker, paste in `bot/worker.js`, and add a Worker secret `WEBHOOK_SECRET` (any long random
   string). Add the same string to the repo as the secret `TELEGRAM_WEBHOOK_SECRET`. Then run "Morrow Brief bot"
   from the Actions tab with action `set-webhook` and the Worker's URL; or
-- set the repo variable `MORROW_BOT` to `on`.
+- set the repo variable `MORROW_BOT` to `on`. This is how the bot runs today.
 
 To stop posting, disable the "Morrow Brief" workflow in the Actions tab. To stop one platform, remove its id from
 `MORROW_BUFFER_CHANNELS`, or remove the Telegram secrets.
+
+## What has been run for real
+
+On 16 November 2026, on `main`, with the real bot token:
+
+| Run | Result |
+|---|---|
+| [status](https://github.com/juw12/morrow/actions/runs/43786940190) | Telegram accepted the token: `@Morrow_brief_bot`, no webhook, 0 messages waiting |
+| [setup](https://github.com/juw12/morrow/actions/runs/43787085632) | name, short description, description and command menu all set |
+| [Morrow Brief](https://github.com/juw12/morrow/actions/runs/43787090204) | tests passed; the publish job read the edition (32 stories from 14 outlets), froze the digest, pushed `feed.json`, `state.json` and the cards to the `social-data` branch, and recorded all 4 targets as `skipped` |
+| [poll](https://github.com/juw12/morrow/actions/runs/43787233467) | fetched the published feed, listened to Telegram for 4 minutes, 0 messages answered because nobody had written yet |
+
+The variable `MORROW_BOT` is `on`, so the poller now runs on its 5-minute schedule.
 
 ## What is not verified
 
@@ -224,7 +241,8 @@ Tested here means unit tests against fake HTTP servers, plus a rehearsal of the 
 local repository. The following have not been run against the real services:
 
 - a real Buffer `createPost`. The request shape follows Buffer's live schema, read by introspection;
-- a real Telegram send, and a real webhook call to the Worker;
+- a reply to a real person. The poller has reached Telegram, but no one had messaged the bot when it ran;
+- a real post to a Telegram channel (there is no channel yet), and a real webhook call to the Worker;
 - the Worker deployed on Cloudflare (its tests run under Node);
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
@@ -233,7 +251,6 @@ local repository. The following have not been run against the real services:
   workflow would not; a push with a personal token or deploy key does. If they do not, the 3-hour schedule still
   posts, but the digest can be up to 3 hours later than the first edition and alerts arrive in 3-hour steps.
   GitHub pauses schedules in a repository with no activity for 60 days;
-- the publish job itself, which cannot run until this is on `main`;
 - handle availability, and the Girsta figures above.
 
 ## Files
