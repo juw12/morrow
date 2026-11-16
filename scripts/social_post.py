@@ -1,5 +1,6 @@
 """Morrow Brief: decide what to post, freeze it, and deliver it.
 
+    python scripts/social_post.py hold
     python scripts/social_post.py build    --page index.html --out data --run <run id>
     python scripts/social_post.py deliver  --out data --run <run id> --image-base https://raw.githubusercontent.com/<repo>/<sha>/
     python scripts/social_post.py preview  --page index.html --out preview
@@ -10,6 +11,9 @@ its cards and freezes it in state.json. `deliver` sends every frozen post that i
 Telegram through the Bot API, Instagram, Threads and X through Buffer. With no credentials nothing is
 sent and the targets are recorded as skipped, so the workflow is safe to merge before any account exists.
 
+Nothing is posted before 08:00 Jakarta time. `hold` is what makes the digest land at 08:00: a run that
+starts between 07:00 and 08:00 waits there until the window opens, any other run does not wait.
+
 The workflow saves state.json between the two commands. `build --run` marks every target it is about to
 send as `sending` for that run, so a run that dies after sending but before saving the result can never
 cause a second send: the next run finds the stale mark and records the target as unconfirmed.
@@ -19,6 +23,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import math
 import os
 import re
 import shutil
@@ -32,8 +37,10 @@ import social_cards as cards
 import social_feed as feed
 
 WIB = dt.timezone(dt.timedelta(hours=7), "WIB")
-WINDOW_START_HOUR = 6
+WINDOW_START_HOUR = 8
 WINDOW_END_HOUR = 22
+HOLD_LEAD = dt.timedelta(hours=1)
+HOLD_MARGIN_SECONDS = 2
 MAX_ALERTS_PER_DAY = 4
 ALERT_GAP = dt.timedelta(minutes=90)
 MIN_DIGEST_STORIES = 3
@@ -127,6 +134,19 @@ def parse_now(value: str | None) -> dt.datetime:
         return dt.datetime.now(dt.timezone.utc)
     moment = dt.datetime.fromisoformat(value)
     return moment if moment.tzinfo else moment.replace(tzinfo=WIB)
+
+
+def hold_seconds(now: dt.datetime) -> int:
+    """Seconds to wait so that a run started in the hour before the window opens posts as it opens.
+
+    A run that starts earlier than that, or once the window is open, does not wait.
+    """
+    local = now.astimezone(WIB)
+    opens = local.replace(hour=WINDOW_START_HOUR, minute=0, second=0, microsecond=0)
+    wait = opens - local
+    if dt.timedelta(0) < wait <= HOLD_LEAD:
+        return math.ceil(wait.total_seconds()) + HOLD_MARGIN_SECONDS
+    return 0
 
 
 def plan(edition: dict, state: dict, now: dt.datetime) -> tuple[dict | None, str]:
@@ -499,6 +519,20 @@ def public_post(post: dict) -> dict:
     return {key: value for key, value in post.items() if key != "targets"}
 
 
+def command_hold(args, sleep=time.sleep) -> int:
+    now = parse_now(args.now)
+    seconds = hold_seconds(now)
+    local = now.astimezone(WIB)
+    if not seconds:
+        print(f"{local:%H:%M} WIB: no wait, the {WINDOW_START_HOUR:02d}:00 opening is not within the next hour")
+        return 0
+    print(f"{local:%H:%M} WIB: waiting {seconds // 60} min {seconds % 60} s for the {WINDOW_START_HOUR:02d}:00 opening",
+          flush=True)
+    sleep(seconds)
+    print("the window is open")
+    return 0
+
+
 def command_build(args) -> int:
     out_dir = Path(args.out)
     now = parse_now(args.now)
@@ -619,6 +653,9 @@ def command_preview(args) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     commands = parser.add_subparsers(dest="command", required=True)
+    hold = commands.add_parser("hold")
+    hold.add_argument("--now", help="ISO time, for tests")
+    hold.set_defaults(run=command_hold)
     build = commands.add_parser("build")
     build.add_argument("--page", default="index.html")
     build.add_argument("--out", default="data")

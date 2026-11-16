@@ -1,5 +1,6 @@
 """Scheduling, freezing, payloads and delivery, with a fake HTTP client. Nothing here touches the network."""
 import contextlib
+import argparse
 import datetime as dt
 import io
 import json
@@ -71,23 +72,63 @@ class PlanTest(unittest.TestCase):
         self.assertIn("stale page", reason)
 
     def test_nothing_outside_the_window(self):
-        for moment in (at(5, 59), at(22, 0), at(23, 30), at(0, 10)):
+        for moment in (at(5, 59), at(7, 59), at(22, 0), at(23, 30), at(0, 10)):
             post, reason = post_module.plan(self.edition, self.state, moment)
             self.assertIsNone(post, moment)
             self.assertIn("outside", reason)
-        self.assertIsNotNone(post_module.plan(self.edition, self.state, at(6, 0))[0])
+        self.assertIsNotNone(post_module.plan(self.edition, self.state, at(8, 0))[0])
         self.assertIsNotNone(post_module.plan(self.edition, self.state, at(21, 59))[0])
 
     def test_the_day_is_judged_in_jakarta_time(self):
-        utc_evening_before = dt.datetime(2026, 11, 13, 23, 30, tzinfo=dt.timezone.utc)
-        post, _ = post_module.plan(self.edition, self.state, utc_evening_before)
+        # 18:00 UTC on the 14th is already 01:00 on the 15th in Jakarta, so a page dated the 15th is today's
+        # page (only the hour keeps it back) and a page dated the 14th is yesterday's.
+        utc_evening = dt.datetime(2026, 11, 14, 18, 0, tzinfo=dt.timezone.utc)
+        _, reason = post_module.plan({**self.edition, "date": "2026-11-15"}, self.state, utc_evening)
+        self.assertIn("outside", reason)
+        _, reason = post_module.plan(self.edition, self.state, utc_evening)
+        self.assertIn("stale page", reason)
+        utc_morning = dt.datetime(2026, 11, 14, 1, 30, tzinfo=dt.timezone.utc)
+        post, _ = post_module.plan(self.edition, self.state, utc_morning)
         self.assertEqual(post["id"], "digest-2026-11-14")
 
+    def test_a_run_in_the_hour_before_the_window_waits_for_it(self):
+        def second(hour: int, minute: int, seconds: int) -> dt.datetime:
+            return at(hour, minute) + dt.timedelta(seconds=seconds)
+
+        margin = post_module.HOLD_MARGIN_SECONDS
+        self.assertEqual(post_module.hold_seconds(at(7, 0)), 3600 + margin)
+        self.assertEqual(post_module.hold_seconds(at(7, 30)), 1800 + margin)
+        self.assertEqual(post_module.hold_seconds(second(7, 59, 30)), 30 + margin)
+        for moment in (at(6, 59), at(8, 0), second(8, 0, 1), at(12, 0), at(23, 30), at(0, 10)):
+            self.assertEqual(post_module.hold_seconds(moment), 0, moment)
+        as_utc = dt.datetime(2026, 11, 14, 0, 45, tzinfo=dt.timezone.utc)
+        self.assertEqual(post_module.hold_seconds(as_utc), 900 + margin)
+
+    def test_the_wait_ends_inside_the_window(self):
+        for moment in (at(7, 0), at(7, 17), at(7, 59)):
+            after = moment + dt.timedelta(seconds=post_module.hold_seconds(moment))
+            self.assertIsNotNone(post_module.plan(self.edition, post_module.empty_state(), after)[0], moment)
+            self.assertLess(after - at(8, 0), dt.timedelta(seconds=5))
+
+    def test_hold_command_sleeps_only_when_it_should(self):
+        naps = []
+        args = argparse.Namespace(now="2026-11-14T07:40:00+07:00")
+        with contextlib.redirect_stdout(io.StringIO()) as said:
+            self.assertEqual(post_module.command_hold(args, sleep=naps.append), 0)
+        self.assertEqual(naps, [1200 + post_module.HOLD_MARGIN_SECONDS])
+        self.assertIn("waiting 20 min", said.getvalue())
+        naps.clear()
+        args = argparse.Namespace(now="2026-11-14T09:00:00+07:00")
+        with contextlib.redirect_stdout(io.StringIO()) as said:
+            self.assertEqual(post_module.command_hold(args, sleep=naps.append), 0)
+        self.assertEqual(naps, [])
+        self.assertIn("no wait", said.getvalue())
+
     def test_first_post_of_the_day_is_the_digest_and_there_is_only_one(self):
-        first = self.freeze_next(at(7))
+        first = self.freeze_next(at(8))
         self.assertEqual(first["kind"], "digest")
         self.assertEqual(len(first["story_ids"]), 5)
-        later = [self.freeze_next(at(7) + dt.timedelta(minutes=100 * step)) for step in range(1, 6)]
+        later = [self.freeze_next(at(8) + dt.timedelta(minutes=100 * step)) for step in range(1, 6)]
         self.assertTrue(all(item is None or item["kind"] == "alert" for item in later))
         digests = [item for item in self.state["posts"].values() if item["kind"] == "digest"]
         self.assertEqual(len(digests), 1)
@@ -99,15 +140,15 @@ class PlanTest(unittest.TestCase):
         self.assertIn("a digest needs 3", reason)
 
     def test_alerts_wait_ninety_minutes(self):
-        self.freeze_next(at(7))
-        post, reason = post_module.plan(self.edition, self.state, at(8, 29))
+        self.freeze_next(at(8))
+        post, reason = post_module.plan(self.edition, self.state, at(9, 29))
         self.assertIsNone(post)
         self.assertIn("alerts wait 90", reason)
-        post, _ = post_module.plan(self.edition, self.state, at(8, 30))
+        post, _ = post_module.plan(self.edition, self.state, at(9, 30))
         self.assertEqual(post["kind"], "alert")
 
     def test_at_most_four_alerts_a_day_and_never_a_repeat(self):
-        frozen = [self.freeze_next(at(7) + dt.timedelta(minutes=91 * step)) for step in range(0, 9)]
+        frozen = [self.freeze_next(at(8) + dt.timedelta(minutes=91 * step)) for step in range(0, 9)]
         alerts = [item for item in frozen if item and item["kind"] == "alert"]
         self.assertEqual(len(alerts), post_module.MAX_ALERTS_PER_DAY)
         posted = [story_id for item in frozen if item for story_id in item["story_ids"]]
@@ -119,25 +160,25 @@ class PlanTest(unittest.TestCase):
     def test_alert_needs_three_outlets(self):
         edition = edition_from([story(n, "ai", 2) for n in range(1, 4)] + [story(n, "space", 2) for n in range(4, 9)])
         state = post_module.empty_state()
-        digest, _ = post_module.plan(edition, state, at(7))
-        post_module.freeze(state, digest, at(7))
+        digest, _ = post_module.plan(edition, state, at(8))
+        post_module.freeze(state, digest, at(8))
         post, reason = post_module.plan(edition, state, at(10))
         self.assertIsNone(post)
         self.assertIn("3 or more outlets", reason)
 
     def test_freeze_refuses_a_story_already_posted_today(self):
-        digest = self.freeze_next(at(7))
+        digest = self.freeze_next(at(8))
         by_id = {item["id"]: item for item in self.edition["stories"]}
         repeat = feed.story_post(by_id[digest["story_ids"][0]], self.edition["date"])
         with self.assertRaises(ValueError):
             post_module.freeze(self.state, repeat, at(9))
 
     def test_freezing_twice_changes_nothing(self):
-        post, _ = post_module.plan(self.edition, self.state, at(7))
-        first = post_module.freeze(self.state, post, at(7))
-        again = post_module.freeze(self.state, post, at(7, 30))
+        post, _ = post_module.plan(self.edition, self.state, at(8))
+        first = post_module.freeze(self.state, post, at(8))
+        again = post_module.freeze(self.state, post, at(8, 30))
         self.assertIs(first, again)
-        self.assertEqual(first["created_at"], "2026-11-14T00:00:00+00:00")
+        self.assertEqual(first["created_at"], "2026-11-14T01:00:00+00:00")
         self.assertEqual(set(first["targets"]), set(post_module.TARGETS))
 
 
@@ -212,8 +253,8 @@ class DeliverTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.folder, True)
         edition = real_edition()
         self.state = post_module.empty_state()
-        post, _ = post_module.plan(edition, self.state, at(7))
-        self.frozen = post_module.freeze(self.state, post, at(7))
+        post, _ = post_module.plan(edition, self.state, at(8))
+        self.frozen = post_module.freeze(self.state, post, at(8))
         for card in post["cards"]:
             path = self.folder / card
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -222,7 +263,7 @@ class DeliverTest(unittest.TestCase):
 
     def run_deliver(self, env=None, now=None, **options) -> list[str]:
         options.setdefault("image_bases", [IMAGE_BASE])
-        return post_module.deliver(self.state, self.folder, ENV if env is None else env, now or at(7, 5),
+        return post_module.deliver(self.state, self.folder, ENV if env is None else env, now or at(8, 5),
                                    http=self.http, sleep=lambda seconds: None, **options)
 
     def statuses(self) -> dict:
@@ -254,7 +295,7 @@ class DeliverTest(unittest.TestCase):
         self.assertEqual(self.frozen["targets"]["telegram"]["ref"], "telegram:7")
         self.assertEqual(self.frozen["targets"]["x"]["ref"], "buffer:post-1")
         calls_before = len(self.http.calls)
-        self.assertEqual(self.run_deliver(now=at(7, 40)), [])
+        self.assertEqual(self.run_deliver(now=at(8, 40)), [])
         self.assertEqual(len(self.http.calls), calls_before, "a delivered post must never be sent again")
         self.assert_no_secret(*log)
 
@@ -271,7 +312,7 @@ class DeliverTest(unittest.TestCase):
         env = {**ENV, "BUFFER_API_KEY": ""}
         outcomes = []
         for minutes in (5, 35, 65, 95):
-            log = self.run_deliver(env=env, now=at(7, 0) + dt.timedelta(minutes=minutes))
+            log = self.run_deliver(env=env, now=at(8, 0) + dt.timedelta(minutes=minutes))
             outcomes.append(self.statuses()["telegram"])
             self.assert_no_secret(*log)
         self.assertEqual(outcomes, ["failed", "failed", "gave_up", "gave_up"])
@@ -285,7 +326,7 @@ class DeliverTest(unittest.TestCase):
         self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"})
         self.assertEqual(self.statuses()["x"], "failed")
         self.assertIn("rate limit", self.frozen["targets"]["x"]["detail"])
-        self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"}, now=at(7, 35))
+        self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"}, now=at(8, 35))
         self.assertEqual(self.statuses()["x"], "delivered")
         self.assertEqual(self.frozen["targets"]["x"]["attempts"], 2)
         self.assertNotIn("detail", self.frozen["targets"]["x"])
@@ -296,7 +337,7 @@ class DeliverTest(unittest.TestCase):
         self.run_deliver()
         self.assertEqual(set(self.statuses().values()), {"unconfirmed"})
         calls_before = len(self.http.calls)
-        self.assertEqual(self.run_deliver(now=at(7, 35)), [])
+        self.assertEqual(self.run_deliver(now=at(8, 35)), [])
         self.assertEqual(len(self.http.calls), calls_before, "an unconfirmed send must not be repeated")
 
     def test_a_server_error_on_send_is_unconfirmed(self):
@@ -327,7 +368,7 @@ class DeliverTest(unittest.TestCase):
         self.assertIn("Instagram needs an image", self.frozen["targets"]["instagram"]["detail"])
 
     def test_a_post_older_than_three_hours_expires_unsent(self):
-        log = self.run_deliver(now=at(10, 1))
+        log = self.run_deliver(now=at(11, 1))
         self.assertEqual(self.http.calls, [])
         self.assertEqual(set(self.statuses().values()), {"expired"})
         self.assertEqual(len(log), 4)
@@ -397,12 +438,12 @@ class DeliverTest(unittest.TestCase):
         # Run 1 claimed, sent, and died before it could save "delivered". Run 2 must not send again.
         post_module.claim(self.state, "run-1")
         self.assertEqual(post_module.claim(self.state, "run-2"), 0, "a second run must not take over a claim")
-        log = self.run_deliver(run_id="run-2", now=at(7, 35))
+        log = self.run_deliver(run_id="run-2", now=at(8, 35))
         self.assertEqual(self.http.calls, [])
         self.assertEqual(set(self.statuses().values()), {"unconfirmed"})
         self.assertEqual(len(log), 4)
         self.assertIn("never recorded the result", self.frozen["targets"]["x"]["detail"])
-        self.assertEqual(self.run_deliver(run_id="run-3", now=at(8, 5)), [])
+        self.assertEqual(self.run_deliver(run_id="run-3", now=at(9, 5)), [])
         self.assertEqual(self.http.calls, [])
 
     def test_a_claim_is_not_sent_by_a_deliver_without_a_run_id(self):
@@ -420,7 +461,7 @@ class DeliverTest(unittest.TestCase):
         self.http.create = [FakeResponse(200, {"data": {"createPost": {"post": {"id": "post-2"}}}})]
         self.assertEqual(post_module.claim(self.state, "run-2"), 1)
         self.assertEqual(self.frozen["targets"]["x"]["claim"], "run-2")
-        self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"}, run_id="run-2", now=at(7, 35))
+        self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"}, run_id="run-2", now=at(8, 35))
         self.assertEqual(self.statuses()["x"], "delivered")
         self.assertEqual(self.http.count("sendPhoto"), 1)
 

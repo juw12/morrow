@@ -1,8 +1,12 @@
 name: Morrow Brief
 
 # Posts the day's digest and a few alerts to the Morrow Brief pages when the edition changes.
-# The schedule is a fallback in case the generator's pushes do not start workflows; a run with
-# nothing new to post changes nothing.
+# The digest goes out at 08:00 Jakarta time: a run that starts between 07:00 and 08:00 waits in the
+# publish job until 08:00, then reads the newest page. With no edition in that hour, the digest goes
+# out with the first edition after 08:00.
+# The schedule is only a fallback (its 00:17 UTC run is 07:17 in Jakarta). GitHub starts scheduled
+# runs hours late or not at all in this repository, so the edition push is what the timing rests on.
+# A run with nothing new to post changes nothing.
 # With no secrets set it sends nothing and records every target as skipped. See docs/SOCIAL.md.
 
 on:
@@ -59,7 +63,8 @@ jobs:
     needs: test
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Up to 60 minutes of waiting for 08:00, plus the work itself.
+    timeout-minutes: 75
     permissions:
       contents: write
     concurrency:
@@ -76,6 +81,16 @@ jobs:
           cache-dependency-path: scripts/social_requirements.txt
       - name: Install
         run: pip install -r scripts/social_requirements.txt
+
+      - name: Wait for 08:00 Jakarta time if it is less than an hour away
+        run: python scripts/social_post.py hold
+
+      # The code stays the commit that was tested; only the page moves to the newest edition, which
+      # may have been published while this run was waiting.
+      - name: Read the newest page
+        run: |
+          git fetch --depth 1 origin main
+          git checkout FETCH_HEAD -- index.html
 
       - name: Open the data branch
         run: |
