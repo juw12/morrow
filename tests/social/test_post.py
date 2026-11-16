@@ -564,6 +564,51 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(set(payloads["digest-2026-11-14"]), {"telegram", "instagram", "threads", "x"})
         self.assertEqual(len(list((out / "cards" / "2026-11-14").glob("*.png"))), 7)
 
+    def run_sample(self, http, env: dict) -> tuple[int, str]:
+        args = argparse.Namespace(page=self.page, out=str(self.folder / "sample"))
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            code = post_module.command_sample(args, http=http, env=env)
+        return code, output.getvalue()
+
+    def test_sample_posts_the_digest_silently_and_keeps_no_state(self):
+        http = FakeHttp()
+        code, said = self.run_sample(http, {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_CHAT_ID": "-1001234567890"})
+        self.assertEqual(code, 0)
+        self.assertEqual(len(http.calls), 1)
+        url, kwargs = http.calls[0]
+        self.assertIn("sendPhoto", url)
+        self.assertEqual(kwargs["data"]["chat_id"], "-1001234567890")
+        self.assertEqual(kwargs["data"]["disable_notification"], "true")
+        self.assertEqual(kwargs["data"]["parse_mode"], "HTML")
+        edition = real_edition()
+        digest = feed.digest_post(feed.pick_digest(edition["stories"]), edition["markets"], edition["date"])
+        self.assertEqual(kwargs["data"]["caption"], digest["telegram"])
+        self.assertEqual(kwargs["files"]["photo"][0], "digest.png")
+        self.assertIn("sample of digest-2026-11-14 posted", said)
+        self.assertFalse((self.folder / "sample" / "state.json").exists())
+        self.assertFalse((self.folder / "sample" / "feed.json").exists())
+        for secret in (TOKEN, TOKEN.split(":")[1], "-1001234567890"):
+            self.assertNotIn(secret, said)
+
+    def test_sample_without_the_channel_sends_nothing(self):
+        http = FakeHttp()
+        code, said = self.run_sample(http, {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 1)
+        self.assertEqual(http.calls, [])
+        self.assertIn("not sent", said)
+
+    def test_sample_that_telegram_refuses_fails_without_leaking(self):
+        http = FakeHttp()
+        chat_id = "-1001234567890"
+        refusal = f"Bad Request: chat {chat_id} not found bot{TOKEN}"
+        http.telegram = [FakeResponse(400, {"ok": False, "description": refusal})]
+        code, said = self.run_sample(http, {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_CHAT_ID": chat_id})
+        self.assertEqual(code, 1)
+        self.assertIn("not confirmed", said)
+        for secret in (TOKEN, TOKEN.split(":")[1], chat_id):
+            self.assertNotIn(secret, said)
+
 
 if __name__ == "__main__":
     unittest.main()

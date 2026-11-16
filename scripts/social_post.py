@@ -4,6 +4,7 @@
     python scripts/social_post.py build    --page index.html --out data --run <run id>
     python scripts/social_post.py deliver  --out data --run <run id> --image-base https://raw.githubusercontent.com/<repo>/<sha>/
     python scripts/social_post.py preview  --page index.html --out preview
+    python scripts/social_post.py sample   --page index.html --out sample
     python scripts/social_post.py channels
 
 `build` reads the published page, picks at most one new post (the day's digest, or one alert), renders
@@ -13,6 +14,9 @@ sent and the targets are recorded as skipped, so the workflow is safe to merge b
 
 Nothing is posted before 08:00 Jakarta time. `hold` is what makes the digest land at 08:00: a run that
 starts between 07:00 and 08:00 waits there until the window opens, any other run does not wait.
+
+`sample` posts the digest the page gives to the Telegram channel at once, without a notification and
+without touching state.json. It is started by hand, to see the real post in the real channel.
 
 The workflow saves state.json between the two commands. `build --run` marks every target it is about to
 send as `sending` for that run, so a run that dies after sending but before saving the result can never
@@ -650,6 +654,41 @@ def command_preview(args) -> int:
     return 0
 
 
+def command_sample(args, http=requests, env: dict | None = None) -> int:
+    """Post the digest this page gives to the Telegram channel now, without a notification.
+
+    For the day a channel is connected, and to see a format change in the real app. It reads no state
+    and writes none, so the day's own digest and alerts are not affected. Started by hand only.
+    """
+    env = dict(os.environ) if env is None else env
+    token = (env.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    chat_id = (env.get("TELEGRAM_CHAT_ID") or "").strip()
+    if not token or not chat_id:
+        report(["sample not sent: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set"])
+        return 1
+    out_dir = Path(args.out)
+    edition = feed.parse_edition(Path(args.page).read_text(encoding="utf-8"))
+    stories = feed.pick_digest(edition["stories"])
+    if len(stories) < MIN_DIGEST_STORIES:
+        report([f"sample not sent: only {len(stories)} stories on the page, a digest needs {MIN_DIGEST_STORIES}"])
+        return 1
+    post = feed.digest_post(stories, edition["markets"], edition["date"])
+    problems = feed.post_problems(post)
+    if problems:
+        report([f"sample not sent, {post['id']} failed its checks: " + "; ".join(problems)])
+        return 1
+    cards.render_post_cards(post, edition, out_dir)
+    fields = {**telegram_fields(post, chat_id), "disable_notification": "true"}
+    try:
+        reference = send_telegram(http, token, fields, out_dir / post["cards"][0])
+    except (Retryable, Unconfirmed) as error:
+        report([f"sample of {post['id']} not confirmed: {scrub(str(error), [token, chat_id])}"])
+        return 1
+    report([f"edition {edition['date']} updated {edition['updated'] or '?'}",
+            f"sample of {post['id']} posted to the Telegram channel without a notification ({reference})"])
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     commands = parser.add_subparsers(dest="command", required=True)
@@ -676,6 +715,10 @@ def main(argv: list[str] | None = None) -> int:
     preview.add_argument("--page", default="index.html")
     preview.add_argument("--out", default="preview")
     preview.set_defaults(run=command_preview)
+    sample = commands.add_parser("sample")
+    sample.add_argument("--page", default="index.html")
+    sample.add_argument("--out", default="sample")
+    sample.set_defaults(run=command_sample)
     args = parser.parse_args(argv)
     return args.run(args)
 
