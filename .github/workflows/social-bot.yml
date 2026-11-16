@@ -17,6 +17,7 @@ on:
           - poll
           - status
           - setup
+          - photo
           - set-webhook
           - delete-webhook
       url:
@@ -66,7 +67,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: scripts
+          sparse-checkout: |
+            scripts
+            assets/fonts
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -86,11 +89,16 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python scripts/social_bot.py status
-      - name: Set the name, descriptions and command menu
+      - name: Set the name, descriptions, command menu and channel rights
         if: inputs.action == 'setup'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python scripts/social_bot.py setup
+      - name: Set the profile picture
+        if: inputs.action == 'photo'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/social_bot.py photo
       - name: Remove the webhook
         if: inputs.action == 'delete-webhook'
         env:

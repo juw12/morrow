@@ -421,6 +421,34 @@ def render_cover_card(stories: list[dict], markets: list[dict], date_iso: str, o
                           title_size=title_size, clipped=clipped, overlaps=overlaps)
 
 
+AVATAR_SIZE = 640
+AVATAR_SAFE_RADIUS = 250  # Telegram shows the picture in a circle; everything drawn stays inside this
+
+
+def render_avatar(path: Path | None = None) -> Image.Image:
+    """The profile picture: the wordmark's initial in paper on the accent colour, over a short rule.
+
+    Square, with the mark kept well inside the circle the apps crop to."""
+    image = Image.new("RGB", (AVATAR_SIZE, AVATAR_SIZE), rgb("accent"))
+    draw = ImageDraw.Draw(image)
+    centre = AVATAR_SIZE / 2
+    face = font("serif_bold", 380)
+    left, top, right, bottom = draw.textbbox((0, 0), "M", font=face)
+    rule_gap, rule_height = 30, 14
+    mark_height = (bottom - top) + rule_gap + rule_height
+    mark_top = centre - mark_height / 2
+    draw.text((centre - (right - left) / 2 - left, mark_top - top), "M", font=face, fill=rgb("paper"))
+    rule_top = mark_top + (bottom - top) + rule_gap
+    draw.rectangle(
+        [centre - (right - left) / 2, rule_top, centre + (right - left) / 2, rule_top + rule_height - 1],
+        fill=rgb("paper"),
+    )
+    if path is not None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        image.save(path)
+    return image
+
+
 def render_post_cards(post: dict, edition: dict, out_dir: Path) -> list[Path]:
     """Render the cards a post needs. A card that already exists is left alone, so it never changes."""
     by_id = {story["id"]: story for story in edition["stories"]}

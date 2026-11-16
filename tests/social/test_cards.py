@@ -188,6 +188,37 @@ class CoverCardTest(unittest.TestCase):
         assert_inside_the_page(self, metrics)
 
 
+class AvatarTest(unittest.TestCase):
+    def test_the_profile_picture_is_square_and_its_mark_survives_a_round_crop(self):
+        image = cards.render_avatar()
+        self.assertEqual(image.size, (cards.AVATAR_SIZE, cards.AVATAR_SIZE))
+        self.assertGreaterEqual(cards.AVATAR_SIZE, 512)
+        accent = cards.rgb("accent")
+        edge = cards.AVATAR_SIZE - 1
+        for corner in ((0, 0), (edge, 0), (0, edge), (edge, edge)):
+            self.assertEqual(image.getpixel(corner), accent)
+        centre = cards.AVATAR_SIZE / 2
+        marked = 0
+        pixels = image.load()
+        for y in range(cards.AVATAR_SIZE):
+            for x in range(cards.AVATAR_SIZE):
+                if pixels[x, y] != accent:
+                    marked += 1
+                    distance = ((x - centre) ** 2 + (y - centre) ** 2) ** 0.5
+                    self.assertLessEqual(distance, cards.AVATAR_SAFE_RADIUS, (x, y))
+        self.assertGreater(marked, 20000)
+        # Paper on the accent has to read at a glance, like text on the cards does.
+        self.assertGreaterEqual(cards.contrast_ratio("paper", "accent"), 4.5)
+
+    def test_it_can_be_saved_and_is_the_same_every_time(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "profile" / "avatar.png"
+            first = cards.render_avatar(path)
+            with Image.open(path) as saved:
+                self.assertEqual(saved.size, first.size)
+            self.assertEqual(first.tobytes(), cards.render_avatar().tobytes())
+
+
 class PostCardsTest(unittest.TestCase):
     def test_a_digest_gets_a_cover_and_one_card_per_story_and_they_never_change(self):
         edition = real_edition()

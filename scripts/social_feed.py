@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 BRAND = "Morrow Brief"
 SITE_URL = "https://juw12.github.io/morrow/"
 SITE_SHORT = "juw12.github.io/morrow"
+REPO_URL = "https://github.com/juw12/morrow"
 # Cards, state and the bot's feed live on their own branch, so the generator's pushes to main never collide.
 DATA_BRANCH = "social-data"
 DATA_URL = f"https://raw.githubusercontent.com/juw12/morrow/{DATA_BRANCH}/"
@@ -685,32 +686,70 @@ def bot_replies(edition: dict) -> dict[str, str]:
     section_names: dict[str, str] = {}
     for story in stories:
         section_names.setdefault(story["section_id"], story["section"])
-    commands = [f"{command} {section_names[section]}" for section, command in SECTION_COMMANDS.items()
-                if section in section_names]
-    help_text = "\n".join([
+    section_lines = [f"{command} {esc(section_names[section])}" for section, command in SECTION_COMMANDS.items()
+                     if section in section_names]
+    names = sorted({name for story in stories for name in outlet_names(story)}, key=str.lower)
+    dated = f" ({date_label})" if edition["date"] else ""
+    # /start is the welcome: three things to try and what is in today's edition. /help is the full list.
+    start_text = "\n".join([
         f"<b>{BRAND}</b>",
         TAGLINE,
         "",
+        "Start with one of these:",
         "/today the five stories that matter",
-        *commands,
-        "/tape index moves",
-        "/sources outlets in today's edition",
-        "/find <i>word</i> search today's stories",
-        "/about how this works",
+        "/find <i>word</i> search today's stories, for example /find nvidia",
+        "/help every command",
+        "",
+        f"{len(stories)} stories from {len(names)} outlets in today's edition{esc(dated)}. "
+        "Every headline links to the outlet that reported it.",
+        "",
+        f"Full edition: {link(SITE_URL, SITE_SHORT)}",
     ])
+    help_blocks = [
+        ["<b>The brief</b>", "/today the five stories that matter"],
+        ["<b>Sections</b>", *section_lines] if section_lines else [],
+        ["<b>Numbers and sources</b>", "/tape index moves", "/sources outlets in today's edition"],
+        ["<b>Search</b>", "/find <i>word</i> search today's stories, for example /find nvidia"],
+        ["<b>About</b>", "/about how stories are chosen", "/privacy what this bot stores"],
+        [f"Full edition: {link(SITE_URL, SITE_SHORT)}"],
+    ]
+    help_text = "\n\n".join(
+        ["<b>" + esc(f"{BRAND} · commands") + "</b>"] + ["\n".join(block) for block in help_blocks if block]
+    )
     replies = {
-        "/start": help_text,
+        "/start": start_text,
         "/help": help_text,
         "/today": _list_reply(
             f"{BRAND} · {date_label}", pick_digest(stories),
             esc("Markets: " + markets_line(edition["markets"])) if edition["markets"] else "",
         ),
-        "/about": (
-            f"<b>{BRAND}</b> is built from Morrow, a daily paper that reads hundreds of headlines and merges "
-            "coverage of the same story across outlets. Selection is automated: the most widely reported stories "
-            "come first. Nothing is rewritten; headlines belong to their outlets and every story links to them. "
-            f"Not financial advice.\n\n{link(SITE_URL, 'Full edition')}"
-        ),
+        "/about": "\n".join([
+            f"<b>How {BRAND} works</b>",
+            "",
+            f"{BRAND} is built from Morrow, a daily paper that reads hundreds of headlines and merges "
+            "coverage of the same story across outlets.",
+            "",
+            "• Selection is automated: the most widely reported stories come first.",
+            "• Nothing is rewritten. Headlines belong to their outlets and every story links to them.",
+            "• A number after an outlet, like +3, counts the other outlets that carried the same story.",
+            "• Replies follow the latest edition, so /today changes when the paper does.",
+            "",
+            "Not financial advice.",
+            "",
+            f"{link(SITE_URL, 'Full edition')} · {link(REPO_URL, 'Source code')}",
+        ]),
+        "/privacy": "\n".join([
+            "<b>Privacy</b>",
+            "",
+            "This bot has no database. It keeps no list of users and stores no messages: it reads the command "
+            "you send, answers from today's public edition and keeps nothing afterwards.",
+            "",
+            "No sign-up and no ads. Story links go straight to the outlet; the bot adds nothing to them.",
+            "",
+            "Telegram carries the message, so Telegram's own privacy policy covers the app itself.",
+            "",
+            f"The code is public: {link(REPO_URL, 'github.com/juw12/morrow')}",
+        ]),
     }
     for section, command in SECTION_COMMANDS.items():
         section_stories = [story for story in ranked(stories) if story["section_id"] == section][:6]
@@ -723,7 +762,6 @@ def bot_replies(edition: dict) -> dict[str, str]:
             tape.append(esc(f"{quote['name']}  {quote['price']}  {arrow}{quote['pct']:.2f}%"))
         tape += ["", "Not financial advice."]
         replies["/tape"] = "\n".join(tape)
-    names = sorted({name for story in stories for name in outlet_names(story)}, key=str.lower)
     replies["/sources"] = (
         f"<b>{len(stories)} stories from {len(names)} outlets · {date_label}</b>\n\n" + esc(", ".join(names))
     )

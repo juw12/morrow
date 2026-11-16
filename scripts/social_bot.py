@@ -4,7 +4,8 @@
     python scripts/social_bot.py set-webhook --url https://<worker>.workers.dev
     python scripts/social_bot.py delete-webhook
     python scripts/social_bot.py status      (which bot the token belongs to, webhook, waiting messages)
-    python scripts/social_bot.py setup       (name, description and the command menu)
+    python scripts/social_bot.py setup       (name, descriptions, command menu, the rights it asks for in a channel)
+    python scripts/social_bot.py photo       (the profile picture, drawn in the card style)
 
 The bot keeps no state and no list of users. Every fixed reply is pre-rendered in feed.json by
 `social_post.py build`; only /find is computed here. `bot/worker.js` gives the same answers from a
@@ -30,7 +31,7 @@ MAX_CLOSING_ROUNDS = 5
 # The poller also hears when the bot is added to a chat: that is how a new channel's id is found.
 POLL_UPDATES = ["message", "my_chat_member"]
 MENU = [
-    ("today", "The five stories that matter"),
+    ("today", "The five stories that matter today"),
     ("ai", "AI and chips"),
     ("bigtech", "Big US tech"),
     ("robotics", "Robotics"),
@@ -40,9 +41,45 @@ MENU = [
     ("tape", "Index moves"),
     ("sources", "Outlets in today's edition"),
     ("find", "Search today's stories, e.g. /find nvidia"),
-    ("about", "How this works"),
-    ("help", "What the bot can do"),
+    ("about", "How stories are chosen"),
+    ("privacy", "What this bot stores (nothing)"),
+    ("help", "Every command"),
 ]
+# Shown on the bot's profile page and when its link is shared (120 characters at most).
+SHORT_DESCRIPTION = f"{feed.TAGLINE} {feed.SITE_SHORT}"
+# Shown in the empty chat, before someone presses Start (512 characters at most).
+DESCRIPTION = "\n".join([
+    f"{feed.BRAND} reads hundreds of tech and markets headlines and merges coverage of the same story "
+    "across outlets.",
+    "",
+    "Here you get:",
+    "- /today: the five stories that matter",
+    "- Sections: AI and chips, big tech, robotics, space, technology, markets",
+    "- /tape: index moves",
+    "- /find: search today's stories",
+    "",
+    "Every headline links to the outlet that reported it. Nothing is rewritten. No sign-up, no ads, "
+    "no list of users.",
+    "",
+    "Automated selection. Not financial advice.",
+    feed.SITE_SHORT,
+])
+# What Telegram pre-selects when the bot is made an admin of a channel: posting, and nothing else.
+CHANNEL_RIGHTS = {
+    "is_anonymous": False,
+    "can_manage_chat": True,
+    "can_post_messages": True,
+    "can_edit_messages": False,
+    "can_delete_messages": False,
+    "can_manage_video_chats": False,
+    "can_restrict_members": False,
+    "can_promote_members": False,
+    "can_change_info": False,
+    "can_invite_users": False,
+    "can_post_stories": False,
+    "can_edit_stories": False,
+    "can_delete_stories": False,
+}
 NOT_READY = f'Today\'s edition is not ready yet. Read the latest at <a href="{feed.SITE_URL}">{feed.SITE_SHORT}</a>.'
 
 
@@ -236,16 +273,19 @@ def command_status(_args) -> int:
 
 
 def command_setup(_args) -> int:
-    """Give the bot its name, its two descriptions and the command menu people see when they type /."""
+    """Give the bot its name, its two descriptions, the command menu people see when they type /,
+    and the rights it asks for when someone makes it an admin of their channel."""
     token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
     if not token:
         print("Set TELEGRAM_BOT_TOKEN first.")
         return 1
     steps = [
         ("setMyName", {"name": feed.BRAND}),
-        ("setMyShortDescription", {"short_description": feed.TAGLINE}),
-        ("setMyDescription", {"description": f"{feed.TAGLINE}\n\n{feed.DISCLOSURE} Not financial advice."}),
+        ("setMyShortDescription", {"short_description": SHORT_DESCRIPTION}),
+        ("setMyDescription", {"description": DESCRIPTION}),
         ("setMyCommands", {"commands": [{"command": name, "description": text} for name, text in MENU]}),
+        ("setChatMenuButton", {"menu_button": {"type": "commands"}}),
+        ("setMyDefaultAdministratorRights", {"rights": CHANNEL_RIGHTS, "for_channels": True}),
     ]
     failed = 0
     for method, payload in steps:
@@ -254,6 +294,33 @@ def command_setup(_args) -> int:
         failed += not done
         print(f"{method}: " + ("done" if done else scrub(str(body.get("description") or status), token)))
     return 1 if failed else 0
+
+
+def command_photo(_args) -> int:
+    """Give the bot its profile picture: the Morrow initial, drawn with the cards' fonts and colours."""
+    token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    if not token:
+        print("Set TELEGRAM_BOT_TOKEN first.")
+        return 1
+    import io
+
+    import social_cards as cards  # needs Pillow and the bundled fonts, so it is only loaded here
+
+    picture = io.BytesIO()
+    cards.render_avatar().save(picture, "JPEG", quality=92)
+    response = requests.post(
+        f"{TELEGRAM_API}/bot{token}/setMyProfilePhoto",
+        data={"photo": json.dumps({"type": "static", "photo": "attach://picture"})},
+        files={"picture": ("morrow-brief.jpg", picture.getvalue(), "image/jpeg")},
+        timeout=60,
+    )
+    try:
+        body = response.json()
+    except ValueError:
+        body = {}
+    done = response.status_code == 200 and body.get("ok")
+    print("setMyProfilePhoto: " + ("done" if done else scrub(str(body.get("description") or response.status_code), token)))
+    return 0 if done else 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -270,6 +337,7 @@ def main(argv: list[str] | None = None) -> int:
     unhook.set_defaults(run=command_delete_webhook)
     commands.add_parser("status").set_defaults(run=command_status)
     commands.add_parser("setup").set_defaults(run=command_setup)
+    commands.add_parser("photo").set_defaults(run=command_photo)
     args = parser.parse_args(argv)
     return args.run(args)
 

@@ -63,8 +63,36 @@ class ReplyTest(unittest.TestCase):
         sections = {item["section_id"] for item in self.feed["stories"]}
         for section in sections:
             self.assertIn(feed.SECTION_COMMANDS[section], self.feed["bot"])
-        for command in ("/start", "/help", "/today", "/tape", "/sources", "/about"):
+        for command in ("/start", "/help", "/today", "/tape", "/sources", "/about", "/privacy"):
             self.assertIn(command, self.feed["bot"])
+
+    def test_start_is_a_welcome_and_help_is_the_full_list(self):
+        start, menu = self.feed["bot"]["/start"], self.feed["bot"]["/help"]
+        self.assertNotEqual(start, menu)
+        self.assertLess(feed.visible_length(start), feed.visible_length(menu))
+        for reply in (start, menu):
+            self.assertIn("/today", reply)
+            self.assertIn("/find", reply)
+        self.assertIn("/help", start)
+        self.assertIn(feed.SITE_URL, start)
+        self.assertEqual(bot.reply_for(self.feed, "/start welcome"), start)
+        # /help names every other command the menu offers.
+        for name, _description in bot.MENU:
+            if name != "help":
+                with self.subTest(command=name):
+                    self.assertIn("/" + name, menu)
+
+    def test_privacy_says_what_is_kept_and_links_the_code(self):
+        reply = bot.reply_for(self.feed, "/privacy")
+        self.assertIn("no database", reply.lower())
+        self.assertIn(feed.REPO_URL, reply)
+        self.assertNotEqual(reply, self.feed["bot"]["/help"])
+
+    def test_about_carries_the_disclosure_and_both_links(self):
+        reply = bot.reply_for(self.feed, "/about")
+        self.assertIn("Not financial advice", reply)
+        self.assertIn(feed.SITE_URL, reply)
+        self.assertIn(feed.REPO_URL, reply)
 
     def test_today_lists_the_five_digest_stories_with_links(self):
         reply = bot.reply_for(self.feed, "/today")
@@ -318,7 +346,54 @@ class CommandTest(unittest.TestCase):
                 self.assertFalse(feed.EMOJI_PATTERN.search(entry["description"]))
                 if entry["command"] != "find":
                     self.assertIn("/" + entry["command"], replies)
+        names = [entry["command"] for entry in commands]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(calls_to(http, "setChatMenuButton")[0]["menu_button"], {"type": "commands"})
+        rights = calls_to(http, "setMyDefaultAdministratorRights")[0]
+        self.assertIs(rights["for_channels"], True)
+        allowed = sorted(name for name, value in rights["rights"].items() if value)
+        self.assertEqual(allowed, ["can_manage_chat", "can_post_messages"])
         self.assertNotIn(TOKEN, text)
+
+    def test_the_profile_texts_fit_and_say_what_the_bot_is(self):
+        self.assertLessEqual(len(bot.SHORT_DESCRIPTION), 120)
+        self.assertLessEqual(len(bot.DESCRIPTION), 512)
+        self.assertIn(feed.SITE_SHORT, bot.SHORT_DESCRIPTION)
+        for text in (bot.SHORT_DESCRIPTION, bot.DESCRIPTION):
+            self.assertFalse(feed.EMOJI_PATTERN.search(text))
+        self.assertIn("Not financial advice", bot.DESCRIPTION)
+        self.assertIn("/today", bot.DESCRIPTION)
+
+    def test_photo_uploads_a_square_jpeg_and_keeps_the_token_out_of_the_log(self):
+        http = FakeHttp()
+        http.telegram = [FakeResponse(200, {"ok": True, "result": True})]
+        with mock.patch.object(bot, "requests", http):
+            code, text = self.run_main(["photo"], {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 0)
+        self.assertIn("setMyProfilePhoto: done", text)
+        self.assertNotIn(TOKEN, text)
+        (url, kwargs), = http.calls
+        self.assertTrue(url.endswith("/setMyProfilePhoto"))
+        described = json.loads(kwargs["data"]["photo"])
+        self.assertEqual(described["type"], "static")
+        attached = described["photo"].removeprefix("attach://")
+        _name, picture, mime = kwargs["files"][attached]
+        self.assertEqual(mime, "image/jpeg")
+        self.assertEqual(picture[:3], b"\xff\xd8\xff")
+        from PIL import Image
+        image = Image.open(io.BytesIO(picture))
+        self.assertEqual(image.size[0], image.size[1])
+        self.assertGreaterEqual(image.size[0], 512)
+
+    def test_photo_reports_a_refusal_and_needs_a_token(self):
+        http = FakeHttp()
+        http.telegram = [FakeResponse(400, {"ok": False, "description": f"Bad Request: PHOTO_INVALID for bot{TOKEN}"})]
+        with mock.patch.object(bot, "requests", http):
+            code, text = self.run_main(["photo"], {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 1)
+        self.assertIn("setMyProfilePhoto: Bad Request", text)
+        self.assertNotIn(TOKEN, text)
+        self.assertEqual(self.run_main(["photo"], {})[0], 1)
 
     def test_setup_reports_a_step_telegram_refuses(self):
         http = FakeHttp()

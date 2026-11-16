@@ -35,6 +35,8 @@ MESSAGES = [
     ("/tape", True),
     ("/sources", True),
     ("/about", True),
+    ("/privacy", True),
+    ("/start welcome", True),
     ("/find nvidia", True),
     ("/find@MorrowBriefBot  SpaceX starship ", False),
     ("/find", True),
