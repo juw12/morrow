@@ -156,7 +156,8 @@ list, no chat ids, no message history.
 
 | Command | Reply |
 |---|---|
-| `/start`, `/help` | what the bot does and the list of commands |
+| `/start` | a short welcome: what the brief is, three commands to begin with, and the day's story and outlet counts |
+| `/help` | every command, grouped: the brief, sections, numbers and sources, search, about |
 | `/today` | the day's digest |
 | `/ai`, `/bigtech`, `/robotics`, `/space`, `/tech` | that section's stories |
 | `/markets` | the markets stories |
@@ -164,16 +165,21 @@ list, no chat ids, no message history.
 | `/sources` | the story and outlet counts, and every outlet's name |
 | `/find <word>` | up to 6 stories whose headline, summary, topic tag or outlet contains every word given |
 | `/about` | what Morrow Brief is and how stories are chosen |
+| `/privacy` | what the bot stores (nothing) and where the code is |
+
+Anything else gets the `/help` reply.
 
 There are two ways to run it. Use one.
 
-- **Cloudflare Worker (recommended).** `bot/worker.js` answers each message as it arrives. It holds no bot token:
-  it replies in the webhook response itself. Its only secret is `WEBHOOK_SECRET`, which Telegram sends back with
-  every call so the Worker can refuse anyone else.
+- **Cloudflare Worker (in use).** `bot/worker.js` answers each message as it arrives. It runs at
+  `https://morrow-brief-bot.juwenmondial.workers.dev`. It holds no bot token: it replies in the webhook response
+  itself. Its only secret is `WEBHOOK_SECRET`, which Telegram sends back with every call so the Worker can
+  refuse anyone else. The Worker reads every reply from `feed.json` and keeps it for 2 minutes, so the wording
+  of a reply changes with the next publish run and the Worker is not deployed again.
 - **GitHub cron (fallback).** The "Morrow Brief bot" workflow polls every 5 minutes and listens for 4 minutes each
-  time. GitHub often starts scheduled runs late, so replies can take several minutes. The schedule does nothing
-  until the variable `MORROW_BOT` is `on`; until then the Actions tab shows a skipped run every 5 minutes, and
-  the workflow can be disabled there if the Worker is used.
+  time. The schedule does nothing unless the variable `MORROW_BOT` is `on`; it is `off` now. GitHub starts
+  scheduled runs late or not at all: on 16 November 2026, with the variable on, the 5-minute schedule did not
+  start one run in more than 80 minutes, and the bot answered nobody until a run was started by hand.
 
 If a webhook is set, polling is refused by Telegram; the poller logs that and stops.
 
@@ -182,7 +188,8 @@ The "Morrow Brief bot" workflow can also be run by hand from the Actions tab wit
 | Action | What it does |
 |---|---|
 | `status` | prints the bot's `@username` and link, whether a webhook is set, and how many messages are waiting |
-| `setup` | sets the bot's name, its two descriptions and the command menu people see when they type `/` |
+| `setup` | sets the bot's name, its two descriptions, the command menu people see when they type `/`, the menu button, and the rights offered when the bot is added to a channel as an admin (post messages, nothing else) |
+| `photo` | draws the profile picture (the red square with the white M) and sets it |
 | `poll` | answers whatever is waiting, once |
 | `set-webhook`, `delete-webhook` | hands the bot to the Worker, or back to the poller |
 
@@ -199,10 +206,11 @@ Until these steps are done the workflow runs, records every target as `skipped` 
    handle `morrowbrief`, with `readmorrow` or `morrowdaily` as fallbacks. None of these has been checked for
    availability.
 2. The bot already exists: @Morrow_brief_bot, with its token stored as the secret `TELEGRAM_BOT_TOKEN` and its
-   name and command menu set. Add it to the channel as an admin that can post. For a public channel
-   `TELEGRAM_CHAT_ID` can be the `@handle`; for a private one, read the numeric id from the poller's run log
-   after adding the bot. (For a new bot: create it with @BotFather, then run the "Morrow Brief bot" workflow
-   with action `setup` once.)
+   name, descriptions, command menu and picture set. Add it to the channel as an admin; Telegram should offer
+   "post messages" already ticked, which is all it needs. For a public channel `TELEGRAM_CHAT_ID` can be the
+   `@handle`. For a private one the numeric id is needed, and the Worker does not log it: run `delete-webhook`,
+   add the bot, run `poll` and read the id from its log, then run `set-webhook` again. (For a new bot: create
+   it with @BotFather, then run the "Morrow Brief bot" workflow with action `setup`, then `photo`.)
 3. In Buffer, connect the Instagram, Threads and X accounts and create an API key. A separate Buffer account for
    Morrow Brief keeps it apart from any personal channels.
 4. List the channel ids:
@@ -225,7 +233,9 @@ For the bot, either:
 - create a Cloudflare Worker, paste in `bot/worker.js`, and add a Worker secret `WEBHOOK_SECRET` (any long random
   string). Add the same string to the repo as the secret `TELEGRAM_WEBHOOK_SECRET`. Then run "Morrow Brief bot"
   from the Actions tab with action `set-webhook` and the Worker's URL; or
-- set the repo variable `MORROW_BOT` to `on`. This is how the bot runs today.
+- set the repo variable `MORROW_BOT` to `on` and run `delete-webhook`.
+
+The first is how the bot runs today.
 
 To stop posting, disable the "Morrow Brief" workflow in the Actions tab. To stop one platform, remove its id from
 `MORROW_BUFFER_CHANNELS`, or remove the Telegram secrets.
@@ -241,7 +251,21 @@ On 16 November 2026, on `main`, with the real bot token:
 | [Morrow Brief](https://github.com/juw12/morrow/actions/runs/43787090204) | tests passed; the publish job read the 16 Nov edition (32 stories from 14 outlets; the samples below are the 14 Nov edition, which had 15), froze the digest, pushed `feed.json`, `state.json` and the cards to the `social-data` branch, and recorded all 4 targets as `skipped` |
 | [poll](https://github.com/juw12/morrow/actions/runs/43787233467) | fetched the published feed, listened to Telegram for 4 minutes, 0 messages answered because nobody had written yet |
 
-The variable `MORROW_BOT` is `on`, so the poller now runs on its 5-minute schedule.
+Later the same day the bot moved to the Worker:
+
+| Run | Result |
+|---|---|
+| [poll](https://github.com/juw12/morrow/actions/runs/43796706036) | started by hand after the schedule had not fired; answered the 4 messages that were waiting |
+| [set-webhook](https://github.com/juw12/morrow/actions/runs/43797805792) | Telegram accepted the Worker's URL: "webhook set" |
+| [setup](https://github.com/juw12/morrow/actions/runs/43799461017) | all six steps accepted: name, short description, description, command menu, menu button, channel admin rights |
+| [photo](https://github.com/juw12/morrow/actions/runs/43799663066) | `setMyProfilePhoto` accepted |
+| [status](https://github.com/juw12/morrow/actions/runs/43799779878) | `@Morrow_brief_bot (Morrow Brief)`, webhook is the Worker's URL, 0 messages waiting |
+
+The Worker itself was called directly: a `GET` returns 200, a `POST` without the secret returns 403, and a
+`POST` with the secret and a made-up `/start`, `/help`, `/about` or `/privacy` message returns the same text
+that `feed.json` holds for that command.
+
+The variable `MORROW_BOT` is `off`.
 
 ## What is not verified
 
@@ -249,9 +273,10 @@ Tested here means unit tests against fake HTTP servers, plus a rehearsal of the 
 local repository. The following have not been run against the real services:
 
 - a real Buffer `createPost`. The request shape follows Buffer's live schema, read by introspection;
-- a reply to a real person. The poller has reached Telegram, but no one had messaged the bot when it ran;
-- a real post to a Telegram channel (there is no channel yet), and a real webhook call to the Worker;
-- the Worker deployed on Cloudflare (its tests run under Node);
+- a real person's message answered through the webhook. The poller answered 4 real messages, and the Worker
+  answers a made-up message sent with the secret, but no message from Telegram to the Worker has been seen;
+- how the profile looks in the app. Telegram accepted every profile call; nobody has looked at the result;
+- a real post to a Telegram channel (there is no channel yet);
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
 - whether Threads counts a link at full length (the code assumes it does);
@@ -269,7 +294,7 @@ local repository. The following have not been run against the real services:
 | `scripts/social_feed.py` | reads the edition, picks the digest and alerts, writes the text for each platform |
 | `scripts/social_cards.py` | draws the cards |
 | `scripts/social_post.py` | `build`, `deliver`, `channels`, `preview` |
-| `scripts/social_bot.py` | the polling bot, and `set-webhook` / `delete-webhook` |
+| `scripts/social_bot.py` | the polling bot, and `status`, `setup`, `photo`, `set-webhook` / `delete-webhook` |
 | `scripts/social_save.sh` | saves the data folder to the `social-data` branch |
 | `bot/worker.js` | the webhook bot |
 | `tests/social/` | Python tests; `bot/worker.test.mjs` holds the Worker's |
