@@ -7,9 +7,10 @@ the day's edition.
 > Tech and markets, read across the outlets. One brief a day, every story sourced.
 
 Live now: the Telegram bot, [@Morrow_brief_bot](https://t.me/Morrow_brief_bot), and the publish job, which
-builds the day's posts and cards on every run. Not live yet: the pages themselves. No Telegram channel, Buffer
-key or Instagram, Threads or X account is connected, so every post target is recorded as `skipped` and nothing
-has been posted. [What has been run for real](#what-has-been-run-for-real) and
+builds the day's posts and cards on every run. Not live yet: the pages themselves. A Telegram channel exists
+with the bot added to it, but it is not connected yet because the bot has not been told which channel it is.
+No Buffer key or Instagram, Threads or X account is connected either, so every post target is recorded as
+`skipped` and nothing has been posted. [What has been run for real](#what-has-been-run-for-real) and
 [What is not verified](#what-is-not-verified) say exactly where the line is.
 
 ## Why this page, when AI news channels already exist
@@ -192,6 +193,18 @@ The "Morrow Brief bot" workflow can also be run by hand from the Actions tab wit
 | `photo` | draws the profile picture (the red square with the white M) and sets it |
 | `poll` | answers whatever is waiting, once |
 | `set-webhook`, `delete-webhook` | hands the bot to the Worker, or back to the poller |
+| `channel-find` | asks Telegram about a list of likely `@handles` (or the ones typed in the `chat` box) and says which exist and where the bot is an admin |
+| `channel-status` | prints the channel's name, description, subscriber count and the rights the bot holds there, with what each right is needed for |
+| `channel-setup` | sets the channel's name, description and picture, then posts the welcome post and pins it |
+| `channel-test` | tries each thing a bot can do in a channel and deletes every test post afterwards: a post with a link button, an edit, a reaction, a picture, an album of two, a poll, the subscriber count, the admin list |
+
+The four `channel-` actions act on the channel in the `chat` box: its `@handle`, a `t.me` link, the link of
+any post in it (which also works for a private channel), or its numeric id. With the box empty they use
+`TELEGRAM_CHAT_ID`. The run log never shows a private channel's id.
+
+A bot cannot list the chats it is in, cannot schedule a post inside Telegram, cannot read a channel's earlier
+posts or their view counts, cannot see who the subscribers are (only how many), and cannot create a channel or
+set its `@handle`. `channel-test` prints these with its results so the report does not leave them out.
 
 The poller also hears when the bot is added to a channel or group, and writes one line to the run log:
 `now administrator in channel 'Morrow Brief' @handle, chat id -100...`. That id is the value for
@@ -203,14 +216,19 @@ line appears only while the poller is the one answering.
 Until these steps are done the workflow runs, records every target as `skipped` and posts nothing.
 
 1. Create the page accounts: a Telegram channel, an Instagram professional account, Threads and X. Suggested
-   handle `morrowbrief`, with `readmorrow` or `morrowdaily` as fallbacks. None of these has been checked for
-   availability.
+   handle `morrowbrief`, with `morrowdaily` as a fallback. On Telegram, `channel-find` saw no chat under either
+   name on 16 November 2026, which is not proof that the name is free; `readmorrow`, `morrownews`, `morrow_ai`,
+   `morrowchannel` and `morrow_official` belong to other people. Nothing has been checked on Instagram, Threads
+   or X.
 2. The bot already exists: @Morrow_brief_bot, with its token stored as the secret `TELEGRAM_BOT_TOKEN` and its
-   name, descriptions, command menu and picture set. Add it to the channel as an admin; Telegram should offer
-   "post messages" already ticked, which is all it needs. For a public channel `TELEGRAM_CHAT_ID` can be the
-   `@handle`. For a private one the numeric id is needed, and the Worker does not log it: run `delete-webhook`,
-   add the bot, run `poll` and read the id from its log, then run `set-webhook` again. (For a new bot: create
-   it with @BotFather, then run the "Morrow Brief bot" workflow with action `setup`, then `photo`.)
+   name, descriptions, command menu and picture set. Add it to the channel as an admin. Telegram offers
+   "Post messages" already ticked, which is enough for the daily brief. For the bot to set the channel's own
+   profile, also tick "Change channel info" (name, description, picture) and "Edit messages of others" (the
+   right Telegram asks for to pin a post in a channel). Then run `channel-status` with the channel's `@handle`
+   or the link of any post in it, then `channel-setup`, then `channel-test`. For a public channel
+   `TELEGRAM_CHAT_ID` can be the `@handle`. For a private one it is the numeric id: `-100` followed by the
+   number in a post link `t.me/c/<number>/<post>`. (For a new bot: create it with @BotFather, then run the
+   "Morrow Brief bot" workflow with action `setup`, then `photo`.)
 3. In Buffer, connect the Instagram, Threads and X accounts and create an API key. A separate Buffer account for
    Morrow Brief keeps it apart from any personal channels.
 4. List the channel ids:
@@ -261,6 +279,17 @@ Later the same day the bot moved to the Worker:
 | [photo](https://github.com/juw12/morrow/actions/runs/43799663066) | `setMyProfilePhoto` accepted |
 | [status](https://github.com/juw12/morrow/actions/runs/43799779878) | `@Morrow_brief_bot (Morrow Brief)`, webhook is the Worker's URL, 0 messages waiting |
 
+Looking for the channel, after the bot was added to one:
+
+| Run | Result |
+|---|---|
+| [channel-find](https://github.com/juw12/morrow/actions/runs/43813733921) | 24 likely names asked; 22 not found or not visible to the bot; `@readmorrow` and `@morrownews` exist and belong to other people; 0 with the bot as admin |
+| [channel-find](https://github.com/juw12/morrow/actions/runs/43814647188) | 30 more names asked; 27 not found or not visible; `@morrow_ai`, `@morrowchannel` and `@morrow_official` belong to other people; 0 with the bot as admin |
+
+Both runs end red on purpose, because nothing was found. The channel is either private or has a name that was
+not guessed, and the webhook was set to deliver messages only, so the moment the bot was made an admin was
+never delivered. `channel-setup` and `channel-test` have therefore not been run.
+
 The Worker itself was called directly: a `GET` returns 200, a `POST` without the secret returns 403, and a
 `POST` with the secret and a made-up `/start`, `/help`, `/about` or `/privacy` message returns the same text
 that `feed.json` holds for that command.
@@ -276,7 +305,9 @@ local repository. The following have not been run against the real services:
 - a real person's message answered through the webhook. The poller answered 4 real messages, and the Worker
   answers a made-up message sent with the secret, but no message from Telegram to the Worker has been seen;
 - how the profile looks in the app. Telegram accepted every profile call; nobody has looked at the result;
-- a real post to a Telegram channel (there is no channel yet);
+- anything in the real channel: its name, description, picture and pinned post have not been set, the
+  capability test has not been run, and no digest has been posted there. The channel exists but the bot cannot
+  be told which one it is until its `@handle` or a post link is given;
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
 - whether Threads counts a link at full length (the code assumes it does);
@@ -284,7 +315,7 @@ local repository. The following have not been run against the real services:
   workflow would not; a push with a personal token or deploy key does. If they do not, the 3-hour schedule still
   posts, but the digest can be up to 3 hours later than the first edition and alerts arrive in 3-hour steps.
   GitHub pauses schedules in a repository with no activity for 60 days;
-- handle availability;
+- handle availability on Instagram, Threads and X, and on Telegram beyond the 54 names asked;
 - anything about Girsta beyond the 111 posts and the channel page read on 16 November 2026.
 
 ## Files
@@ -295,6 +326,7 @@ local repository. The following have not been run against the real services:
 | `scripts/social_cards.py` | draws the cards |
 | `scripts/social_post.py` | `build`, `deliver`, `channels`, `preview` |
 | `scripts/social_bot.py` | the polling bot, and `status`, `setup`, `photo`, `set-webhook` / `delete-webhook` |
+| `scripts/social_channel.py` | `find`, `status`, `setup` and `test` for the channel, and the channel's description and welcome post |
 | `scripts/social_save.sh` | saves the data folder to the `social-data` branch |
 | `bot/worker.js` | the webhook bot |
 | `tests/social/` | Python tests; `bot/worker.test.mjs` holds the Worker's |
