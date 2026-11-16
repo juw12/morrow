@@ -131,8 +131,9 @@ private generator --push--> index.html on main
 1. The private generator pushes a new `index.html`. That push starts the workflow. A run that starts between
    07:00 and 08:00 WIB waits in the publish job until 08:00 (`social_post.py hold`), then fetches the newest
    `index.html`, so the 08:00 digest is built from the latest edition and not from the one that started the
-   run. The workflow also has a 3-hour schedule as a fallback, but GitHub has not started a single scheduled
-   run of it so far, so the timing rests on the edition push. A run that finds nothing new posts nothing.
+   run. The workflow also has a 3-hour schedule as a fallback, but on 16 November 2026 GitHub started only one
+   scheduled run of it, more than 2 hours late, so the timing rests on the edition push. A run that finds
+   nothing new posts nothing.
 2. The tests run. If they fail, nothing is posted.
 3. `build` reads the page, decides whether a digest or alert is due, draws the cards and freezes the post into
    `state.json`. A frozen post is never rewritten, even if the page changes before it is sent.
@@ -393,8 +394,19 @@ The digest and the one alert of 16 November were frozen before the channel was l
 Telegram recorded as `skipped`. A skipped target is not retried, so that day's digest did not go to the channel
 through the normal path; the sample above is the same digest sent by hand.
 
-Of the 9 runs of "Morrow Brief" so far, 3 were started by an edition push, 4 by hand and 2 by a pull request.
-None was started by the schedule, in about 9 hours with a run due every 3.
+The same evening the daily post was changed to carry the full edition, and a second sample was sent:
+
+| Run | Result |
+|---|---|
+| [Morrow Brief, sample](https://github.com/juw12/morrow/actions/runs/43865082679) | started by hand at 19:16 WIB with `sample` ticked, on commit `6ca2d2b`: 216 Python tests and 13 Worker tests passed; "sample of digest-2026-11-16 posted to the Telegram channel without a notification" and "full edition: 2 messages accepted by Telegram, 15 stories and 0 more items". The publish job in the same run had nothing new to post. The log holds no chat id and no token |
+
+That sample left 3 silent posts in the channel: the card with its caption and the 2 full edition messages.
+
+Of the 11 runs of "Morrow Brief" so far, 3 were started by an edition push, 5 by hand, 2 by a pull request
+and 1 by the schedule. That one
+[scheduled run](https://github.com/juw12/morrow/actions/runs/43859308855) started at 18:36 WIB, 2 hours
+19 minutes after the 16:17 WIB slot it belongs to, and had nothing new to post. The slots before it, due
+every 3 hours since the morning, did not start a run.
 
 Two commits (`6db1b78`, `1009b61`) carry a personal e-mail address as author instead of the GitHub no-reply
 address. They were not rewritten: the same address is on a commit from 8 November, 93 commits back, so only a
@@ -418,8 +430,13 @@ local repository. The following have not been run against the real services:
 - how the bot's profile and the channel look in the app. Telegram accepted every call and reported the
   channel's name, description, picture and pinned post back; the result has not been looked at on a phone
   as part of this work;
-- a digest sent at 08:00 through the normal path. The first is due on 17 November 2026. The wait itself is
-  covered by unit tests with a fake clock; no real run has started between 07:00 and 08:00 WIB yet;
+- a digest sent at 08:00 through the normal path. The first is due on 17 November 2026, and it is also the
+  first with the full edition. The wait itself is covered by unit tests with a fake clock; no real run has
+  started between 07:00 and 08:00 WIB yet;
+- how the full edition messages look in the app. Telegram accepted 2 messages for the sample of
+  16 November; they have not been looked at on a phone as part of this work;
+- the full edition when Telegram refuses a message or does not answer. Resuming at the refused message, and
+  stopping without sending the rest after no answer, are covered by unit tests with fake servers only;
 - an alert in the channel. None has been due since it was linked;
 - the 08:00 digest on a day when the PC that publishes the edition is off or its refresh is skipped. There is
   then no new page to post from, and the digest goes out with the first edition after 08:00;
@@ -427,8 +444,9 @@ local repository. The following have not been run against the real services:
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
 - whether Threads counts a link at full length (the code assumes it does);
-- the schedule. The generator's pushes do start the workflow (3 runs on 16 November), but GitHub has not
-  started one scheduled run of it. If a push ever fails to start a run, nothing else is known to;
+- the schedule as a way to hit 08:00. The generator's pushes do start the workflow (3 runs on 16 November).
+  GitHub has started 1 scheduled run, more than 2 hours late. A run that late for the 07:17 WIB slot would
+  send the digest after 09:00, so on a day without an edition push before 08:00 the digest can be late;
 - handle availability on Instagram, Threads and X, and on Telegram beyond the 54 names asked;
 - anything about Girsta beyond the 111 posts and the channel page read on 16 November 2026.
 
