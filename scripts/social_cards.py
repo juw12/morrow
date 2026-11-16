@@ -38,6 +38,7 @@ TEXT_COLOURS = ("ink", "ink2", "ink3", "accent", "up", "down")
 HEADLINE_SIZES = (104, 96, 88, 80, 74, 68, 62, 56, 52)
 HEADLINE_LEADING = 1.1
 HEADLINE_LINES = 4  # a story headline is set smaller before it runs to a fifth line
+HEADLINE_FILL_LINES = 5  # ... unless a fifth line is what fills the card
 HEADLINE_FLOOR = 62  # ... but never smaller than this just to save a line
 DEK_SIZES = (46, 42, 38)  # the summary is set as large as its whole sentences allow
 DEK_LEADING = 1.36
@@ -45,7 +46,7 @@ DEK_GAP = 34  # between the headline and the summary
 DEK_BUDGET = 260  # characters of summary a card carries at most
 ACCENT_BAR = 20  # the full-bleed bar at the top edge: what marks a card as Morrow Brief at grid size
 COVER_LEAD_SIZES = (88, 80, 74, 68, 62, 56, 50, 46)
-COVER_ROW_SIZES = (38, 36, 34, 32, 30)
+COVER_ROW_SIZES = (42, 40, 38, 36, 34, 32, 30)
 COVER_ROW_LEADING = 1.16
 COVER_ROW_PAD = 14  # between a rule and the row's text, above and below
 COVER_ROW_META = 32  # the section and outlet line under a row's headline
@@ -262,6 +263,33 @@ def _fit_summary(parts: list[str], max_width: float, max_height: float) -> tuple
     return DEK_SIZES[-1], []
 
 
+def _fit_story(title: str, parts: list[str], max_width: float, max_height: float):
+    """Headline and summary set so the least space is left empty above the outlet count.
+
+    Every headline size down to HEADLINE_FLOOR is tried with the summary that fits under it. A card
+    that keeps a summary beats one that drops it; after that the fullest card wins. Returns None
+    when no size holds the whole headline, and the caller falls back to the older rules."""
+    best = None
+    for size in HEADLINE_SIZES:
+        if size < HEADLINE_FLOOR:
+            continue
+        face = font("serif_bold", size)
+        lines = wrap(title, face, max_width)
+        height = len(lines) * size * HEADLINE_LEADING
+        if len(lines) > HEADLINE_FILL_LINES or height > max_height:
+            continue
+        if any(face.getlength(line) > max_width for line in lines):
+            continue
+        dek_size, dek_lines = DEK_SIZES[-1], []
+        if parts:
+            dek_size, dek_lines = _fit_summary(parts, max_width, max_height - height - DEK_GAP)
+        used = height + (DEK_GAP + len(dek_lines) * dek_size * DEK_LEADING if dek_lines else 0)
+        rank = (bool(dek_lines) or not parts, used, size)
+        if best is None or rank > best[0]:
+            best = (rank, size, lines)
+    return (best[1], best[2]) if best else None
+
+
 def render_story_card(story: dict, date_iso: str, path: Path | None = None) -> dict:
     """One story: kicker, headline, summary, and the outlet count as the signature element."""
     canvas = Canvas()
@@ -288,6 +316,9 @@ def render_story_card(story: dict, date_iso: str, path: Path | None = None) -> d
         # the headline one more line before it is set smaller.
         size, lines = _fit_headline(story["title"], inner_width, content_limit - y,
                                     prefer_lines=HEADLINE_LINES + (0 if parts else 1), floor=HEADLINE_FLOOR)
+    filled = _fit_story(story["title"], parts, inner_width, content_limit - y)
+    if filled:
+        size, lines = filled
     y = canvas.block((MARGIN, y), lines, "serif_bold", size, "ink", HEADLINE_LEADING, name="headline")
     dek_size, dek_lines = _fit_summary(parts, inner_width, content_limit - y - DEK_GAP)
     if dek_lines:
@@ -306,6 +337,7 @@ def render_story_card(story: dict, date_iso: str, path: Path | None = None) -> d
         dek_lines=len(dek_lines),
         dek_text=" ".join(dek_lines),
         overlaps=content_bottom > coverage_top - 34,
+        slack=round(max(content_limit - content_bottom, 0)),
     )
 
 

@@ -68,6 +68,19 @@ EMOJI_PATTERN = re.compile(
 )
 
 
+# An outlet's trailing label for its own page, such as "(video)" or "[Photos]": not part of the headline.
+MEDIA_TAG = re.compile(
+    r"\s*[\(\[]\s*(?:videos?|photos?|pics|gallery|watch|audio|podcast|updated?)\s*[\)\]]\s*$",
+    re.IGNORECASE,
+)
+
+
+def clean_title(text: str | None) -> str:
+    """A headline without the outlet's trailing media tag. A headline that is only a tag is kept."""
+    title = clean(text)
+    return MEDIA_TAG.sub("", title).strip() or title
+
+
 def clean(text: str | None) -> str:
     """Collapse whitespace and drop emoji, so an outlet's decorated headline cannot break the no-emoji rule."""
     return re.sub(r"\s+", " ", EMOJI_PATTERN.sub(" ", text or "")).strip()
@@ -111,7 +124,7 @@ def _parse_story(article, section_titles: dict[str, str]) -> dict | None:
     if not link or not heading:
         return None
     url = link["href"].strip()
-    title = clean(heading.get_text(" "))
+    title = clean_title(heading.get_text(" "))
     if not url.startswith("http") or not title:
         return None
     kicker = clean(article.select_one(".kicker").get_text(" ")) if article.select_one(".kicker") else ""
@@ -129,7 +142,7 @@ def _parse_story(article, section_titles: dict[str, str]) -> dict | None:
         outlet_name = clean(outlet.get_text(" ")) if outlet else ""
         if outlet:
             outlet.extract()
-        related.append({"source": outlet_name, "title": clean(item.get_text(" ")), "url": item["href"].strip()})
+        related.append({"source": outlet_name, "title": clean_title(item.get_text(" ")), "url": item["href"].strip()})
     time_tag = article.select_one("time[datetime]")
     source_tag = article.select_one(".src")
     dek_tag = article.select_one(".dek")

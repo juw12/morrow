@@ -166,6 +166,20 @@ There are two ways to run it. Use one.
 
 If a webhook is set, polling is refused by Telegram; the poller logs that and stops.
 
+The "Morrow Brief bot" workflow can also be run by hand from the Actions tab with one of these actions:
+
+| Action | What it does |
+|---|---|
+| `status` | prints the bot's `@username` and link, whether a webhook is set, and how many messages are waiting |
+| `setup` | sets the bot's name, its two descriptions and the command menu people see when they type `/` |
+| `poll` | answers whatever is waiting, once |
+| `set-webhook`, `delete-webhook` | hands the bot to the Worker, or back to the poller |
+
+The poller also hears when the bot is added to a channel or group, and writes one line to the run log:
+`now administrator in channel 'Morrow Brief' @handle, chat id -100...`. That id is the value for
+`TELEGRAM_CHAT_ID`. Private chats are never written to the log. A Worker webhook only receives messages, so this
+line appears only while the poller is the one answering.
+
 ## Setup
 
 Until these steps are done the workflow runs, records every target as `skipped` and posts nothing.
@@ -173,7 +187,10 @@ Until these steps are done the workflow runs, records every target as `skipped` 
 1. Create the page accounts: a Telegram channel, an Instagram professional account, Threads and X. Suggested
    handle `morrowbrief`, with `readmorrow` or `morrowdaily` as fallbacks. None of these has been checked for
    availability.
-2. In Telegram, create a bot with @BotFather and add it to the channel as an admin that can post.
+2. In Telegram, create a bot with @BotFather and add it to the channel as an admin that can post. Run the
+   "Morrow Brief bot" workflow with action `setup` once to give it its name and command menu. For a public
+   channel `TELEGRAM_CHAT_ID` can be the `@handle`; for a private one, read the numeric id from the poller's run
+   log after adding the bot.
 3. In Buffer, connect the Instagram, Threads and X accounts and create an API key. A separate Buffer account for
    Morrow Brief keeps it apart from any personal channels.
 4. List the channel ids:

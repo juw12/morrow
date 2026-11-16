@@ -119,7 +119,7 @@ class PollTest(unittest.TestCase):
         self.assertEqual(len(fetches), 2)
         self.assertNotIn("offset", fetches[0])
         self.assertEqual(fetches[1]["offset"], 12)
-        self.assertEqual(fetches[0]["allowed_updates"], ["message"])
+        self.assertEqual(fetches[0]["allowed_updates"], ["message", "my_chat_member"])
 
     def test_the_reply_is_html_without_a_link_preview(self):
         self.http.telegram = [updates(message(10, "/today", chat_id=42)), SENT, NOTHING_NEW]
@@ -209,6 +209,34 @@ class PollTest(unittest.TestCase):
         self.assertEqual(waits, [bot.LONG_POLL_SECONDS, bot.LONG_POLL_SECONDS, 0])
 
 
+class MembershipTest(unittest.TestCase):
+    @staticmethod
+    def joined(chat: dict, status: str = "administrator", update_id: int = 9) -> dict:
+        return {"update_id": update_id, "my_chat_member": {"chat": chat, "new_chat_member": {"status": status}}}
+
+    def test_joining_a_channel_logs_the_chat_id_to_use(self):
+        chat = {"id": -1001234567890, "type": "channel", "title": "Morrow Brief", "username": "morrowbrief"}
+        line = bot.membership_line(self.joined(chat))
+        self.assertIn("-1001234567890", line)
+        self.assertIn("@morrowbrief", line)
+        self.assertIn("administrator", line)
+
+    def test_a_private_chat_is_never_logged(self):
+        chat = {"id": 500, "type": "private", "first_name": "Someone", "username": "someone"}
+        self.assertIsNone(bot.membership_line(self.joined(chat, "member")))
+        self.assertIsNone(bot.membership_line(message(1, "/today")))
+
+    def test_the_poller_reports_the_channel_and_sends_nothing_to_it(self):
+        http = FakeHttp()
+        chat = {"id": -100777, "type": "channel", "title": "Morrow Brief"}
+        http.telegram = [updates(self.joined(chat)), NOTHING_NEW]
+        log = bot.poll(http, TOKEN, load_cases()["feed"], 0)
+        self.assertTrue(any("chat id -100777" in line for line in log), log)
+        self.assertEqual(calls_to(http, "sendMessage"), [])
+        self.assertNotIn(TOKEN, "\n".join(log))
+
+
+
 class CommandTest(unittest.TestCase):
     def run_main(self, argv: list[str], env: dict) -> tuple[int, str]:
         output = io.StringIO()
@@ -248,6 +276,62 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(payload["secret_token"], "s3cret")
         self.assertEqual(payload["allowed_updates"], ["message"])
         self.assertNotIn("s3cret", text)
+
+    def test_status_names_the_bot_and_says_who_answers(self):
+        http = FakeHttp()
+        http.telegram = [
+            FakeResponse(200, {"ok": True, "result": {"username": "morrow_brief_bot", "first_name": "Morrow Brief"}}),
+            FakeResponse(200, {"ok": True, "result": {"url": "", "pending_update_count": 3}}),
+        ]
+        with mock.patch.object(bot, "requests", http):
+            code, text = self.run_main(["status"], {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 0)
+        self.assertIn("https://t.me/morrow_brief_bot", text)
+        self.assertIn("the poller answers", text)
+        self.assertIn("messages waiting: 3", text)
+        self.assertNotIn(TOKEN, text)
+
+    def test_status_with_a_wrong_token_fails_without_printing_it(self):
+        http = FakeHttp()
+        http.telegram = [FakeResponse(401, {"ok": False, "description": f"Unauthorized {TOKEN}"})]
+        with mock.patch.object(bot, "requests", http):
+            code, text = self.run_main(["status"], {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 1)
+        self.assertNotIn(TOKEN, text)
+        self.assertEqual(self.run_main(["status"], {})[0], 1)
+
+    def test_setup_sets_the_name_the_descriptions_and_a_menu_the_bot_can_answer(self):
+        http = FakeHttp()
+        http.telegram = [FakeResponse(200, {"ok": True, "result": True})]
+        with mock.patch.object(bot, "requests", http):
+            code, text = self.run_main(["setup"], {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 0)
+        self.assertEqual(calls_to(http, "setMyName")[0]["name"], feed.BRAND)
+        self.assertLessEqual(len(calls_to(http, "setMyShortDescription")[0]["short_description"]), 120)
+        self.assertLessEqual(len(calls_to(http, "setMyDescription")[0]["description"]), 512)
+        commands = calls_to(http, "setMyCommands")[0]["commands"]
+        replies = load_cases()["feed"]["bot"]
+        for entry in commands:
+            with self.subTest(command=entry["command"]):
+                self.assertRegex(entry["command"], r"^[a-z0-9_]{1,32}$")
+                self.assertLessEqual(len(entry["description"]), 256)
+                self.assertFalse(feed.EMOJI_PATTERN.search(entry["description"]))
+                if entry["command"] != "find":
+                    self.assertIn("/" + entry["command"], replies)
+        self.assertNotIn(TOKEN, text)
+
+    def test_setup_reports_a_step_telegram_refuses(self):
+        http = FakeHttp()
+        http.telegram = [
+            FakeResponse(429, {"ok": False, "description": "Too Many Requests: retry after 80000"}),
+            FakeResponse(200, {"ok": True, "result": True}),
+        ]
+        with mock.patch.object(bot, "requests", http):
+            code, text = self.run_main(["setup"], {"TELEGRAM_BOT_TOKEN": TOKEN})
+        self.assertEqual(code, 1)
+        self.assertIn("setMyName: Too Many Requests", text)
+        self.assertIn("setMyCommands: done", text)
+
 
 
 if __name__ == "__main__":

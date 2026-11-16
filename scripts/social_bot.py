@@ -3,6 +3,8 @@
     python scripts/social_bot.py poll --feed data/feed.json --listen 240
     python scripts/social_bot.py set-webhook --url https://<worker>.workers.dev
     python scripts/social_bot.py delete-webhook
+    python scripts/social_bot.py status      (which bot the token belongs to, webhook, waiting messages)
+    python scripts/social_bot.py setup       (name, description and the command menu)
 
 The bot keeps no state and no list of users. Every fixed reply is pre-rendered in feed.json by
 `social_post.py build`; only /find is computed here. `bot/worker.js` gives the same answers from a
@@ -25,6 +27,22 @@ import social_feed as feed
 TELEGRAM_API = "https://api.telegram.org"
 LONG_POLL_SECONDS = 25
 MAX_CLOSING_ROUNDS = 5
+# The poller also hears when the bot is added to a chat: that is how a new channel's id is found.
+POLL_UPDATES = ["message", "my_chat_member"]
+MENU = [
+    ("today", "The five stories that matter"),
+    ("ai", "AI and chips"),
+    ("bigtech", "Big US tech"),
+    ("robotics", "Robotics"),
+    ("space", "Space and aircraft"),
+    ("tech", "Technology"),
+    ("markets", "Markets news"),
+    ("tape", "Index moves"),
+    ("sources", "Outlets in today's edition"),
+    ("find", "Search today's stories, e.g. /find nvidia"),
+    ("about", "How this works"),
+    ("help", "What the bot can do"),
+]
 NOT_READY = f'Today\'s edition is not ready yet. Read the latest at <a href="{feed.SITE_URL}">{feed.SITE_SHORT}</a>.'
 
 
@@ -68,6 +86,19 @@ def call(http, token: str, method: str, payload: dict, timeout: int = 40) -> tup
     return response.status_code, body
 
 
+def membership_line(update: dict) -> str | None:
+    """When the bot's place in a channel or group changes, say where: that chat id is TELEGRAM_CHAT_ID.
+
+    Private chats are never logged; people who message the bot stay out of the run log."""
+    change = update.get("my_chat_member") or {}
+    chat = change.get("chat") or {}
+    status = (change.get("new_chat_member") or {}).get("status")
+    if chat.get("type") not in ("channel", "supergroup", "group") or not status:
+        return None
+    handle = f" @{chat['username']}" if chat.get("username") else ""
+    return f"now {status} in {chat['type']} {chat.get('title', '')!r}{handle}, chat id {chat.get('id')}"
+
+
 def answer(http, token: str, feed_data: dict, update: dict) -> str | None:
     """Reply to one update. Returns a log line, or None when there was nothing to answer."""
     message = update.get("message") or {}
@@ -96,7 +127,7 @@ def poll(http, token: str, feed_data: dict, listen_seconds: int, clock=time.mono
     while True:
         remaining = deadline - clock()
         wait = max(0, min(LONG_POLL_SECONDS, int(remaining)))
-        payload = {"timeout": wait, "allowed_updates": ["message"]}
+        payload = {"timeout": wait, "allowed_updates": POLL_UPDATES}
         if offset is not None:
             payload["offset"] = offset
         try:
@@ -115,7 +146,7 @@ def poll(http, token: str, feed_data: dict, listen_seconds: int, clock=time.mono
             # Move the offset first: an update that cannot be answered is skipped, never retried forever.
             offset = update["update_id"] + 1
             try:
-                line = answer(http, token, feed_data, update)
+                line = membership_line(update) or answer(http, token, feed_data, update)
             except requests.exceptions.RequestException as error:
                 line = f"could not answer: {type(error).__name__}"
             if line:
@@ -130,7 +161,7 @@ def poll(http, token: str, feed_data: dict, listen_seconds: int, clock=time.mono
                 # Whatever this call returns has not been answered, so it is not acknowledged.
                 try:
                     call(http, token, "getUpdates", {"timeout": 0, "limit": 1, "offset": offset,
-                                                     "allowed_updates": ["message"]})
+                                                     "allowed_updates": POLL_UPDATES})
                 except requests.exceptions.RequestException:
                     pass
                 return log
@@ -183,6 +214,48 @@ def command_delete_webhook(_args) -> int:
     return 0 if body.get("ok") else 1
 
 
+def command_status(_args) -> int:
+    """Which bot the token belongs to, and whether the Worker or the poller is answering."""
+    token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    if not token:
+        print("Set TELEGRAM_BOT_TOKEN first.")
+        return 1
+    status, body = call(requests, token, "getMe", {})
+    if status != 200 or not body.get("ok"):
+        print("getMe failed: " + scrub(str(body.get("description") or status), token))
+        return 1
+    me = body.get("result") or {}
+    print(f"bot: @{me.get('username')} ({me.get('first_name')}), https://t.me/{me.get('username')}")
+    status, body = call(requests, token, "getWebhookInfo", {})
+    info = body.get("result") or {}
+    print("webhook: " + (scrub(str(info["url"]), token) if info.get("url") else "none, the poller answers"))
+    print(f"messages waiting: {info.get('pending_update_count', 0)}")
+    if info.get("last_error_message"):
+        print("last webhook error: " + scrub(str(info["last_error_message"]), token))
+    return 0
+
+
+def command_setup(_args) -> int:
+    """Give the bot its name, its two descriptions and the command menu people see when they type /."""
+    token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    if not token:
+        print("Set TELEGRAM_BOT_TOKEN first.")
+        return 1
+    steps = [
+        ("setMyName", {"name": feed.BRAND}),
+        ("setMyShortDescription", {"short_description": feed.TAGLINE}),
+        ("setMyDescription", {"description": f"{feed.TAGLINE}\n\n{feed.DISCLOSURE} Not financial advice."}),
+        ("setMyCommands", {"commands": [{"command": name, "description": text} for name, text in MENU]}),
+    ]
+    failed = 0
+    for method, payload in steps:
+        status, body = call(requests, token, method, payload)
+        done = status == 200 and body.get("ok")
+        failed += not done
+        print(f"{method}: " + ("done" if done else scrub(str(body.get("description") or status), token)))
+    return 1 if failed else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     commands = parser.add_subparsers(dest="command", required=True)
@@ -195,6 +268,8 @@ def main(argv: list[str] | None = None) -> int:
     hook.set_defaults(run=command_set_webhook)
     unhook = commands.add_parser("delete-webhook")
     unhook.set_defaults(run=command_delete_webhook)
+    commands.add_parser("status").set_defaults(run=command_status)
+    commands.add_parser("setup").set_defaults(run=command_setup)
     args = parser.parse_args(argv)
     return args.run(args)
 

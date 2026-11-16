@@ -32,7 +32,7 @@ A planned add-on: last night's US move plus the rupiah, coal, oil and nickel, ma
 The same edition as a page channel: one morning digest of five stories, plus a few alerts for stories that three or more outlets report. Every post carries its outlet count, a link and a typographic card. Telegram is posted to directly; Instagram, Threads and X go through Buffer. A Telegram bot answers section commands and `/find`.
 
 - `.github/workflows/social.yml` ("Morrow Brief") runs the tests on every pull request. On `main` it builds the posts from the published `index.html` and delivers them.
-- `.github/workflows/social-bot.yml` ("Morrow Brief bot") sets the bot's webhook, or polls as a slower fallback.
+- `.github/workflows/social-bot.yml` ("Morrow Brief bot") answers messages every 5 minutes, or hands the bot to a Cloudflare Worker for instant replies. Run by hand it can also report the bot's status and set its name and command menu.
 - Setup, post formats, failure handling and what is not verified yet: [docs/SOCIAL.md](docs/SOCIAL.md).
 
 Nothing is posted until the secrets are added, and no post has been sent to a real platform yet.

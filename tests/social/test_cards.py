@@ -75,6 +75,19 @@ class StoryCardTest(unittest.TestCase):
         self.assertLessEqual(metrics["headline_lines"], cards.HEADLINE_LINES)
         self.assertGreaterEqual(metrics["headline_size"], cards.HEADLINE_FLOOR)
 
+    def test_a_sparse_card_is_filled_rather_than_left_with_an_empty_band(self):
+        edition = real_edition()
+        line_of_summary = cards.DEK_SIZES[0] * cards.DEK_LEADING
+        for item in feed.pick_digest(edition["stories"]):
+            with self.subTest(title=item["title"][:40]):
+                metrics = cards.render_story_card(item, edition["date"])
+                assert_inside_the_page(self, metrics)
+                self.assertLessEqual(metrics["headline_lines"], cards.HEADLINE_FILL_LINES)
+                self.assertGreaterEqual(metrics["headline_size"], cards.HEADLINE_FLOOR)
+                self.assertGreater(metrics["dek_lines"], 0, "a digest card keeps its summary")
+                # Less than one more line of summary is left empty above the outlet count.
+                self.assertLess(metrics["slack"], line_of_summary, metrics)
+
     def test_a_short_headline_is_set_large(self):
         edition = edition_from([story(1, "ai", 3, title="Nvidia tops forecasts", dek="A short summary.")])
         metrics = cards.render_story_card(edition["stories"][0], edition["date"])

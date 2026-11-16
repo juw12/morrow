@@ -73,6 +73,17 @@ class ParsingTest(unittest.TestCase):
         self.assertEqual(item["title"], "Rocket lifts off today")
         self.assertEqual(item["dek"], "Big day")
 
+    def test_an_outlets_media_tag_is_dropped_from_the_headline(self):
+        self.assertEqual(feed.clean_title("Starship lifts off (video)"), "Starship lifts off")
+        self.assertEqual(feed.clean_title("Inside the new fab [Photos]"), "Inside the new fab")
+        self.assertEqual(feed.clean_title("Chip export rules ( Updated )"), "Chip export rules")
+        # Brackets that are part of the headline stay, and so does a headline that is nothing but a tag.
+        self.assertEqual(feed.clean_title("Apple (AAPL) rises"), "Apple (AAPL) rises")
+        self.assertEqual(feed.clean_title("Watch (2026) review"), "Watch (2026) review")
+        self.assertEqual(feed.clean_title("(video)"), "(video)")
+        edition = edition_from([story(1, title="Rocket lifts off today (video)")])
+        self.assertEqual(edition["stories"][0]["title"], "Rocket lifts off today")
+
     def test_a_story_shown_twice_is_kept_once_with_the_higher_count(self):
         twice = [story(1, "ai", 2, kind="lead"), story(1, "ai", 4), story(2, "ai", 1)]
         edition = edition_from(twice)

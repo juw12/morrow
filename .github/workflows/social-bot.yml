@@ -15,6 +15,8 @@ on:
         default: poll
         options:
           - poll
+          - status
+          - setup
           - set-webhook
           - delete-webhook
       url:
@@ -79,6 +81,16 @@ jobs:
           TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
           WORKER_URL: ${{ inputs.url }}
         run: python scripts/social_bot.py set-webhook --url "$WORKER_URL"
+      - name: Say which bot this is
+        if: inputs.action == 'status'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/social_bot.py status
+      - name: Set the name, descriptions and command menu
+        if: inputs.action == 'setup'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/social_bot.py setup
       - name: Remove the webhook
         if: inputs.action == 'delete-webhook'
         env:
