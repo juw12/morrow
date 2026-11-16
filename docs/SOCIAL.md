@@ -238,7 +238,7 @@ On 16 November 2026, on `main`, with the real bot token:
 |---|---|
 | [status](https://github.com/juw12/morrow/actions/runs/43786940190) | Telegram accepted the token: `@Morrow_brief_bot`, no webhook, 0 messages waiting |
 | [setup](https://github.com/juw12/morrow/actions/runs/43787085632) | name, short description, description and command menu all set |
-| [Morrow Brief](https://github.com/juw12/morrow/actions/runs/43787090204) | tests passed; the publish job read the edition (32 stories from 14 outlets), froze the digest, pushed `feed.json`, `state.json` and the cards to the `social-data` branch, and recorded all 4 targets as `skipped` |
+| [Morrow Brief](https://github.com/juw12/morrow/actions/runs/43787090204) | tests passed; the publish job read the 16 Nov edition (32 stories from 14 outlets; the samples below are the 14 Nov edition, which had 15), froze the digest, pushed `feed.json`, `state.json` and the cards to the `social-data` branch, and recorded all 4 targets as `skipped` |
 | [poll](https://github.com/juw12/morrow/actions/runs/43787233467) | fetched the published feed, listened to Telegram for 4 minutes, 0 messages answered because nobody had written yet |
 
 The variable `MORROW_BOT` is `on`, so the poller now runs on its 5-minute schedule.
