@@ -12,6 +12,9 @@ its cards and freezes it in state.json. `deliver` sends every frozen post that i
 Telegram through the Bot API, Instagram, Threads and X through Buffer. With no credentials nothing is
 sent and the targets are recorded as skipped, so the workflow is safe to merge before any account exists.
 
+On Telegram the digest is the cover card with its caption, then the full edition as silent text
+messages: every story on the page with its summary, the indexes and the page's "Also today" list.
+
 Nothing is posted before 08:00 Jakarta time. `hold` is what makes the digest land at 08:00: a run that
 starts between 07:00 and 08:00 waits there until the window opens, any other run does not wait.
 
@@ -57,6 +60,8 @@ BUFFER_API = "https://api.buffer.com"
 TELEGRAM_API = "https://api.telegram.org"
 WAITING_STATUSES = ("pending", "failed")
 STALE_CLAIM = "an earlier run started sending and never recorded the result"
+# Telegram allows a channel about 20 messages a minute; a pause between the follow-up messages stays far below it.
+FOLLOW_UP_PAUSE_SECONDS = 1
 CREATE_POST = """
 mutation CreatePost($input: CreatePostInput!) {
   createPost(input: $input) {
@@ -167,7 +172,8 @@ def plan(edition: dict, state: dict, now: dt.datetime) -> tuple[dict | None, str
         stories = feed.pick_digest(edition["stories"])
         if len(stories) < MIN_DIGEST_STORIES:
             return None, f"only {len(stories)} stories on the page, a digest needs {MIN_DIGEST_STORIES}"
-        return feed.digest_post(stories, edition["markets"], edition["date"]), "first run of the day in the window"
+        post = feed.digest_post(stories, edition["markets"], edition["date"], edition)
+        return post, "first run of the day in the window"
     if len(record["alerts"]) >= MAX_ALERTS_PER_DAY:
         return None, f"the day's {MAX_ALERTS_PER_DAY} alerts are used"
     if record["last_post_at"]:
@@ -257,6 +263,17 @@ def telegram_fields(post: dict, chat_id: str) -> dict:
     }
 
 
+def telegram_text_fields(text: str, chat_id: str) -> dict:
+    """A follow-up message of the full edition: silent, and without a link preview taking over the text."""
+    return {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML",
+        "disable_notification": "true",
+        "link_preview_options": json.dumps({"is_disabled": True}),
+    }
+
+
 # --------------------------------------------------------------------------- delivery
 
 
@@ -338,18 +355,11 @@ def send_buffer(http, api_key: str, payload: dict) -> str:
     raise Retryable("Buffer did not create the post: " + str(result.get("message") or result.get("__typename") or "no detail"))
 
 
-def send_telegram(http, token: str, fields: dict, card_path: Path, sleep=time.sleep) -> str:
-    if not card_path.exists():
-        raise Retryable(f"card file missing: {card_path.name}")
+def telegram_call(http, token: str, method: str, sleep=time.sleep, **request) -> str:
+    """One Bot API call that posts a message. Returns its reference, or raises Retryable or Unconfirmed."""
     for attempt in range(2):
         try:
-            with card_path.open("rb") as handle:
-                response = http.post(
-                    f"{TELEGRAM_API}/bot{token}/sendPhoto",
-                    data=fields,
-                    files={"photo": (card_path.name, handle, "image/png")},
-                    timeout=60,
-                )
+            response = http.post(f"{TELEGRAM_API}/bot{token}/{method}", timeout=60, **request)
         except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError) as error:
             raise Retryable(f"Telegram unreachable ({type(error).__name__})") from error
         except requests.exceptions.RequestException as error:
@@ -370,6 +380,39 @@ def send_telegram(http, token: str, fields: dict, card_path: Path, sleep=time.sl
             raise Unconfirmed(f"Telegram server error (HTTP {response.status_code})")
         raise Retryable(f"Telegram refused: {body.get('description') or response.status_code}")
     raise Retryable("Telegram rate limit")
+
+
+def send_telegram(http, token: str, fields: dict, card_path: Path, sleep=time.sleep) -> str:
+    if not card_path.exists():
+        raise Retryable(f"card file missing: {card_path.name}")
+    # The bytes, not an open file, so the second try after a rate limit sends the whole card again.
+    photo = (card_path.name, card_path.read_bytes(), "image/png")
+    return telegram_call(http, token, "sendPhoto", sleep, data=fields, files={"photo": photo})
+
+
+def send_telegram_text(http, token: str, fields: dict, sleep=time.sleep) -> str:
+    return telegram_call(http, token, "sendMessage", sleep, data=fields)
+
+
+def send_telegram_post(http, token: str, chat_id: str, post: dict, out_dir: Path, refs: list[str],
+                       sleep=time.sleep, silent: bool = False) -> None:
+    """Send the card with its caption, then each message of the full edition, in order.
+
+    `refs` holds one reference per message Telegram confirmed, and gains one as each goes through.
+    A call that finds some already there carries on after them, so a retry never repeats a message.
+    """
+    if not refs:
+        fields = telegram_fields(post, chat_id)
+        if silent:
+            fields["disable_notification"] = "true"
+        refs.append(send_telegram(http, token, fields, out_dir / post["cards"][0], sleep))
+    more = post.get("telegram_more", [])
+    for index in range(len(refs) - 1, len(more)):
+        sleep(FOLLOW_UP_PAUSE_SECONDS)
+        try:
+            refs.append(send_telegram_text(http, token, telegram_text_fields(more[index], chat_id), sleep))
+        except (Retryable, Unconfirmed) as error:
+            raise type(error)(f"full edition message {index + 1} of {len(more)}: {error}") from error
 
 
 def find_image_base(http, candidates: list[str], probe: str, wait_seconds: int = 0, sleep=time.sleep) -> str | None:
@@ -453,11 +496,17 @@ def deliver(state: dict, out_dir: Path, env: dict, now: dt.datetime, http=reques
                 record_outcome(entry, "expired", "older than 3 hours when delivery was tried")
                 log.append(f"{post['id']} {target}: expired, not sent")
                 continue
+            note = ""
             try:
                 if target == "telegram":
                     if not token or not chat_id:
                         raise NotConfigured("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set")
-                    reference = send_telegram(http, token, telegram_fields(post, chat_id), out_dir / post["cards"][0], sleep)
+                    # The references live in the state, so a later run knows which messages already went out.
+                    refs = entry.setdefault("refs", [])
+                    send_telegram_post(http, token, chat_id, post, out_dir, refs, sleep)
+                    reference = refs[0]
+                    if len(refs) > 1:
+                        note = f" and {len(refs) - 1} full edition messages"
                 else:
                     if not api_key:
                         raise NotConfigured("BUFFER_API_KEY is not set")
@@ -495,7 +544,7 @@ def deliver(state: dict, out_dir: Path, env: dict, now: dt.datetime, http=reques
                 entry["ref"] = reference
                 entry["at"] = now.astimezone(dt.timezone.utc).isoformat(timespec="seconds")
                 record_outcome(entry, "delivered")
-                log.append(f"{post['id']} {target}: delivered ({reference})")
+                log.append(f"{post['id']} {target}: delivered ({reference}{note})")
     return log
 
 
@@ -619,7 +668,7 @@ def command_preview(args) -> int:
     if len(stories) < MIN_DIGEST_STORIES:
         print("not enough stories on the page for a digest")
         return 1
-    digest = feed.digest_post(stories, edition["markets"], edition["date"])
+    digest = feed.digest_post(stories, edition["markets"], edition["date"], edition)
     posts = [(digest, "the day's digest")]
     alert, note = sample_alert(edition, digest)
     if alert:
@@ -632,6 +681,11 @@ def command_preview(args) -> int:
         lines += [f"## {post['id']} ({note})", "", "Cards: " + ", ".join(post["cards"]), ""]
         lines += [f"### Telegram caption ({feed.visible_length(post['telegram'])} of {feed.LIMITS['telegram_caption']})",
                   "", "```html", post["telegram"], "```", ""]
+        more = post.get("telegram_more", [])
+        for number, text in enumerate(more, 1):
+            lines += [f"### Telegram full edition {number}/{len(more)} "
+                      f"({feed.visible_length(text)} of {feed.LIMITS['telegram_message']})",
+                      "", "```html", text, "```", ""]
         for number, text in enumerate(post["x"], 1):
             lines += [f"### X {number}/{len(post['x'])} ({feed.x_length(text)} of {feed.LIMITS['x']})",
                       "", "```text", text, "```", ""]
@@ -641,6 +695,7 @@ def command_preview(args) -> int:
                   "", "```text", post["instagram"], "```", ""]
         payloads[post["id"]] = {
             "telegram": telegram_fields(post, "<TELEGRAM_CHAT_ID>"),
+            "telegram_more": [telegram_text_fields(text, "<TELEGRAM_CHAT_ID>") for text in more],
             **{target: buffer_input(post, target, f"<{target}-channel-id>", image_base)
                for target in ("instagram", "threads", "x")},
         }
@@ -654,8 +709,8 @@ def command_preview(args) -> int:
     return 0
 
 
-def command_sample(args, http=requests, env: dict | None = None) -> int:
-    """Post the digest this page gives to the Telegram channel now, without a notification.
+def command_sample(args, http=requests, env: dict | None = None, sleep=time.sleep) -> int:
+    """Post the digest and the full edition this page gives to the Telegram channel now, without a notification.
 
     For the day a channel is connected, and to see a format change in the real app. It reads no state
     and writes none, so the day's own digest and alerts are not affected. Started by hand only.
@@ -672,20 +727,24 @@ def command_sample(args, http=requests, env: dict | None = None) -> int:
     if len(stories) < MIN_DIGEST_STORIES:
         report([f"sample not sent: only {len(stories)} stories on the page, a digest needs {MIN_DIGEST_STORIES}"])
         return 1
-    post = feed.digest_post(stories, edition["markets"], edition["date"])
+    post = feed.digest_post(stories, edition["markets"], edition["date"], edition)
     problems = feed.post_problems(post)
     if problems:
         report([f"sample not sent, {post['id']} failed its checks: " + "; ".join(problems)])
         return 1
     cards.render_post_cards(post, edition, out_dir)
-    fields = {**telegram_fields(post, chat_id), "disable_notification": "true"}
+    refs: list[str] = []
+    expected = 1 + len(post["telegram_more"])
     try:
-        reference = send_telegram(http, token, fields, out_dir / post["cards"][0])
+        send_telegram_post(http, token, chat_id, post, out_dir, refs, sleep, silent=True)
     except (Retryable, Unconfirmed) as error:
-        report([f"sample of {post['id']} not confirmed: {scrub(str(error), [token, chat_id])}"])
+        report([f"sample of {post['id']} not confirmed after {len(refs)} of {expected} messages: "
+                f"{scrub(str(error), [token, chat_id])}"])
         return 1
     report([f"edition {edition['date']} updated {edition['updated'] or '?'}",
-            f"sample of {post['id']} posted to the Telegram channel without a notification ({reference})"])
+            f"sample of {post['id']} posted to the Telegram channel without a notification ({refs[0]})",
+            f"full edition: {len(refs) - 1} messages accepted by Telegram, "
+            f"{len(edition['stories'])} stories and {len(edition['brief'])} more items"])
     return 0
 
 

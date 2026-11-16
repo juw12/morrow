@@ -9,7 +9,8 @@ the day's edition.
 Live now: the Telegram bot, [@Morrow_brief_bot](https://t.me/Morrow_brief_bot), the publish job, which
 builds the day's posts and cards on every run, and the Telegram channel "Morrow Brief". The channel is private
 (people join by invite link), the bot is its administrator, and the daily digest is sent to it at 08:00 Jakarta
-time. The first digest through that path is due on 17 November 2026; so far the channel has received its setup,
+time, followed by the full edition: every story on the page, in the same chat. The first digest through that
+path is due on 17 November 2026; so far the channel has received its setup,
 a capability test and one sample sent by hand. Not live yet: Instagram, Threads and X. No Buffer key or account
 is connected, so those three targets are recorded as `skipped`.
 [What has been run for real](#what-has-been-run-for-real) and [What is not verified](#what-is-not-verified)
@@ -54,6 +55,26 @@ goes out with the first edition after 08:00, up to 22:00. It holds 5 stories: th
 stories the most outlets report, with at most 2 from any one section. If the edition has fewer than 3 stories,
 no digest is sent.
 
+**The full edition** follows the digest on Telegram, in the same chat. The digest (the card and its 5-story
+caption) is the one message that sends a notification. Right after it come silent text messages that carry
+everything the page prints as news:
+
+- every story on the page, numbered, under its section heading. Each one has the outlet's headline as a link to
+  the article, the page's own summary, the topic tag, the outlets that report it and the time in WIB;
+- every index on the page's market tape, with its price and its move;
+- any item from the page's "Also today" list that is not already one of the stories;
+- a link to the page on the last message.
+
+Telegram allows 4096 characters in one message, so the edition is split at 3900 visible characters, always
+between two stories and never inside one. The edition of 16 November (15 stories from 5 outlets) is 2 messages;
+the edition of 14 November (32 stories from 15 outlets) is 3. A section that runs over into the next message is
+headed "(continued)".
+
+What the full edition is not: the articles themselves. The page holds a headline and one to three sentences per
+story, and that is what is sent; where an outlet's own feed cuts its summary short, the text ends with "…" or
+"..." as it does on the page. The full article stays with the outlet, behind the link. The page's stock analysis section
+(charts and long explanations, about 41,000 characters) is left out; the last message links to the page.
+
 **An alert** is a single story outside the digest that 3 or more outlets report. Alerts are limited to 4 a day,
 at least 90 minutes apart, between 08:00 and 22:00 WIB. Most days have none or one. On Telegram an alert arrives
 silently; only the digest sends a notification.
@@ -64,7 +85,7 @@ Each platform gets its own format:
 
 | Platform | Digest | Alert | Limit enforced |
 |---|---|---|---|
-| Telegram | cover card with a caption: 5 linked headlines, section, outlet count, a link to each outlet the page names for the lead, market line | card, headline, summary, a link to each outlet the page names | 1024 |
+| Telegram | cover card with a caption: 5 linked headlines, section, outlet count, a link to each outlet the page names for the lead, market line; then the full edition as silent text messages | card, headline, summary, a link to each outlet the page names (one message) | 1024 for a caption, 4096 for a message |
 | X | thread of 5, one post per story: headline, a one-sentence summary where it fits, outlets, source link; cover card on the first | one post with the card | 280, links counted as 23 |
 | Threads | one post: as many whole headlines as fit (at least 3), the rest named by outlet, linking to the edition | headline, summary, source link | 500 |
 | Instagram | carousel: cover and one card per story; the caption gives each story a summary and names its outlets | one card | 2200 |
@@ -120,9 +141,11 @@ private generator --push--> index.html on main
 5. The results are saved again.
 
 To see a digest in the channel without waiting for 08:00, start "Morrow Brief" from the Actions tab with the
-`sample` box ticked. A separate job posts today's digest to the Telegram channel without a notification
-(`social_post.py sample`). It reads and writes no state, so it does not count as the day's digest and the real
-one still goes out. Each sample is one more post in the channel; delete it in the app if it is not wanted.
+`sample` box ticked. A separate job posts today's digest and the full edition after it to the Telegram channel, all
+without a notification (`social_post.py sample`). It reads and writes no state, so it does not count as the
+day's digest and the real one still goes out. Each sample adds the card and the full edition messages to the
+channel (3 posts for a 2-message edition); delete them in the app if they are not wanted. The job's log says
+how many full edition messages Telegram accepted.
 
 State, cards and the bot's feed live on the `social-data` branch and never touch `main`, so the workflow cannot
 collide with the generator's pushes. Each run replaces the branch with a fresh commit, so it does not grow. Posts
@@ -151,6 +174,12 @@ The design rule is that a post may be lost but must never appear twice.
 - **The run dies halfway.** Before sending, a run marks its targets `sending` with its own run id and saves that.
   If it dies, the next run finds a claim that is not its own and marks the target `unconfirmed` without sending.
 - **A timeout or an unreadable reply.** The target becomes `unconfirmed` and is left alone.
+- **A full edition message is refused.** The Telegram target becomes `failed`, and the error says which
+  message it was ("full edition message 2 of 3"). The next run starts again at that message: the card and the
+  messages Telegram already confirmed are remembered and never sent again.
+- **A full edition message gets no answer.** The target becomes `unconfirmed` and the rest of the edition is
+  not sent that day. The channel then holds the digest and part of the edition; the last message with the link
+  to the page is missing. That is the same choice as everywhere else: lose a message before sending one twice.
 - **The data branch cannot be read.** The run fails before posting. Only a branch that does not exist yet
   (the very first run) starts from an empty state.
 - **The page is stale.** If the edition's date is not today in WIB, nothing is frozen.
@@ -407,9 +436,9 @@ local repository. The following have not been run against the real services:
 
 | Path | What it does |
 |---|---|
-| `scripts/social_feed.py` | reads the edition, picks the digest and alerts, writes the text for each platform |
+| `scripts/social_feed.py` | reads the edition, picks the digest and alerts, writes the text for each platform and the full edition for Telegram |
 | `scripts/social_cards.py` | draws the cards |
-| `scripts/social_post.py` | `build`, `deliver`, `channels`, `preview`, `hold` (the wait for 08:00) and `sample` (today's digest to the channel by hand) |
+| `scripts/social_post.py` | `build`, `deliver`, `channels`, `preview`, `hold` (the wait for 08:00) and `sample` (today's digest and full edition to the channel by hand) |
 | `scripts/social_bot.py` | the polling bot, and `status`, `setup`, `photo`, `set-webhook` / `delete-webhook` |
 | `scripts/social_channel.py` | `find`, `status`, `setup` and `test` for the channel, and the channel's description and welcome post |
 | `scripts/social_save.sh` | saves the data folder to the `social-data` branch |

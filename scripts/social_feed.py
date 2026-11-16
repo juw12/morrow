@@ -29,6 +29,11 @@ MIN_THREADS_STORIES = 3  # below this the Threads digest shortens headlines rath
 MAX_THREADS_URL = 160
 MAX_PER_SECTION = 2
 ALERT_MIN_OUTLETS = 3
+# The full edition goes out as text messages after the digest. Each stays under Telegram's 4096 with room to spare.
+FULL_PART_LIMIT = 3900
+FULL_DEK = 700  # the page's summaries run to about 240; this only stops a runaway one
+FULL_BRIEF = 500
+WIB = dt.timezone(dt.timedelta(hours=7), "WIB")
 LIMITS = {
     "x": 280,
     "threads": 500,
@@ -183,8 +188,25 @@ def _parse_markets(soup: BeautifulSoup) -> list[dict]:
     return quotes
 
 
+def _parse_brief(soup: BeautifulSoup, story_urls: set[str]) -> list[dict]:
+    """The page's 'Also today' list: one line of text and the outlet it links to. Front-page stories are left out."""
+    items = []
+    for entry in soup.select(".brief-list li"):
+        anchor = entry.select_one("a.brief-src[href]")
+        if not anchor:
+            continue
+        url = anchor["href"].strip()
+        source = clean(anchor.get_text(" ")).rstrip("\u2197 ").strip()
+        anchor.extract()
+        # The page joins headline and comment with a full stop, which leaves "?." after a question.
+        text = re.sub(r"([?!])\.(?=\s|$)", r"\1", clean(entry.get_text(" ")))
+        if url.startswith("http") and text and url not in story_urls:
+            items.append({"text": text, "source": source, "url": url})
+    return items
+
+
 def parse_edition(page_html: str) -> dict:
-    """Read the published page into {date, updated, stories, markets}. Stories keep page order."""
+    """Read the published page into {date, updated, stories, markets, brief}. Stories keep page order."""
     soup = BeautifulSoup(page_html, "html.parser")
     section_titles = _section_titles(soup)
     stories: list[dict] = []
@@ -209,6 +231,7 @@ def parse_edition(page_html: str) -> dict:
         "updated": updated.group(1) if updated else "",
         "stories": stories,
         "markets": _parse_markets(soup),
+        "brief": _parse_brief(soup, {story["url"] for story in stories}),
     }
 
 
@@ -408,6 +431,26 @@ def markets_line(markets: list[dict], count: int = 4) -> str:
     return " · ".join(parts)
 
 
+def tape_lines(markets: list[dict]) -> list[str]:
+    """Every index on the page with its last price and move, one per line."""
+    arrows = {"up": "▲", "down": "▼", "flat": "="}
+    return [esc(f"{quote['name']}  {quote['price']}  {arrows[quote['dir']]}{quote['pct']:.2f}%") for quote in markets]
+
+
+def published_label(story: dict, date_iso: str) -> str:
+    """When the outlet published, in Jakarta time: '14:05 WIB', with the day when it is not the edition's."""
+    try:
+        moment = dt.datetime.fromisoformat(story["published_iso"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+    if moment.tzinfo is None:
+        return ""
+    local = moment.astimezone(WIB)
+    if local.date().isoformat() == date_iso:
+        return f"{local:%H:%M} WIB"
+    return f"{local:%a} {local.day} {local:%b} {local:%H:%M} WIB"
+
+
 def hashtags(stories: list[dict], limit: int = 5) -> str:
     tags: list[str] = []
     for story in stories:
@@ -429,12 +472,16 @@ def post_problems(post: dict) -> list[str]:
               ("threads", len(post["threads"]), LIMITS["threads"]),
               ("instagram", len(post["instagram"]), LIMITS["instagram"])]
     checks += [(f"x {number}", x_length(text), LIMITS["x"]) for number, text in enumerate(post["x"], 1)]
+    # Alerts, and digests frozen before the full edition existed, carry no follow-up messages.
+    more = post.get("telegram_more", [])
+    checks += [(f"telegram full edition {number}", visible_length(text), LIMITS["telegram_message"])
+               for number, text in enumerate(more, 1)]
     for name, length, limit in checks:
         if length > limit:
             problems.append(f"{name} text is {length}, the limit is {limit}")
         if length == 0:
             problems.append(f"{name} text is empty")
-    texts = [post["telegram"], post["threads"], post["instagram"], *post["x"], *post["alts"]]
+    texts = [post["telegram"], post["threads"], post["instagram"], *post["x"], *post["alts"], *more]
     if any(has_emoji(text) for text in texts):
         problems.append("emoji in the text")
     if "<a href=" not in post["telegram"]:
@@ -644,8 +691,89 @@ def digest_instagram(stories: list[dict], markets: list[dict], date_iso: str) ->
     return build(40, False)
 
 
-def digest_post(stories: list[dict], markets: list[dict], date_iso: str) -> dict:
-    return {
+def _full_story(number: int, story: dict, date_iso: str) -> str:
+    """One story of the full edition: linked headline, the page's summary whole, then tag, outlets and time."""
+    lines = [f"<b>{number}.</b> {link(story['url'], truncate(story['title'], MAX_TITLE))}"]
+    if story["dek"] and story["dek"] != story["title"]:
+        lines.append(esc(truncate(story["dek"], FULL_DEK)))
+    if len(outlet_names(story)) > 1:
+        hidden = story["coverage"] - len(outlet_names(story))
+        outlets = f"{story['coverage']} outlets: {outlet_links(story)}" + (f" +{hidden}" if hidden > 0 else "")
+    elif story["coverage"] > 1 and story["source"]:
+        outlets = f"{story['coverage']} outlets, first: {esc(story['source'])}"
+    else:
+        outlets = f"via {esc(story['source'])}" if story["source"] else ""
+    facts = [esc(story["tag"]), outlets, published_label(story, date_iso)]
+    lines.append(" · ".join(fact for fact in facts if fact))
+    return "\n".join(lines)
+
+
+def full_edition_telegram(edition: dict, limit: int = FULL_PART_LIMIT) -> list[str]:
+    """The whole edition as Telegram messages, sent after the digest.
+
+    Every story on the page under its section, with the summary the page carries, then every index
+    and the page's 'Also today' list. A message ends between two stories, never inside one. A story
+    that alone is longer than `limit` still gets its own message, so nothing is ever dropped.
+    """
+    date_iso = edition["date"]
+    stories = edition["stories"]
+    if not date_iso or not stories:
+        return []
+    units: list[tuple[str, str]] = []  # (heading it belongs under, text)
+    number = 0
+    for section in dict.fromkeys(story["section"] or "More" for story in stories):
+        for story in stories:
+            if (story["section"] or "More") == section:
+                number += 1
+                units.append((section.upper(), _full_story(number, story, date_iso)))
+    if edition["markets"]:
+        units.append(("MARKETS", "\n".join(["Last close.", *tape_lines(edition["markets"]), "Not financial advice."])))
+    for item in edition.get("brief", []):
+        text = esc(truncate(item["text"], FULL_BRIEF))
+        units.append(("ALSO TODAY", f"• {text} {link(item['url'], item['source'] or 'source')}"))
+    intro = (
+        f"{len(stories)} stories from {outlet_total(stories)} outlets, each with the summary its outlet published. "
+        "A headline opens the full article at the outlet."
+    )
+    footer = f"Charts and the stock analysis are on the page: {link(SITE_URL, SITE_SHORT)}"
+
+    def render(group: list[tuple[str, str]], part: int, total: int, opened: set[str], last: bool) -> str:
+        head = f"<b>{esc(BRAND)} · {short_date(date_iso)}</b> · full edition"
+        blocks = [head + (f" {part}/{total}" if total > 1 else "") + (f"\n{intro}" if part == 1 else "")]
+        current = None
+        for heading, text in group:
+            if heading != current:
+                label = f"<b>{esc(heading)}</b>" + (" (continued)" if heading in opened else "")
+                blocks.append(f"{label}\n{text}")
+                current = heading
+            else:
+                blocks.append(text)
+        if last:
+            blocks.append(footer)
+        return "\n\n".join(blocks)
+
+    # Fill each message until the next story would not fit. The part count is not known yet, so the
+    # measure assumes two digits and a footer: the real text can only be shorter.
+    groups: list[list[tuple[str, str]]] = [[]]
+    opened: set[str] = set()
+    for unit in units:
+        candidate = groups[-1] + [unit]
+        if groups[-1] and visible_length(render(candidate, len(groups), 99, opened, True)) > limit:
+            opened |= {heading for heading, _ in groups[-1]}
+            groups.append([unit])
+        else:
+            groups[-1] = candidate
+    parts = []
+    opened = set()
+    for index, group in enumerate(groups, 1):
+        parts.append(render(group, index, len(groups), opened, index == len(groups)))
+        opened |= {heading for heading, _ in group}
+    return parts
+
+
+def digest_post(stories: list[dict], markets: list[dict], date_iso: str, edition: dict | None = None) -> dict:
+    """The day's digest. Given the edition, it also carries the full edition as follow-up Telegram messages."""
+    post = {
         "id": f"digest-{date_iso}",
         "kind": "digest",
         "date": date_iso,
@@ -658,6 +786,9 @@ def digest_post(stories: list[dict], markets: list[dict], date_iso: str) -> dict
         "threads": digest_threads(stories, date_iso),
         "instagram": digest_instagram(stories, markets, date_iso),
     }
+    if edition:
+        post["telegram_more"] = full_edition_telegram(edition)
+    return post
 
 
 # --------------------------------------------------------------------------- Telegram bot replies
@@ -756,11 +887,7 @@ def bot_replies(edition: dict) -> dict[str, str]:
         if section_stories:
             replies[command] = _list_reply(f"{section_names[section]} · {date_label}", section_stories)
     if edition["markets"]:
-        tape = [f"<b>Tape · {date_label}</b>", ""]
-        for quote in edition["markets"]:
-            arrow = {"up": "▲", "down": "▼", "flat": "="}[quote["dir"]]
-            tape.append(esc(f"{quote['name']}  {quote['price']}  {arrow}{quote['pct']:.2f}%"))
-        tape += ["", "Not financial advice."]
+        tape = [f"<b>Tape · {date_label}</b>", "", *tape_lines(edition["markets"]), "", "Not financial advice."]
         replies["/tape"] = "\n".join(tape)
     replies["/sources"] = (
         f"<b>{len(stories)} stories from {len(names)} outlets · {date_label}</b>\n\n" + esc(", ".join(names))
