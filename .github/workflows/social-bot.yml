@@ -20,8 +20,16 @@ on:
           - photo
           - set-webhook
           - delete-webhook
+          - channel-find
+          - channel-status
+          - channel-setup
+          - channel-test
       url:
         description: Worker URL, for set-webhook (https://...workers.dev)
+        type: string
+        required: false
+      chat:
+        description: Channel, for the channel-* actions (@handle or a post link; empty uses TELEGRAM_CHAT_ID)
         type: string
         required: false
 
@@ -104,3 +112,11 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python scripts/social_bot.py delete-webhook
+      - name: Find, read, set up or test the channel
+        if: startsWith(inputs.action, 'channel-')
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ACTION: ${{ inputs.action }}
+          CHAT: ${{ inputs.chat }}
+        run: python scripts/social_channel.py "${ACTION#channel-}" --chat "$CHAT"
