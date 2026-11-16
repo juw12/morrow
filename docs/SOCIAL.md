@@ -6,12 +6,14 @@ the day's edition.
 
 > Tech and markets, read across the outlets. One brief a day, every story sourced.
 
-Live now: the Telegram bot, [@Morrow_brief_bot](https://t.me/Morrow_brief_bot), and the publish job, which
-builds the day's posts and cards on every run. Not live yet: the pages themselves. A Telegram channel exists
-with the bot added to it, but it is not connected yet because the bot has not been told which channel it is.
-No Buffer key or Instagram, Threads or X account is connected either, so every post target is recorded as
-`skipped` and nothing has been posted. [What has been run for real](#what-has-been-run-for-real) and
-[What is not verified](#what-is-not-verified) say exactly where the line is.
+Live now: the Telegram bot, [@Morrow_brief_bot](https://t.me/Morrow_brief_bot), the publish job, which
+builds the day's posts and cards on every run, and the Telegram channel "Morrow Brief". The channel is private
+(people join by invite link), the bot is its administrator, and the daily digest is sent to it at 08:00 Jakarta
+time. The first digest through that path is due on 17 November 2026; so far the channel has received its setup,
+a capability test and one sample sent by hand. Not live yet: Instagram, Threads and X. No Buffer key or account
+is connected, so those three targets are recorded as `skipped`.
+[What has been run for real](#what-has-been-run-for-real) and [What is not verified](#what-is-not-verified)
+say exactly where the line is.
 
 ## Why this page, when AI news channels already exist
 
@@ -25,7 +27,7 @@ Girsta column reports what those posts show.
 | Sourcing | no post links to the reporting behind it; 3 of the 28 name a news outlet in the text. Every link goes to its own Instagram pages or, in older posts, its Discord | every story says how many outlets report it, and the lead links to each one the page names |
 | Format | an emoji, a headline and two or three short paragraphs (66 words at the median); a photo or video on 25 of the 28 | the outlet's own headline, no emoji, and a card drawn from the text |
 | Scope | AI | AI and chips, big tech, robotics, space, tech, plus a market line |
-| Platforms | Telegram, with its Instagram pages linked under each post | built for Telegram, Instagram, Threads and X. Only the Telegram bot is live so far |
+| Platforms | Telegram, with its Instagram pages linked under each post | built for Telegram, Instagram, Threads and X. On Telegram the bot is live and the channel is set up; the other three are not connected |
 | Bot | none named on the channel page or in the posts read | section commands and `/find <word>` |
 
 Three subjects appear on both in the same two days: the fallout from Jensen Huang's exit at Nvidia, the
@@ -46,12 +48,14 @@ Three more things are true of Morrow Brief on their own account, whatever a comp
 
 ## What gets posted
 
-**The digest** goes out once a day, on the first edition published between 06:00 and 22:00 Jakarta time (WIB).
-It holds 5 stories: the page's lead story, then the stories the most outlets report, with at most 2 from any
-one section. If the edition has fewer than 3 stories, no digest is sent.
+**The digest** goes out once a day at 08:00 Jakarta time (WIB). An edition published between 07:00 and 08:00
+starts a run that waits until 08:00 and then reads the newest page. With no edition in that hour, the digest
+goes out with the first edition after 08:00, up to 22:00. It holds 5 stories: the page's lead story, then the
+stories the most outlets report, with at most 2 from any one section. If the edition has fewer than 3 stories,
+no digest is sent.
 
 **An alert** is a single story outside the digest that 3 or more outlets report. Alerts are limited to 4 a day,
-at least 90 minutes apart, between 06:00 and 22:00 WIB. Most days have none or one. On Telegram an alert arrives
+at least 90 minutes apart, between 08:00 and 22:00 WIB. Most days have none or one. On Telegram an alert arrives
 silently; only the digest sends a notification.
 
 No story is posted twice in a day, and a story in the digest is never sent again as an alert.
@@ -103,14 +107,22 @@ private generator --push--> index.html on main
            Buffer fetches the cards      the bot reads feed.json
 ```
 
-1. The private generator pushes a new `index.html`. That push starts the workflow. The workflow also starts
-   itself every 3 hours as a fallback; a run that finds nothing new posts nothing.
+1. The private generator pushes a new `index.html`. That push starts the workflow. A run that starts between
+   07:00 and 08:00 WIB waits in the publish job until 08:00 (`social_post.py hold`), then fetches the newest
+   `index.html`, so the 08:00 digest is built from the latest edition and not from the one that started the
+   run. The workflow also has a 3-hour schedule as a fallback, but GitHub has not started a single scheduled
+   run of it so far, so the timing rests on the edition push. A run that finds nothing new posts nothing.
 2. The tests run. If they fail, nothing is posted.
 3. `build` reads the page, decides whether a digest or alert is due, draws the cards and freezes the post into
    `state.json`. A frozen post is never rewritten, even if the page changes before it is sent.
 4. The state is saved to the `social-data` branch, and only then does `deliver` send: Telegram directly, and
    Instagram, Threads and X through Buffer's API.
 5. The results are saved again.
+
+To see a digest in the channel without waiting for 08:00, start "Morrow Brief" from the Actions tab with the
+`sample` box ticked. A separate job posts today's digest to the Telegram channel without a notification
+(`social_post.py sample`). It reads and writes no state, so it does not count as the day's digest and the real
+one still goes out. Each sample is one more post in the channel; delete it in the app if it is not wanted.
 
 State, cards and the bot's feed live on the `social-data` branch and never touch `main`, so the workflow cannot
 collide with the generator's pushes. Each run replaces the branch with a fresh commit, so it does not grow. Posts
@@ -246,7 +258,8 @@ line appears only while the poller is the one answering.
 
 ## Setup
 
-Until these steps are done the workflow runs, records every target as `skipped` and posts nothing.
+The Telegram part (steps 1, 2 and the two Telegram secrets in step 5) is done. Until the Buffer steps are
+done, Instagram, Threads and X are recorded as `skipped`.
 
 1. Create the page accounts: a Telegram channel, an Instagram professional account, Threads and X. Suggested
    handle `morrowbrief`, with `morrowdaily` as a fallback. On Telegram, `channel-find` saw no chat under either
@@ -278,6 +291,11 @@ Until these steps are done the workflow runs, records every target as `skipped` 
    | secret | `TELEGRAM_BOT_TOKEN` | the token from @BotFather |
    | secret | `TELEGRAM_CHAT_ID` | the channel, as `@handle` or its numeric id |
    | variable | `MORROW_BUFFER_CHANNELS` | the three channel ids, comma separated |
+
+   Set a secret from a program, not through a PowerShell pipe. `"value" | gh secret set NAME` put an
+   invisible byte-order mark in front of `CHANNEL_HANDOFF_KEY`, and the key then failed to open the sealed
+   channel id. Python's `subprocess.run(["gh", "secret", "set", "NAME"], input=value, text=True)`
+   stored it cleanly.
 
 6. Run "Morrow Brief" once from the Actions tab and read the run summary.
 
@@ -322,16 +340,32 @@ Looking for the channel, after the bot was added to one:
 | [channel-find](https://github.com/juw12/morrow/actions/runs/43814647188) | 30 more names asked; 27 not found or not visible; `@morrow_ai`, `@morrowchannel` and `@morrow_official` belong to other people; 0 with the bot as admin |
 | [channel-find](https://github.com/juw12/morrow/actions/runs/43834584832) | 30 spellings of "Morrow News" asked; none exist |
 | [channel-status](https://github.com/juw12/morrow/actions/runs/43830646525) | `@MorrowNews` is a group in Russian owned by someone else; the bot is not in it. Nothing was changed there |
-| [channel-listen](https://github.com/juw12/morrow/actions/runs/43841280255) | started 09:36 UTC with 4 rounds; the listening step is running. Nothing captured yet when this was written |
+| [channel-listen](https://github.com/juw12/morrow/actions/runs/43841280255) | started 09:36 UTC with 4 rounds and ended in the first, 22 minutes later: it saw a post in the channel, set the name "Morrow Brief", the description and the picture, pinned a welcome post, and ran the capability test: 9 of 9 checks passed and 6 of 6 test posts were deleted again |
 | [status](https://github.com/juw12/morrow/actions/runs/43841481333) | run while the listener waits: "webhook: none", so the listener, not the Worker, holds the bot's messages |
 
 The find runs end red on purpose, because nothing was found: 84 names asked in three runs, 0 with the bot as
-admin. The channel is called "Morrow News" and is private. The only link to it found so far is an invite link
+admin. The channel was called "Morrow News" and is private. The only link to it was an invite link
 (`t.me/+...`), and the Bot API cannot turn an invite link into a chat. A private channel has no `@handle`, so
 the bot can only be pointed at it with the link of a post in it (`https://t.me/c/<number>/<post>`) or its
 numeric id. The webhook was set to deliver messages only, so the moment the bot was made an admin was never
-delivered either. `channel-setup` and `channel-test` have therefore not been run. `channel-listen` was
-written for this case: it waits for a post in the channel instead of asking for its id.
+delivered either. `channel-listen` was written for this case: it waits for a post in the channel instead of
+asking for its id, and that is how the channel was found.
+
+With the channel found, its id went into the secret `TELEGRAM_CHAT_ID`:
+
+| Run | Result |
+|---|---|
+| [status](https://github.com/juw12/morrow/actions/runs/43846051667) | after the listener ended: `@Morrow_brief_bot`, webhook is the Worker's URL again |
+| [channel-status](https://github.com/juw12/morrow/actions/runs/43846072991) | read from the stored id: channel "Morrow Brief", private, description of 253 characters, picture set, pinned post yes, comments off, 2 subscribers; the bot is administrator with "Post messages" and "Change channel info" |
+| [Morrow Brief](https://github.com/juw12/morrow/actions/runs/43849244842) | started by hand at 17:29 WIB with the 08:00 change: "no wait, the 08:00 opening is not within the next hour"; "no new post: no unused story is reported by 3 or more outlets"; nothing sent |
+| [Morrow Brief, sample](https://github.com/juw12/morrow/actions/runs/43852358827) | started by hand at 17:50 WIB with `sample` ticked: "sample of digest-2026-11-16 posted to the Telegram channel without a notification". Telegram returned a message id, so the channel accepted the digest card and caption. The publish job in the same run had nothing new to post |
+
+The digest and the one alert of 16 November were frozen before the channel was linked, with
+Telegram recorded as `skipped`. A skipped target is not retried, so that day's digest did not go to the channel
+through the normal path; the sample above is the same digest sent by hand.
+
+Of the 9 runs of "Morrow Brief" so far, 3 were started by an edition push, 4 by hand and 2 by a pull request.
+None was started by the schedule, in about 9 hours with a run due every 3.
 
 Two commits (`6db1b78`, `1009b61`) carry a personal e-mail address as author instead of the GitHub no-reply
 address. They were not rewritten: the same address is on a commit from 8 November, 93 commits back, so only a
@@ -352,19 +386,20 @@ local repository. The following have not been run against the real services:
 - a real Buffer `createPost`. The request shape follows Buffer's live schema, read by introspection;
 - a real person's message answered through the webhook. The poller answered 4 real messages, and the Worker
   answers a made-up message sent with the secret, but no message from Telegram to the Worker has been seen;
-- how the profile looks in the app. Telegram accepted every profile call; nobody has looked at the result;
-- anything in the real channel: its name, description, picture and pinned post have not been set, the
-  capability test has not been run, and no digest has been posted there. The channel is private; the
-  listener is waiting for a post in it;
-- `channel-listen` against the real Telegram beyond its start: capturing a real channel, answering a real
-  message while it listens, and the hand-back to the Worker at the end of a round;
+- how the bot's profile and the channel look in the app. Telegram accepted every call and reported the
+  channel's name, description, picture and pinned post back; the result has not been looked at on a phone
+  as part of this work;
+- a digest sent at 08:00 through the normal path. The first is due on 17 November 2026. The wait itself is
+  covered by unit tests with a fake clock; no real run has started between 07:00 and 08:00 WIB yet;
+- an alert in the channel. None has been due since it was linked;
+- the 08:00 digest on a day when the PC that publishes the edition is off or its refresh is skipped. There is
+  then no new page to post from, and the digest goes out with the first edition after 08:00;
+- `channel-listen` over more than one round, and answering a real person's message while it listens;
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
 - whether Threads counts a link at full length (the code assumes it does);
-- whether the generator's pushes start the workflow. A push made with the default `GITHUB_TOKEN` of another
-  workflow would not; a push with a personal token or deploy key does. If they do not, the 3-hour schedule still
-  posts, but the digest can be up to 3 hours later than the first edition and alerts arrive in 3-hour steps.
-  GitHub pauses schedules in a repository with no activity for 60 days;
+- the schedule. The generator's pushes do start the workflow (3 runs on 16 November), but GitHub has not
+  started one scheduled run of it. If a push ever fails to start a run, nothing else is known to;
 - handle availability on Instagram, Threads and X, and on Telegram beyond the 54 names asked;
 - anything about Girsta beyond the 111 posts and the channel page read on 16 November 2026.
 
@@ -374,7 +409,7 @@ local repository. The following have not been run against the real services:
 |---|---|
 | `scripts/social_feed.py` | reads the edition, picks the digest and alerts, writes the text for each platform |
 | `scripts/social_cards.py` | draws the cards |
-| `scripts/social_post.py` | `build`, `deliver`, `channels`, `preview` |
+| `scripts/social_post.py` | `build`, `deliver`, `channels`, `preview`, `hold` (the wait for 08:00) and `sample` (today's digest to the channel by hand) |
 | `scripts/social_bot.py` | the polling bot, and `status`, `setup`, `photo`, `set-webhook` / `delete-webhook` |
 | `scripts/social_channel.py` | `find`, `status`, `setup` and `test` for the channel, and the channel's description and welcome post |
 | `scripts/social_save.sh` | saves the data folder to the `social-data` branch |
