@@ -14,19 +14,27 @@ has been posted. [What has been run for real](#what-has-been-run-for-real) and
 
 ## Why this page, when AI news channels already exist
 
-The closest comparison is Girsta AI News (`t.me/girsta`), an automated English AI news channel on Telegram. Morrow
-Brief is built to differ in ways a reader sees in the posts themselves:
+The closest comparison is Girsta AI News (`t.me/girsta`), an English AI news channel on Telegram. Its public
+preview (`t.me/s/girsta`) was read on 16 November 2026: the channel page and 111 posts, numbers 1577 to 1702. The
+Girsta column reports what those posts show.
 
 | | Girsta AI News | Morrow Brief |
 |---|---|---|
-| Volume | automated posts through the day | one digest of 5 stories, plus at most 4 alerts a day |
+| Volume | separate posts through the day: 28 in the six days from 10 to 15 November, between 2 and 8 a day | one digest of 5 stories, plus at most 4 alerts a day |
+| Sourcing | no post links to the reporting behind it; 3 of the 28 name a news outlet in the text. Every link goes to its own Instagram pages or, in older posts, its Discord | every story says how many outlets report it, and the lead links to each one the page names |
+| Format | an emoji, a headline and two or three short paragraphs (66 words at the median); a photo or video on 25 of the 28 | the outlet's own headline, no emoji, and a card drawn from the text |
 | Scope | AI | AI and chips, big tech, robotics, space, tech, plus a market line |
-| Platforms | Telegram | Telegram, Instagram, Threads, X |
-| Bot | none found | section commands and `/find <word>` |
+| Platforms | Telegram, with its Instagram pages linked under each post | built for Telegram, Instagram, Threads and X. Only the Telegram bot is live so far |
+| Bot | none named on the channel page or in the posts read | section commands and `/find <word>` |
 
-The table holds only what could be compared. The Girsta column comes from a secondary source (Telepick, about 486
-subscribers); the channel could not be opened from the machine this was built on, so how Girsta sources its
-posts, what its images look like and how it writes were not checked and are not compared.
+Three subjects appear on both in the same two days: the fallout from Jensen Huang's exit at Nvidia, the
+Microsoft 365 outage and ChatGPT Wallet. Girsta's posts on them give its own summary and no link. Morrow Brief's
+digest gives each one with the outlet's headline, a link to that article, and the number of outlets reporting
+it (3, 2 and 3).
+
+The channel page showed 484 subscribers, and the 28 November posts had between 12 and 78 views each. The preview
+shows no posts between 4 July and 10 November 2026. Not checked: its Instagram pages, what its photos and videos
+show, posts before number 1577, and any bot the channel does not name.
 
 Three more things are true of Morrow Brief on their own account, whatever a competitor does:
 
@@ -251,7 +259,8 @@ local repository. The following have not been run against the real services:
   workflow would not; a push with a personal token or deploy key does. If they do not, the 3-hour schedule still
   posts, but the digest can be up to 3 hours later than the first edition and alerts arrive in 3-hour steps.
   GitHub pauses schedules in a repository with no activity for 60 days;
-- handle availability, and the Girsta figures above.
+- handle availability;
+- anything about Girsta beyond the 111 posts and the channel page read on 16 November 2026.
 
 ## Files
 
