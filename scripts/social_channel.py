@@ -4,20 +4,28 @@
     python scripts/social_channel.py status --chat @handle   (what the channel shows, what the bot may do)
     python scripts/social_channel.py setup --chat @handle    (name, description, picture, pinned welcome)
     python scripts/social_channel.py test --chat @handle     (posts, edits, reacts, then deletes its posts)
+    python scripts/social_channel.py listen --seconds 19200  (waits for the channel to show itself, then
+                                                              runs setup, test and status on it)
 
 Without --chat the commands use TELEGRAM_CHAT_ID. A bot cannot list the chats it is in, so `find` asks
 Telegram about each name it is given, or about the likely Morrow Brief handles, and reports where the bot
-is an admin. Run logs are public: a private channel's id is never printed.
+is an admin. A private channel has no name to ask about and its invite link (t.me/+...) tells a bot nothing,
+so `listen` waits until Telegram reports the channel: a post in it, a change to the bot's admin rights, or
+one of its posts forwarded to the bot. Run logs are public: a private channel's id is never printed, only
+a sealed form that the holder of CHANNEL_HANDOFF_KEY can read.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
+import hmac
 import io
 import json
 import os
 import re
 import sys
 import time
+from pathlib import Path
 
 import requests
 
@@ -53,6 +61,18 @@ NOT_POSSIBLE = [
     "see who the subscribers are (only how many)",
     "create the channel or set its public @handle (only the owner can, in the app)",
 ]
+# What the listener asks Telegram to report. The webhook only asks for "message", which is why a channel
+# the bot was added to earlier left no trace.
+LISTEN_UPDATES = ["message", "channel_post", "my_chat_member"]
+LISTEN_POLL_SECONDS = 50
+LISTEN_MAX_FAILURES = 8
+LISTEN_FEED_REFRESH_SECONDS = 900
+SETTLE_ROUNDS = 5
+# The word a channel's name must contain before the listener takes it for the Morrow channel.
+CHANNEL_NAME_WORD = "morrow"
+SEAL_NONCE_BYTES = 8
+SEAL_ID_BYTES = 24
+SEAL_CHECK_BYTES = 4
 
 
 def description(bot_username: str) -> str:
@@ -344,11 +364,214 @@ def target(args) -> str | None:
     return chat_reference(args.chat or "") or chat_reference(os.environ.get("TELEGRAM_CHAT_ID") or "")
 
 
+def _seal_pad(key: str, nonce: bytes) -> bytes:
+    return hmac.new(key.encode(), b"pad" + nonce, hashlib.sha256).digest()[:SEAL_ID_BYTES]
+
+
+def _seal_check(key: str, body: bytes) -> bytes:
+    return hmac.new(key.encode(), b"check" + body, hashlib.sha256).digest()[:SEAL_CHECK_BYTES]
+
+
+def seal(chat_id, key: str) -> str:
+    """Hide a private channel's id so it can pass through a public run log. Only the key opens it.
+
+    The id is padded to a fixed length and mixed with a one-time pad made from the key and a fresh nonce,
+    so two seals of the same id look unrelated and the length says nothing."""
+    nonce = os.urandom(SEAL_NONCE_BYTES)
+    plain = str(chat_id).encode().ljust(SEAL_ID_BYTES)
+    hidden = bytes(a ^ b for a, b in zip(plain, _seal_pad(key, nonce)))
+    return (nonce + hidden + _seal_check(key, nonce + hidden)).hex()
+
+
+def unseal(sealed: str, key: str) -> str | None:
+    """The id inside a seal, or None when the text is not a seal made with this key."""
+    try:
+        raw = bytes.fromhex((sealed or "").strip())
+    except ValueError:
+        return None
+    if len(raw) != SEAL_NONCE_BYTES + SEAL_ID_BYTES + SEAL_CHECK_BYTES:
+        return None
+    body, check = raw[:-SEAL_CHECK_BYTES], raw[-SEAL_CHECK_BYTES:]
+    if not hmac.compare_digest(check, _seal_check(key, body)):
+        return None
+    nonce, hidden = body[:SEAL_NONCE_BYTES], body[SEAL_NONCE_BYTES:]
+    return bytes(a ^ b for a, b in zip(hidden, _seal_pad(key, nonce))).decode().strip()
+
+
+def channel_in(update: dict) -> dict | None:
+    """The channel an update came from or points to, if any.
+
+    A post in the channel, a change to the bot's place in it, or one of its posts forwarded to the bot."""
+    message = update.get("message") or {}
+    places = [
+        (update.get("channel_post") or {}).get("chat"),
+        (update.get("my_chat_member") or {}).get("chat"),
+        (message.get("forward_origin") or {}).get("chat"),
+        message.get("forward_from_chat"),
+    ]
+    for chat in places:
+        if isinstance(chat, dict) and chat.get("type") == "channel" and "id" in chat:
+            return chat
+    return None
+
+
+def say_now(line: str) -> None:
+    """Print without waiting for the buffer: a run that waits for hours must show its first line at once."""
+    print(line, flush=True)
+
+
+def listen(http, token: str, feed_data: dict, seconds: int, say=say_now, clock=time.monotonic,
+           sleep=time.sleep, refresh=None) -> tuple[dict | None, int | None]:
+    """Take over from the webhook and wait for the Morrow channel to show itself.
+
+    While it waits it answers the bot's messages, as the Worker would. Returns the channel (or None when
+    the time is up) and the offset to hand to `settle`. Other chats are counted, never named."""
+    me, error = ask(http, token, "getMe")
+    if error:
+        say(f"getMe failed: {error}")
+        return None, None
+    _result, error = ask(http, token, "deleteWebhook", {"drop_pending_updates": False})
+    if error:
+        say(f"deleteWebhook failed: {error}")
+        return None, None
+    say(f"listening as @{me.get('username')} for up to {seconds // 60} minutes. The webhook is off: this run "
+        "answers the bot's messages until it hands back.")
+    say(f"waiting for a channel with \"{CHANNEL_NAME_WORD}\" in its name where the bot is an admin: post "
+        "anything in it, change the bot's admin rights, or forward one of its posts to the bot")
+    offset: int | None = None
+    found: dict | None = None
+    answered = ignored = failures = 0
+    started = clock()
+    deadline = started + seconds
+    refreshed = started
+    while found is None and clock() < deadline:
+        if refresh and clock() - refreshed >= LISTEN_FEED_REFRESH_SECONDS:
+            refreshed = clock()
+            newer = refresh()
+            if newer:
+                feed_data.clear()
+                feed_data.update(newer)
+        wait = max(1, min(LISTEN_POLL_SECONDS, int(deadline - clock())))
+        payload = {"timeout": wait, "allowed_updates": LISTEN_UPDATES}
+        if offset is not None:
+            payload["offset"] = offset
+        try:
+            status, body = bot.call(http, token, "getUpdates", payload, timeout=wait + 20)
+            reason = bot.scrub(str(body.get("description") or status), token)
+        except requests.exceptions.RequestException as problem:
+            status, body, reason = 0, {}, f"Telegram unreachable ({type(problem).__name__})"
+        if status == 409:
+            say(f"stopped: something else is reading the bot's messages ({reason})")
+            break
+        if status != 200 or not body.get("ok"):
+            failures += 1
+            if failures >= LISTEN_MAX_FAILURES:
+                say(f"stopped after {failures} failed calls in a row: {reason}")
+                break
+            sleep(min(60, 15 * failures))
+            continue
+        failures = 0
+        for update in body.get("result") or []:
+            # Move the offset first: an update that cannot be handled is skipped, never retried forever.
+            offset = update["update_id"] + 1
+            chat = channel_in(update)
+            if chat:
+                named = CHANNEL_NAME_WORD in (chat.get("title") or "").casefold()
+                if named and membership(http, token, chat["id"], me["id"])[0] == "administrator":
+                    found = chat
+                    break
+                ignored += 1
+            try:
+                line = bot.answer(http, token, feed_data, update)
+            except requests.exceptions.RequestException:
+                line = None
+            answered += bool(line and line.startswith("answered"))
+    say(f"{answered} messages answered while listening, {ignored} updates from other channels ignored")
+    say(f"FOUND: the bot is an admin of {shown(found)}" if found else "no Morrow channel showed itself in this round")
+    return found, offset
+
+
+def settle(http, token: str, feed_data: dict, offset: int | None) -> int:
+    """Answer what arrived since `listen` stopped and tell Telegram which updates are dealt with.
+
+    Without this the Worker would be handed messages that were already answered. Returns the answers sent."""
+    answered = 0
+    if offset is None:
+        return answered
+    for _round in range(SETTLE_ROUNDS):
+        try:
+            status, body = bot.call(http, token, "getUpdates", {
+                "timeout": 0, "offset": offset, "allowed_updates": LISTEN_UPDATES,
+            }, timeout=20)
+        except requests.exceptions.RequestException:
+            return answered
+        updates = body.get("result") or []
+        if status != 200 or not body.get("ok") or not updates:
+            return answered
+        for update in updates:
+            offset = update["update_id"] + 1
+            try:
+                line = bot.answer(http, token, feed_data, update)
+            except requests.exceptions.RequestException:
+                line = None
+            answered += bool(line and line.startswith("answered"))
+    # Still busy: acknowledge what was answered. The one update this call returns is left for the Worker.
+    try:
+        bot.call(http, token, "getUpdates", {
+            "timeout": 0, "limit": 1, "offset": offset, "allowed_updates": LISTEN_UPDATES,
+        }, timeout=20)
+    except requests.exceptions.RequestException:
+        pass
+    return answered
+
+
+def fetched_feed(http, url: str) -> dict | None:
+    """Today's feed from where the publisher puts it, or None when it cannot be read just now."""
+    try:
+        response = http.get(url, timeout=30)
+        return response.json() if response.status_code == 200 else None
+    except (requests.exceptions.RequestException, ValueError):
+        return None
+
+
+def run_listen(args, token: str) -> int:
+    path = Path(args.feed)
+    feed_data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    refresh = (lambda: fetched_feed(requests, args.feed_url)) if args.feed_url else None
+    chat, offset = listen(requests, token, feed_data, args.seconds, refresh=refresh)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write(f"found={'true' if chat else 'false'}\n")
+    if not chat:
+        settle(requests, token, feed_data, offset)
+        return 0
+    chat_id = str(chat["id"])
+    key = (os.environ.get("CHANNEL_HANDOFF_KEY") or "").strip()
+    say_now("sealed id: " + seal(chat_id, key) if key
+            else "CHANNEL_HANDOFF_KEY is not set, so the channel's id is not handed over")
+    picture = avatar_jpeg()
+    failed = 0
+    say_now("--- setup ---")
+    log, problems = setup(requests, token, chat_id, picture)
+    say_now("\n".join(log))
+    failed += problems
+    say_now("--- test ---")
+    log, problems = test(requests, token, chat_id, picture, sleep=time.sleep)
+    say_now("\n".join(log))
+    failed += problems
+    say_now("--- status ---")
+    say_now("\n".join(status(requests, token, chat_id)[0]))
+    settle(requests, token, feed_data, offset)
+    return 1 if failed else 0
+
+
 def run(args) -> int:
     token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
     if not token:
         print("Set TELEGRAM_BOT_TOKEN first.")
         return 1
+    if args.command == "listen":
+        return run_listen(args, token)
     if args.command == "find":
         candidates = references(args.chat or "") or [f"@{handle}" for handle in LIKELY_HANDLES]
         log, admin_of = find(requests, token, candidates)
@@ -368,15 +591,18 @@ def run(args) -> int:
     if args.command == "setup":
         log, failed = setup(requests, token, chat_id, avatar_jpeg())
     else:
-        log, failed = test(requests, token, chat_id, avatar_jpeg())
+        log, failed = test(requests, token, chat_id, avatar_jpeg(), sleep=time.sleep)
     print("\n".join(log))
     return 1 if failed else 0
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("command", choices=["find", "status", "setup", "test"])
+    parser.add_argument("command", choices=["find", "status", "setup", "test", "listen"])
     parser.add_argument("--chat", default="", help="@handle, t.me link, post link or numeric id")
+    parser.add_argument("--feed", default="data/feed.json", help="listen: the feed its answers come from")
+    parser.add_argument("--feed-url", default="", help="listen: where to re-read the feed while waiting")
+    parser.add_argument("--seconds", type=int, default=600, help="listen: how long to wait for the channel")
     return run(parser.parse_args(argv))
 
 

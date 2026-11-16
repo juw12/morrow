@@ -197,14 +197,47 @@ The "Morrow Brief bot" workflow can also be run by hand from the Actions tab wit
 | `channel-status` | prints the channel's name, description, subscriber count and the rights the bot holds there, with what each right is needed for |
 | `channel-setup` | sets the channel's name, description and picture, then posts the welcome post and pins it |
 | `channel-test` | tries each thing a bot can do in a channel and deletes every test post afterwards: a post with a link button, an edit, a reaction, a picture, an album of two, a poll, the subscriber count, the admin list |
+| `channel-listen` | for a private channel: waits until Telegram reports the channel, then runs `channel-setup`, `channel-test` and `channel-status` on it in the same run |
 
-The four `channel-` actions act on the channel in the `chat` box: its `@handle`, a `t.me` link, the link of
+`channel-find`, `channel-status`, `channel-setup` and `channel-test` act on the channel in the `chat` box: its `@handle`, a `t.me` link, the link of
 any post in it (which also works for a private channel), or its numeric id. With the box empty they use
 `TELEGRAM_CHAT_ID`. The run log never shows a private channel's id.
 
 A bot cannot list the chats it is in, cannot schedule a post inside Telegram, cannot read a channel's earlier
 posts or their view counts, cannot see who the subscribers are (only how many), and cannot create a channel or
 set its `@handle`. `channel-test` prints these with its results so the report does not leave them out.
+
+### Finding a private channel: `channel-listen`
+
+A private channel has no `@handle` to ask about, and its invite link (`t.me/+...`) tells a bot nothing: the
+Bot API has no call that turns an invite link into a chat. So the bot waits for the channel to show itself.
+Any one of these, done by a channel admin, is enough:
+
+- post anything in the channel;
+- change the bot's admin rights in the channel (untick and tick one right, then save);
+- forward one of the channel's posts to the bot in a private chat.
+
+The run accepts a channel only if its name contains "morrow" and the bot is an admin there. Other channels
+are counted, never named and never touched. When the channel shows up, the same run sets its name,
+description and picture, posts and pins the welcome post, runs the capability test, and prints the status.
+
+What to know while it is listening:
+
+- **Who answers.** Telegram delivers messages either to a webhook or to a listener, never both. The run turns
+  the webhook off, answers `/start`, `/today` and the rest itself from the same `feed.json`, and turns the
+  webhook back on when it ends, also when it fails or is cancelled. Messages that arrive in between are kept
+  for the Worker, not dropped.
+- **How long.** One round listens for 320 minutes, because a GitHub job is stopped after 6 hours. The `rounds`
+  box says how many rounds to chain; each round that finds nothing starts the next one. Between two rounds
+  there is about a minute in which the Worker answers messages and a post in the channel is not seen. Post
+  again if a round changed at that moment.
+- **What stops it.** Running `poll`, `set-webhook` or `delete-webhook` by hand takes the messages away from the
+  listener; it says so in its log and stops.
+- **The id.** The run log is public, so the channel's numeric id is printed only in a sealed form that the
+  repo secret `CHANNEL_HANDOFF_KEY` opens. The id then goes into the secret `TELEGRAM_CHAT_ID`.
+- **The risk.** Anyone who names a channel "Morrow..." and makes this bot an admin of it while a round is
+  listening would be taken for the channel. The setup would then land in their channel, which they asked for
+  by adding the bot. Check the name and subscriber count in the status lines before storing the id.
 
 The poller also hears when the bot is added to a channel or group, and writes one line to the run log:
 `now administrator in channel 'Morrow Brief' @handle, chat id -100...`. That id is the value for
@@ -225,7 +258,9 @@ Until these steps are done the workflow runs, records every target as `skipped` 
    "Post messages" already ticked, which is enough for the daily brief. For the bot to set the channel's own
    profile, also tick "Change channel info" (name, description, picture) and "Edit messages of others" (the
    right Telegram asks for to pin a post in a channel). Then run `channel-status` with the channel's `@handle`
-   or the link of any post in it, then `channel-setup`, then `channel-test`. For a public channel
+   or the link of any post in it, then `channel-setup`, then `channel-test`. For a private channel with no
+   post link at hand, run `channel-listen` with the Worker's URL instead and post one word in the channel:
+   it does all three. For a public channel
    `TELEGRAM_CHAT_ID` can be the `@handle`. For a private one it is the numeric id: `-100` followed by the
    number in a post link `t.me/c/<number>/<post>`. (For a new bot: create it with @BotFather, then run the
    "Morrow Brief bot" workflow with action `setup`, then `photo`.)
@@ -316,8 +351,10 @@ local repository. The following have not been run against the real services:
   answers a made-up message sent with the secret, but no message from Telegram to the Worker has been seen;
 - how the profile looks in the app. Telegram accepted every profile call; nobody has looked at the result;
 - anything in the real channel: its name, description, picture and pinned post have not been set, the
-  capability test has not been run, and no digest has been posted there. The channel is private, and the bot
-  cannot be told which one it is until the link of a post in it is given;
+  capability test has not been run, and no digest has been posted there. The channel is private; the
+  listener is waiting for a post in it;
+- `channel-listen` against the real Telegram beyond its start: capturing a real channel, answering a real
+  message while it listens, and the hand-back to the Worker at the end of a round;
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
 - whether Threads counts a link at full length (the code assumes it does);

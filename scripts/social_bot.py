@@ -2,6 +2,8 @@
 
     python scripts/social_bot.py poll --feed data/feed.json --listen 240
     python scripts/social_bot.py set-webhook --url https://<worker>.workers.dev
+    python scripts/social_bot.py set-webhook --url https://<worker>.workers.dev --keep-pending
+                                             (hands waiting messages to the Worker instead of dropping them)
     python scripts/social_bot.py delete-webhook
     python scripts/social_bot.py status      (which bot the token belongs to, webhook, waiting messages)
     python scripts/social_bot.py setup       (name, descriptions, command menu, the rights it asks for in a channel)
@@ -233,7 +235,7 @@ def command_set_webhook(args) -> int:
         "url": args.url,
         "secret_token": secret,
         "allowed_updates": ["message"],
-        "drop_pending_updates": True,
+        "drop_pending_updates": not args.keep_pending,
     })
     print("webhook set" if status == 200 and body.get("ok")
           else "setWebhook failed: " + scrub(str(body.get("description") or status), token))
@@ -332,6 +334,8 @@ def main(argv: list[str] | None = None) -> int:
     polling.set_defaults(run=command_poll)
     hook = commands.add_parser("set-webhook")
     hook.add_argument("--url", required=True)
+    hook.add_argument("--keep-pending", action="store_true",
+                      help="leave waiting messages for the Worker to answer (used after channel-listen)")
     hook.set_defaults(run=command_set_webhook)
     unhook = commands.add_parser("delete-webhook")
     unhook.set_defaults(run=command_delete_webhook)

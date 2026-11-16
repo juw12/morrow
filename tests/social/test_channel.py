@@ -3,6 +3,7 @@ import contextlib
 import io
 import json
 import os
+import tempfile
 import unittest
 from unittest import mock
 
@@ -297,7 +298,7 @@ class CommandLineTest(unittest.TestCase):
         return code, output.getvalue()
 
     def test_every_command_needs_a_token(self):
-        for command in ("find", "status", "setup", "test"):
+        for command in ("find", "status", "setup", "test", "listen"):
             self.assertEqual(self.run_main([command], {})[0], 1)
 
     def test_without_a_channel_it_says_how_to_give_one(self):
@@ -331,6 +332,291 @@ class CommandLineTest(unittest.TestCase):
 
     def test_the_real_picture_is_a_jpeg(self):
         self.assertEqual(channel.avatar_jpeg()[:3], b"\xff\xd8\xff")
+
+
+MORROW = {"id": -1005550001111, "type": "channel", "title": "Morrow News"}
+FEED = {"bot": {"/help": "the menu", "/today": "five stories"}, "stories": []}
+KEY = "a key only the owner holds"
+
+
+def text_message(update_id: int, text: str) -> dict:
+    return {"update_id": update_id, "message": {"text": text, "chat": {"id": 500, "type": "private"}}}
+
+
+def channel_post(update_id: int, chat: dict) -> dict:
+    return {"update_id": update_id, "channel_post": {"message_id": 7, "text": "hello", "chat": chat}}
+
+
+def batches(*groups):
+    """getUpdates answers: one list of updates per call, then nothing new."""
+    waiting = list(groups)
+
+    def answer(_kwargs):
+        return ok(waiting.pop(0) if waiting else [])
+
+    return answer
+
+
+class Clock:
+    """Each look at the clock moves it on, so a wait ends without real time passing."""
+
+    def __init__(self, step: int = 30):
+        self.now = 0
+        self.step = step
+
+    def __call__(self) -> int:
+        self.now += self.step
+        return self.now
+
+
+def run_listen(http: Telegram, seconds: int = 600, feed_data: dict | None = None, step: int = 30, refresh=None):
+    said: list[str] = []
+    chat, offset = channel.listen(
+        http, TOKEN, dict(FEED) if feed_data is None else feed_data, seconds,
+        say=said.append, clock=Clock(step), sleep=lambda _seconds: None, refresh=refresh,
+    )
+    return chat, offset, "\n".join(said)
+
+
+class SealTest(unittest.TestCase):
+    def test_the_key_holder_reads_the_id_back(self):
+        for chat_id in (-1005550001111, "-1001234567890", -42):
+            with self.subTest(chat_id=chat_id):
+                self.assertEqual(channel.unseal(channel.seal(chat_id, KEY), KEY), str(chat_id))
+
+    def test_the_id_is_not_readable_in_the_seal(self):
+        sealed = channel.seal(MORROW["id"], KEY)
+        self.assertNotIn("5550001111", sealed)
+        self.assertNotIn(b"5550001111", bytes.fromhex(sealed))
+        self.assertRegex(sealed, r"^[0-9a-f]+$")
+
+    def test_two_seals_of_one_id_differ_and_length_says_nothing(self):
+        first, second = channel.seal(MORROW["id"], KEY), channel.seal(MORROW["id"], KEY)
+        self.assertNotEqual(first, second)
+        self.assertEqual(len(first), len(channel.seal(-42, KEY)))
+
+    def test_the_wrong_key_or_a_damaged_seal_opens_nothing(self):
+        sealed = channel.seal(MORROW["id"], KEY)
+        self.assertIsNone(channel.unseal(sealed, "another key"))
+        self.assertIsNone(channel.unseal(sealed[:-2] + ("00" if sealed[-2:] != "00" else "11"), KEY))
+        for text in ("", "not hex", "abcd"):
+            self.assertIsNone(channel.unseal(text, KEY))
+
+
+class ChannelInTest(unittest.TestCase):
+    def test_each_way_a_channel_shows_itself(self):
+        forwarded = {"text": "hello", "chat": {"id": 500, "type": "private"}}
+        cases = {
+            "a post in the channel": channel_post(1, MORROW),
+            "a change to the bot's place": {"update_id": 1, "my_chat_member": {
+                "chat": MORROW, "new_chat_member": {"status": "administrator"}}},
+            "a post forwarded to the bot": {"update_id": 1, "message": {
+                **forwarded, "forward_origin": {"type": "channel", "chat": MORROW, "message_id": 3}}},
+            "a post forwarded to the bot, as older apps send it": {"update_id": 1, "message": {
+                **forwarded, "forward_from_chat": MORROW}},
+        }
+        for name, update in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(channel.channel_in(update), MORROW)
+
+    def test_messages_groups_and_people_are_not_channels(self):
+        group = {"id": -100777, "type": "supergroup", "title": "Morrow chat"}
+        for update in (
+            text_message(1, "/today"),
+            {"update_id": 2, "my_chat_member": {"chat": group, "new_chat_member": {"status": "member"}}},
+            {"update_id": 3, "message": {"chat": {"id": 5, "type": "private"},
+                                         "forward_origin": {"type": "user", "sender_user": {"id": 9}}}},
+            {"update_id": 4},
+        ):
+            self.assertIsNone(channel.channel_in(update))
+
+
+class ListenTest(unittest.TestCase):
+    def test_finds_the_channel_from_each_trigger_after_taking_over_from_the_webhook(self):
+        triggers = [
+            channel_post(11, MORROW),
+            {"update_id": 11, "my_chat_member": {"chat": MORROW, "new_chat_member": FULL}},
+            {"update_id": 11, "message": {"chat": {"id": 500, "type": "private"}, "text": "see this",
+                                          "forward_origin": {"type": "channel", "chat": MORROW}}},
+        ]
+        for trigger in triggers:
+            with self.subTest(kind=[key for key in trigger if key != "update_id"][0]):
+                http = Telegram(getUpdates=batches([trigger]), getChatMember=ok(FULL))
+                chat, offset, text = run_listen(http)
+                self.assertEqual(chat, MORROW)
+                self.assertEqual(offset, 12)
+                self.assertEqual(http.methods()[:3], ["getMe", "deleteWebhook", "getUpdates"])
+                self.assertEqual(http.sent("deleteWebhook")[0], {"drop_pending_updates": False})
+                self.assertEqual(http.sent("getUpdates")[0]["allowed_updates"], channel.LISTEN_UPDATES)
+                self.assertEqual(http.sent("getChatMember")[0], {"chat_id": MORROW["id"], "user_id": ME["id"]})
+                self.assertIn("FOUND", text)
+                self.assertIn("Morrow News", text)
+                self.assertNotIn("5550001111", text)
+                self.assertNotIn(TOKEN, text)
+                self.assertNotIn("sendMessage", http.methods())
+
+    def test_a_channel_with_another_name_is_counted_and_never_named(self):
+        http = Telegram(getUpdates=batches([channel_post(3, PRIVATE)]))
+        chat, _offset, text = run_listen(http, seconds=200)
+        self.assertIsNone(chat)
+        self.assertNotIn("getChatMember", http.methods())
+        self.assertIn("1 updates from other channels ignored", text)
+        self.assertNotIn("My channel", text)
+        self.assertNotIn("9876543210", text)
+
+    def test_a_morrow_channel_where_the_bot_is_not_admin_is_not_taken(self):
+        http = Telegram(getUpdates=batches([channel_post(3, MORROW)]), getChatMember=ok({"status": "left"}))
+        chat, _offset, text = run_listen(http, seconds=200)
+        self.assertIsNone(chat)
+        self.assertIn("1 updates from other channels ignored", text)
+
+    def test_messages_are_answered_while_it_waits(self):
+        http = Telegram(
+            getUpdates=batches([text_message(1, "/today"), text_message(2, "hi")], [channel_post(3, MORROW)]),
+            getChatMember=ok(FULL),
+        )
+        chat, offset, text = run_listen(http)
+        self.assertEqual(chat, MORROW)
+        self.assertEqual(offset, 4)
+        self.assertEqual([sent["text"] for sent in http.sent("sendMessage")], ["five stories", "the menu"])
+        self.assertEqual(http.sent("getUpdates")[1]["offset"], 3)
+        self.assertIn("2 messages answered", text)
+
+    def test_the_time_running_out_ends_it_without_a_channel(self):
+        http = Telegram(getUpdates=batches())
+        chat, offset, text = run_listen(http, seconds=200)
+        self.assertIsNone(chat)
+        self.assertIsNone(offset)
+        self.assertGreaterEqual(http.methods().count("getUpdates"), 1)
+        self.assertIn("no Morrow channel", text)
+
+    def test_another_reader_of_the_bot_stops_it_at_once(self):
+        http = Telegram(getUpdates=refused("Conflict: terminated by other getUpdates request", 409))
+        chat, _offset, text = run_listen(http, seconds=100000)
+        self.assertIsNone(chat)
+        self.assertEqual(http.methods().count("getUpdates"), 1)
+        self.assertIn("something else is reading", text)
+
+    def test_a_dead_network_stops_it_after_a_few_tries_and_a_short_gap_does_not(self):
+        http = Telegram(getUpdates=requests.exceptions.ConnectionError("down"))
+        chat, _offset, text = run_listen(http, seconds=100000)
+        self.assertIsNone(chat)
+        self.assertEqual(http.methods().count("getUpdates"), channel.LISTEN_MAX_FAILURES)
+        self.assertIn("failed calls in a row", text)
+
+        answers = [requests.exceptions.ConnectionError("down"), refused("Bad Gateway", 502), ok([channel_post(9, MORROW)])]
+        http = Telegram(getUpdates=lambda _kwargs: answers.pop(0), getChatMember=ok(FULL))
+        chat, _offset, _text = run_listen(http, seconds=100000)
+        self.assertEqual(chat, MORROW)
+
+    def test_a_webhook_that_cannot_be_removed_means_no_listening(self):
+        http = Telegram(deleteWebhook=refused("Unauthorized", 401))
+        chat, offset, text = run_listen(http)
+        self.assertEqual((chat, offset), (None, None))
+        self.assertNotIn("getUpdates", http.methods())
+        self.assertIn("deleteWebhook failed", text)
+
+    def test_the_feed_is_read_again_during_a_long_wait(self):
+        newer = {"bot": {"/help": "the menu", "/today": "tomorrow's five"}, "stories": []}
+        http = Telegram(getUpdates=batches([text_message(1, "/today")]))
+        _chat, _offset, _text = run_listen(http, seconds=3000, step=500, refresh=lambda: newer)
+        self.assertEqual(http.sent("sendMessage")[0]["text"], "tomorrow's five")
+
+
+class SettleTest(unittest.TestCase):
+    def test_late_messages_are_answered_and_acknowledged(self):
+        http = Telegram(getUpdates=batches([text_message(5, "/today")]))
+        self.assertEqual(channel.settle(http, TOKEN, FEED, 5), 1)
+        polls = http.sent("getUpdates")
+        self.assertEqual([poll["offset"] for poll in polls], [5, 6])
+        self.assertTrue(all(poll["timeout"] == 0 for poll in polls))
+
+    def test_the_channel_service_lines_from_setup_are_cleared_without_an_answer(self):
+        renamed = {"update_id": 8, "channel_post": {"message_id": 9, "new_chat_title": "Morrow Brief", "chat": MORROW}}
+        http = Telegram(getUpdates=batches([renamed]))
+        self.assertEqual(channel.settle(http, TOKEN, FEED, 8), 0)
+        self.assertNotIn("sendMessage", http.methods())
+        self.assertEqual(http.sent("getUpdates")[-1]["offset"], 9)
+
+    def test_nothing_received_means_nothing_to_settle(self):
+        http = Telegram()
+        self.assertEqual(channel.settle(http, TOKEN, FEED, None), 0)
+        self.assertEqual(http.calls, [])
+
+    def test_a_busy_bot_is_handed_back_after_a_few_rounds(self):
+        counter = iter(range(100, 200))
+        http = Telegram(getUpdates=lambda _kwargs: ok([text_message(next(counter), "/today")]))
+        channel.settle(http, TOKEN, FEED, 100)
+        polls = http.sent("getUpdates")
+        self.assertEqual(len(polls), channel.SETTLE_ROUNDS + 1)
+        self.assertEqual(polls[-1]["limit"], 1)
+
+
+class ListenCommandTest(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        self.output = os.path.join(self.folder.name, "github_output.txt")
+
+    def run_main(self, argv: list[str], env: dict, http: Telegram) -> tuple[int, str]:
+        printed = io.StringIO()
+        env = {"TELEGRAM_BOT_TOKEN": TOKEN, "GITHUB_OUTPUT": self.output, **env}
+        with mock.patch.dict(os.environ, env, clear=False), contextlib.redirect_stdout(printed), \
+                mock.patch.object(channel, "requests", http), \
+                mock.patch.object(channel, "avatar_jpeg", lambda: JPEG), \
+                mock.patch.object(channel.time, "sleep", lambda _seconds: None):
+            for name in ("TELEGRAM_CHAT_ID", "CHANNEL_HANDOFF_KEY"):
+                if name not in env:
+                    os.environ.pop(name, None)
+            code = channel.main(argv)
+        return code, printed.getvalue()
+
+    def written(self) -> str:
+        with open(self.output, encoding="utf-8") as output:
+            return output.read()
+
+    def test_a_found_channel_is_sealed_set_up_tested_and_read(self):
+        http = Telegram(getUpdates=batches([channel_post(1, MORROW)]), getChat=ok(MORROW), getChatMember=ok(FULL),
+                        getChatMemberCount=ok(1))
+        code, text = self.run_main(["listen", "--feed", "missing.json", "--seconds", "600"],
+                                   {"CHANNEL_HANDOFF_KEY": KEY}, http)
+        self.assertEqual(code, 0, text)
+        self.assertEqual(self.written(), "found=true\n")
+        sealed = [line for line in text.splitlines() if line.startswith("sealed id: ")][0].split(": ")[1]
+        self.assertEqual(channel.unseal(sealed, KEY), str(MORROW["id"]))
+        self.assertNotIn("5550001111", text)
+        self.assertNotIn(TOKEN, text)
+        self.assertNotIn(KEY, text)
+        self.assertEqual(http.sent("setChatTitle")[0], {"chat_id": str(MORROW["id"]), "title": "Morrow Brief"})
+        self.assertIn("pin the welcome post: done", text)
+        self.assertIn("checks passed", text)
+        self.assertIn("the bot @Morrow_brief_bot is: administrator", text)
+        self.assertEqual(http.sent("getUpdates")[-1]["offset"], 2)
+
+    def test_a_setup_that_fails_fails_the_run_but_still_says_it_was_found(self):
+        http = Telegram(getUpdates=batches([channel_post(1, MORROW)]), getChat=ok(MORROW), getChatMember=ok(FULL),
+                        setChatTitle=refused("Bad Request: not enough rights"))
+        code, text = self.run_main(["listen", "--feed", "missing.json"], {"CHANNEL_HANDOFF_KEY": KEY}, http)
+        self.assertEqual(code, 1)
+        self.assertEqual(self.written(), "found=true\n")
+        self.assertIn("name: FAILED", text)
+
+    def test_no_channel_is_not_a_failure_and_touches_nothing(self):
+        http = Telegram()
+        code, text = self.run_main(["listen", "--feed", "missing.json", "--seconds", "0"],
+                                   {"CHANNEL_HANDOFF_KEY": KEY}, http)
+        self.assertEqual(code, 0, text)
+        self.assertEqual(self.written(), "found=false\n")
+        self.assertNotIn("sealed id", text)
+        self.assertNotIn("setChatTitle", http.methods())
+
+    def test_without_the_key_the_id_is_not_handed_over(self):
+        http = Telegram(getUpdates=batches([channel_post(1, MORROW)]), getChat=ok(MORROW), getChatMember=ok(FULL))
+        code, text = self.run_main(["listen", "--feed", "missing.json"], {}, http)
+        self.assertEqual(code, 0, text)
+        self.assertIn("CHANNEL_HANDOFF_KEY is not set", text)
+        self.assertNotIn("sealed id", text)
+        self.assertNotIn("5550001111", text)
 
 
 if __name__ == "__main__":

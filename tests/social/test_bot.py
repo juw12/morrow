@@ -304,6 +304,17 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(payload["secret_token"], "s3cret")
         self.assertEqual(payload["allowed_updates"], ["message"])
         self.assertNotIn("s3cret", text)
+        self.assertIs(payload["drop_pending_updates"], True)
+
+    def test_set_webhook_can_leave_waiting_messages_for_the_worker(self):
+        http = FakeHttp()
+        with mock.patch.object(bot, "requests", http):
+            code, _text = self.run_main(
+                ["set-webhook", "--url", "https://example.workers.dev", "--keep-pending"],
+                {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_WEBHOOK_SECRET": "s3cret"},
+            )
+        self.assertEqual(code, 0)
+        self.assertIs(calls_to(http, "setWebhook")[0]["drop_pending_updates"], False)
 
     def test_status_names_the_bot_and_says_who_answers(self):
         http = FakeHttp()

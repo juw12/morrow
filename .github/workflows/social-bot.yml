@@ -24,20 +24,28 @@ on:
           - channel-status
           - channel-setup
           - channel-test
+          - channel-listen
       url:
-        description: Worker URL, for set-webhook (https://...workers.dev)
+        description: Worker URL, for set-webhook and channel-listen (https://...workers.dev)
         type: string
         required: false
       chat:
         description: Channel, for the channel-* actions (@handle or a post link; empty uses TELEGRAM_CHAT_ID)
         type: string
         required: false
+      rounds:
+        description: For channel-listen, how many rounds of about five hours to keep waiting
+        type: string
+        default: "1"
+        required: false
 
 permissions:
   contents: read
 
+# The listener waits for hours, so it has a group of its own: the five-minute schedule and the other
+# actions do not queue behind it.
 concurrency:
-  group: morrow-bot
+  group: ${{ inputs.action == 'channel-listen' && 'morrow-bot-listen' || 'morrow-bot' }}
   cancel-in-progress: false
 
 jobs:
@@ -69,7 +77,7 @@ jobs:
         run: python scripts/social_bot.py poll --feed data/feed.json --listen 240
 
   webhook:
-    if: github.event_name == 'workflow_dispatch' && inputs.action != 'poll'
+    if: github.event_name == 'workflow_dispatch' && inputs.action != 'poll' && inputs.action != 'channel-listen'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -120,3 +128,73 @@ jobs:
           ACTION: ${{ inputs.action }}
           CHAT: ${{ inputs.chat }}
         run: python scripts/social_channel.py "${ACTION#channel-}" --chat "$CHAT"
+
+  # A private channel cannot be looked up by name or by invite link, so the bot waits for it to show
+  # itself: a post in it, a change to the bot's admin rights, or one of its posts forwarded to the bot.
+  # While it waits this job answers the bot's messages in place of the Worker, then hands the bot back.
+  listen:
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'channel-listen'
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    permissions:
+      contents: read
+      actions: write
+    env:
+      WORKER_URL: ${{ inputs.url }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Check the Worker URL before the webhook is touched
+        id: guard
+        run: |
+          case "$WORKER_URL" in
+            https://*) echo "Worker URL given" ;;
+            *) echo "Give the Worker URL as the url input (https://...): it is needed to hand the bot back."; exit 1 ;;
+          esac
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            assets/fonts
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/social_requirements.txt
+      - name: Install
+        run: pip install -r scripts/social_requirements.txt
+      - name: Fetch today's feed
+        run: |
+          mkdir -p data
+          curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/social-data/feed.json" -o data/feed.json \
+            || echo "no feed published yet, the bot will say the edition is not ready"
+      - name: Wait for the channel, then set it up and test it
+        id: listen
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHANNEL_HANDOFF_KEY: ${{ secrets.CHANNEL_HANDOFF_KEY }}
+        run: >-
+          python scripts/social_channel.py listen --feed data/feed.json
+          --feed-url "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/social-data/feed.json"
+          --seconds 19200
+      - name: Hand the bot back to the Worker
+        if: always() && steps.guard.outcome == 'success'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
+        run: python scripts/social_bot.py set-webhook --url "$WORKER_URL" --keep-pending
+      - name: Keep listening in a new run
+        if: steps.listen.outputs.found == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ROUNDS: ${{ inputs.rounds }}
+        run: |
+          case "$ROUNDS" in
+            ''|*[!0-9]*) echo "rounds is not a number, stopping here"; exit 0 ;;
+          esac
+          if [ "$ROUNDS" -gt 1 ]; then
+            gh workflow run social-bot.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" \
+              -f action=channel-listen -f url="$WORKER_URL" -f rounds="$((ROUNDS - 1))"
+            echo "next round started, $((ROUNDS - 1)) left"
+          else
+            echo "last round, not listening any longer"
+          fi
