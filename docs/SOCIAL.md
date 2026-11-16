@@ -285,10 +285,20 @@ Looking for the channel, after the bot was added to one:
 |---|---|
 | [channel-find](https://github.com/juw12/morrow/actions/runs/43813733921) | 24 likely names asked; 22 not found or not visible to the bot; `@readmorrow` and `@morrownews` exist and belong to other people; 0 with the bot as admin |
 | [channel-find](https://github.com/juw12/morrow/actions/runs/43814647188) | 30 more names asked; 27 not found or not visible; `@morrow_ai`, `@morrowchannel` and `@morrow_official` belong to other people; 0 with the bot as admin |
+| [channel-find](https://github.com/juw12/morrow/actions/runs/43834584832) | 30 spellings of "Morrow News" asked; none exist |
+| [channel-status](https://github.com/juw12/morrow/actions/runs/43830646525) | `@MorrowNews` is a group in Russian owned by someone else; the bot is not in it. Nothing was changed there |
 
-Both runs end red on purpose, because nothing was found. The channel is either private or has a name that was
-not guessed, and the webhook was set to deliver messages only, so the moment the bot was made an admin was
-never delivered. `channel-setup` and `channel-test` have therefore not been run.
+The find runs end red on purpose, because nothing was found: 84 names asked in three runs, 0 with the bot as
+admin. The channel is called "Morrow News" and is private. The only link to it found so far is an invite link
+(`t.me/+...`), and the Bot API cannot turn an invite link into a chat. A private channel has no `@handle`, so
+the bot can only be pointed at it with the link of a post in it (`https://t.me/c/<number>/<post>`) or its
+numeric id. The webhook was set to deliver messages only, so the moment the bot was made an admin was never
+delivered either. `channel-setup` and `channel-test` have therefore not been run.
+
+Two commits (`6db1b78`, `1009b61`) carry a personal e-mail address as author instead of the GitHub no-reply
+address. They were not rewritten: the same address is on a commit from 8 November, 93 commits back, so only a
+rewrite of the whole history would remove it, and the edition publisher pushes to `main` every few minutes.
+Commits since then use the no-reply address.
 
 The Worker itself was called directly: a `GET` returns 200, a `POST` without the secret returns 403, and a
 `POST` with the secret and a made-up `/start`, `/help`, `/about` or `/privacy` message returns the same text
@@ -306,8 +316,8 @@ local repository. The following have not been run against the real services:
   answers a made-up message sent with the secret, but no message from Telegram to the Worker has been seen;
 - how the profile looks in the app. Telegram accepted every profile call; nobody has looked at the result;
 - anything in the real channel: its name, description, picture and pinned post have not been set, the
-  capability test has not been run, and no digest has been posted there. The channel exists but the bot cannot
-  be told which one it is until its `@handle` or a post link is given;
+  capability test has not been run, and no digest has been posted there. The channel is private, and the bot
+  cannot be told which one it is until the link of a post in it is given;
 - whether Buffer and Instagram accept card images served from `raw.githubusercontent.com`;
 - whether X shows the cover card once or repeats it in the thread;
 - whether Threads counts a link at full length (the code assumes it does);
