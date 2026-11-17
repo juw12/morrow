@@ -51,9 +51,12 @@ with action `setup` (bot profile and menu) or `channel-setup` (channel descripti
 | Rotate the bot token in BotFather, save it as `TELEGRAM_BOT_TOKEN` | Juwen | it was pasted in a chat |
 | Instagram, Threads and X accounts, connected in Buffer; Buffer key as a secret | Juwen | the code for these is written and tested against fake servers only |
 | Look at the daily message and its cover on a phone | Juwen | never seen in the app during this work |
-| Share `t.me/morrowbrief` with people (own groups, LinkedIn) | Juwen | the channel had 2 subscribers on 17 Nov 2026; links on pages bring few readers |
-| Link the channel from the web edition | Juwen to decide | the page is built by the private generator |
-| Directory listing | waiting | submitted to TGDirectory (telegramchannels.io) on 17 Nov 2026, in review; TGStat has to be added by hand in a browser |
+| Share `t.me/morrowbrief` with people (own groups) | Juwen | the channel had 2 subscribers on 17 Nov 2026; links on pages bring few readers |
+| LinkedIn post about the channel | check | scheduled in ReachPilot for Wed 18 Nov 2026 08:00 Jakarta time (slot row in its `state.db`); not yet seen as posted when this was written |
+| Promotion e-mails | check | ReachPilot's promote module has the product `morrow` since 17 Nov 2026; first e-mails expected from 18 Nov. To stop: set `"active": false` on `morrow` in its `products.json` |
+| Link the channel from the web edition | Juwen | done in the private generator (commit `15f84ae`); cloud builds carry it. The PC's copy is one commit behind: run `Update.bat` in the generator folder once |
+| Portfolio card | done | the Morrow card on https://juwenlie.pages.dev/ links the channel (`juw12/projects` commit `d8cf13b`) |
+| Directory listing | waiting, Juwen | submitted to TGDirectory (telegramchannels.io) on 17 Nov 2026, in review. By hand in a browser, because their forms have bot protection: telegram-group.com, tdirectory.me, tgramsearch.com (through its Telegram bot) and TGStat. Most other directories do not open from the office network |
 | The generator's own publish has no retry | later | lives in the private repository |
 | Delete sample posts 16 to 21 and 23 in the channel | optional | they are test posts |
 
@@ -64,3 +67,5 @@ with action `setup` (bot profile and menu) or `channel-setup` (channel descripti
 - Stock prices come from the page's analysis table, A to Z, US dollars first, then rupiah.
 - Pictures are the outlets' own, small, credited, on Telegram only. Fewer than 4 available means the text card.
 - Plain wording everywhere, no emoji, no slogans; see "Wording" in SOCIAL.md.
+- Stories whose outlet address is under lifestyle, entertainment, celebrity or horoscope are left out of the brief (commit `5f7fd16`).
+- Most stories are in English and a few are in Indonesian, so texts about the channel say "mostly in English".
