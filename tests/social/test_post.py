@@ -41,7 +41,7 @@ def at(hour: int, minute: int = 0, day: int = 14) -> dt.datetime:
 
 
 def real_edition_post() -> dict:
-    """The digest of the real fixture page, with the full edition, as the workflow builds it."""
+    """The digest of the real fixture page, with the one-message edition, as the workflow builds it."""
     edition = real_edition()
     return feed.digest_post(feed.pick_digest(edition["stories"]), edition["markets"], edition["date"], edition)
 
@@ -297,7 +297,8 @@ class DeliverTest(unittest.TestCase):
     def test_everything_configured_delivers_once_to_the_listed_channels(self):
         log = self.run_deliver()
         self.assertEqual(set(self.statuses().values()), {"delivered"})
-        self.assertEqual(self.http.count("sendPhoto"), 1)
+        self.assertEqual(self.http.count("sendMessage"), 1)
+        self.assertEqual(self.http.count("sendPhoto"), 0)
         self.assertEqual(self.http.count("createPost"), 3)
         sent_to = [kwargs["json"]["variables"]["input"]["channelId"]
                    for _, kwargs in self.http.calls if "createPost" in (kwargs.get("json") or {}).get("query", "")]
@@ -310,78 +311,60 @@ class DeliverTest(unittest.TestCase):
         self.assertEqual(len(self.http.calls), calls_before, "a delivered post must never be sent again")
         self.assert_no_secret(*log)
 
-    def test_telegram_photo_and_caption(self):
-        self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
-        url, kwargs = next(call for call in self.http.calls if "sendPhoto" in call[0])
-        self.assertEqual(kwargs["data"]["chat_id"], "@morrowbrief")
-        self.assertEqual(kwargs["data"]["caption"], self.frozen["telegram"])
-        self.assertEqual(kwargs["files"]["photo"][0], "digest.png")
-        self.assertEqual(self.statuses()["instagram"], "skipped")
-
-    def test_the_full_edition_follows_the_photo_in_order_and_silently(self):
-        more = self.frozen["telegram_more"]
-        self.assertGreaterEqual(len(more), 2, "the fixture page should need more than one message")
+    def test_the_digest_is_one_message_with_the_cover_card_as_its_preview(self):
         log = self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
         calls = telegram_calls(self.http)
-        self.assertEqual([method for method, _ in calls], ["sendPhoto"] + ["sendMessage"] * len(more))
-        self.assertEqual([fields["text"] for _, fields in calls[1:]], more)
-        self.assertEqual(calls[0][1]["disable_notification"], "false", "the digest is the one message that notifies")
-        for _, fields in calls[1:]:
-            self.assertEqual(fields["chat_id"], "@morrowbrief")
-            self.assertEqual(fields["parse_mode"], "HTML")
-            self.assertEqual(fields["disable_notification"], "true")
-            self.assertEqual(json.loads(fields["link_preview_options"]), {"is_disabled": True})
+        self.assertEqual([method for method, _ in calls], ["sendMessage"], "one message, nothing after it")
+        fields = calls[0][1]
+        self.assertEqual(fields["chat_id"], "@morrowbrief")
+        self.assertEqual(fields["text"], self.frozen["telegram_edition"])
+        self.assertEqual(fields["parse_mode"], "HTML")
+        self.assertEqual(fields["disable_notification"], "false", "the digest is the one message that notifies")
+        self.assertEqual(json.loads(fields["link_preview_options"]), {
+            "url": IMAGE_BASE + self.frozen["cards"][0], "prefer_large_media": True, "show_above_text": True})
         entry = self.frozen["targets"]["telegram"]
         self.assertEqual(entry["status"], "delivered")
         self.assertEqual(entry["ref"], "telegram:7")
-        self.assertEqual(len(entry["refs"]), 1 + len(more))
-        self.assertIn(f"and {len(more)} full edition messages", "\n".join(log))
+        self.assertIn("the whole edition in one message with the cover card as its preview", "\n".join(log))
+        self.assertEqual(self.statuses()["instagram"], "skipped")
         self.assertEqual(self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""}, now=at(8, 35)), [])
-        self.assertEqual(len(telegram_calls(self.http)), 1 + len(more), "nothing may be sent twice")
+        self.assertEqual(len(telegram_calls(self.http)), 1, "nothing may be sent twice")
         self.assert_no_secret(*log)
 
-    def test_a_refused_full_edition_message_resumes_where_it_stopped(self):
-        more = self.frozen["telegram_more"]
-        accepted = FakeResponse(200, {"ok": True, "result": {"message_id": 7}})
-        refused = FakeResponse(400, {"ok": False, "description": "Bad Request: can't parse entities"})
-        self.http.telegram = [accepted, accepted, refused, accepted]
-        env = {**ENV, "BUFFER_API_KEY": ""}
-        self.run_deliver(env=env)
-        entry = self.frozen["targets"]["telegram"]
-        self.assertEqual(entry["status"], "failed")
-        self.assertEqual(len(entry["refs"]), 2, "the photo and the first message were confirmed")
-        self.assertIn(f"full edition message 2 of {len(more)}", entry["detail"])
-        self.run_deliver(env=env, now=at(8, 35))
-        self.assertEqual(entry["status"], "delivered")
-        self.assertEqual(self.http.count("sendPhoto"), 1, "the photo must not be posted again")
-        sent = [fields["text"] for method, fields in telegram_calls(self.http) if method == "sendMessage"]
-        self.assertEqual(sent, [more[0], more[1], *more[1:]])
-        self.assertEqual(len(entry["refs"]), 1 + len(more))
+    def test_the_digest_goes_out_as_text_when_the_card_is_not_public(self):
+        self.http.images = [FakeResponse(404, None, {"Content-Type": "text/plain"})]
+        log = self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
+        calls = telegram_calls(self.http)
+        self.assertEqual([method for method, _ in calls], ["sendMessage"])
+        self.assertEqual(json.loads(calls[0][1]["link_preview_options"]), {"is_disabled": True})
+        self.assertEqual(self.statuses()["telegram"], "delivered")
+        self.assertIn("no cover card", "\n".join(log))
 
-    def test_an_unanswered_full_edition_message_is_never_repeated(self):
-        accepted = FakeResponse(200, {"ok": True, "result": {"message_id": 7}})
-        self.http.telegram = [accepted, requests.exceptions.ReadTimeout("timed out"), accepted]
+    def test_an_unanswered_digest_message_is_never_repeated(self):
+        self.http.telegram = [requests.exceptions.ReadTimeout("timed out")]
         env = {**ENV, "BUFFER_API_KEY": ""}
         self.run_deliver(env=env)
         entry = self.frozen["targets"]["telegram"]
         self.assertEqual(entry["status"], "unconfirmed")
-        self.assertIn("full edition message 1 of", entry["detail"])
-        calls_before = len(self.http.calls)
+        sent_before = len(telegram_calls(self.http))
         self.assertEqual(self.run_deliver(env=env, now=at(8, 35)), [])
-        self.assertEqual(len(self.http.calls), calls_before)
+        self.assertEqual(len(telegram_calls(self.http)), sent_before)
 
-    def test_a_digest_frozen_before_the_full_edition_existed_is_one_message(self):
-        del self.frozen["telegram_more"]
-        log = self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
+    def test_a_digest_frozen_before_the_one_message_edition_is_the_card_with_its_caption(self):
+        del self.frozen["telegram_edition"]
+        self.frozen["telegram_more"] = ["an older run's follow-up message"]
+        self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
         self.assertEqual(self.statuses()["telegram"], "delivered")
-        self.assertEqual(self.http.count("sendPhoto"), 1)
-        self.assertEqual(self.http.count("sendMessage"), 0)
-        self.assertNotIn("full edition", "\n".join(log))
+        url, kwargs = next(call for call in self.http.calls if "sendPhoto" in call[0])
+        self.assertEqual(kwargs["data"]["chat_id"], "@morrowbrief")
+        self.assertEqual(kwargs["data"]["caption"], self.frozen["telegram"])
+        self.assertEqual(kwargs["files"]["photo"][0], "digest.png")
+        self.assertEqual(self.http.count("sendMessage"), 0, "follow-up messages are no longer sent")
 
     def test_an_alert_stays_one_message(self):
         edition = real_edition()
         alert = feed.story_post(edition["stories"][7], edition["date"])
-        self.assertNotIn("telegram_more", alert)
+        self.assertNotIn("telegram_edition", alert)
         self.state = post_module.empty_state()
         self.frozen = post_module.freeze(self.state, alert, at(10))
         for card in alert["cards"]:
@@ -402,7 +385,7 @@ class DeliverTest(unittest.TestCase):
             outcomes.append(self.statuses()["telegram"])
             self.assert_no_secret(*log)
         self.assertEqual(outcomes, ["failed", "failed", "gave_up", "gave_up"])
-        self.assertEqual(self.http.count("sendPhoto"), 3)
+        self.assertEqual(self.http.count("sendMessage"), 3)
         self.assertEqual(self.frozen["targets"]["telegram"]["attempts"], 3)
         self.assertIn("chat not found", self.frozen["targets"]["telegram"]["detail"])
 
@@ -502,9 +485,10 @@ class DeliverTest(unittest.TestCase):
         self.http.telegram = [FakeResponse(429, {"ok": False, "parameters": {"retry_after": 600}})]
         self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
         self.assertEqual(self.statuses()["telegram"], "failed")
-        self.assertEqual(self.http.count("sendPhoto"), 1)
+        self.assertEqual(self.http.count("sendMessage"), 1)
 
     def test_a_missing_card_file_is_not_sent(self):
+        del self.frozen["telegram_edition"]  # a post that is sent as its card, as every alert is
         (self.folder / self.frozen["cards"][0]).unlink()
         self.run_deliver(env={**ENV, "BUFFER_API_KEY": ""})
         self.assertEqual(self.statuses()["telegram"], "failed")
@@ -515,7 +499,7 @@ class DeliverTest(unittest.TestCase):
         self.assertEqual(set(self.statuses().values()), {"sending"})
         self.run_deliver(run_id="run-1")
         self.assertEqual(set(self.statuses().values()), {"delivered"})
-        self.assertEqual(self.http.count("sendPhoto"), 1)
+        self.assertEqual(self.http.count("sendMessage"), 1)
         self.assertEqual(self.http.count("createPost"), 3)
         for entry in self.frozen["targets"].values():
             self.assertNotIn("claim", entry)
@@ -549,7 +533,7 @@ class DeliverTest(unittest.TestCase):
         self.assertEqual(self.frozen["targets"]["x"]["claim"], "run-2")
         self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"}, run_id="run-2", now=at(8, 35))
         self.assertEqual(self.statuses()["x"], "delivered")
-        self.assertEqual(self.http.count("sendPhoto"), 1)
+        self.assertEqual(self.http.count("sendMessage"), 1)
 
 
 class StateTest(unittest.TestCase):
@@ -648,57 +632,57 @@ class CommandTest(unittest.TestCase):
         self.assertIn("## digest-2026-11-14", (out / "preview.md").read_text(encoding="utf-8"))
         payloads = json.loads((out / "payloads.json").read_text(encoding="utf-8"))
         digest = payloads["digest-2026-11-14"]
-        self.assertEqual(set(digest), {"telegram", "telegram_more", "instagram", "threads", "x"})
-        more = real_edition_post()["telegram_more"]
-        self.assertEqual([fields["text"] for fields in digest["telegram_more"]], more)
-        self.assertIn(f"### Telegram full edition {len(more)}/{len(more)}",
-                      (out / "preview.md").read_text(encoding="utf-8"))
+        self.assertEqual(set(digest), {"telegram", "instagram", "threads", "x"})
+        edition_text = real_edition_post()["telegram_edition"]
+        self.assertEqual(digest["telegram"]["text"], edition_text)
+        self.assertEqual(json.loads(digest["telegram"]["link_preview_options"])["url"],
+                         feed.DATA_URL + "cards/2026-11-14/digest.png")
+        self.assertIn("### Telegram, the one message that is sent", (out / "preview.md").read_text(encoding="utf-8"))
         self.assertEqual(len(list((out / "cards" / "2026-11-14").glob("*.png"))), 7)
 
     def run_sample(self, http, env: dict) -> tuple[int, str]:
-        args = argparse.Namespace(page=self.page, out=str(self.folder / "sample"))
+        args = argparse.Namespace(page=self.page, out=str(self.folder / "sample"), image_base=None)
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
             code = post_module.command_sample(args, http=http, env=env, sleep=lambda seconds: None)
         return code, output.getvalue()
 
-    def test_sample_posts_the_digest_silently_and_keeps_no_state(self):
+    def test_sample_posts_the_digest_as_one_silent_message_and_keeps_no_state(self):
         http = FakeHttp()
         code, said = self.run_sample(http, {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_CHAT_ID": "-1001234567890"})
         self.assertEqual(code, 0)
-        more = real_edition_post()["telegram_more"]
-        self.assertEqual(len(http.calls), 1 + len(more))
-        for (url, kwargs), text in zip(http.calls[1:], more):
-            self.assertIn("sendMessage", url)
-            self.assertEqual(kwargs["data"]["text"], text)
-            self.assertEqual(kwargs["data"]["chat_id"], "-1001234567890")
-            self.assertEqual(kwargs["data"]["disable_notification"], "true")
-        self.assertIn(f"full edition: {len(more)} messages accepted by Telegram, 32 stories", said)
-        url, kwargs = http.calls[0]
-        self.assertIn("sendPhoto", url)
-        self.assertEqual(kwargs["data"]["chat_id"], "-1001234567890")
-        self.assertEqual(kwargs["data"]["disable_notification"], "true")
-        self.assertEqual(kwargs["data"]["parse_mode"], "HTML")
-        edition = real_edition()
-        digest = feed.digest_post(feed.pick_digest(edition["stories"]), edition["markets"], edition["date"])
-        self.assertEqual(kwargs["data"]["caption"], digest["telegram"])
-        self.assertEqual(kwargs["files"]["photo"][0], "digest.png")
+        sent = telegram_calls(http)
+        self.assertEqual([method for method, _ in sent], ["sendMessage"])
+        fields = sent[0][1]
+        self.assertEqual(fields["text"], real_edition_post()["telegram_edition"])
+        self.assertEqual(fields["chat_id"], "-1001234567890")
+        self.assertEqual(fields["disable_notification"], "true")
+        self.assertEqual(fields["parse_mode"], "HTML")
+        self.assertEqual(json.loads(fields["link_preview_options"])["url"],
+                         feed.DATA_URL + "cards/2026-11-14/digest.png")
         self.assertIn("sample of digest-2026-11-14 posted", said)
+        self.assertIn("32 stories, with the cover card as its preview", said)
         self.assertFalse((self.folder / "sample" / "state.json").exists())
         self.assertFalse((self.folder / "sample" / "feed.json").exists())
         for secret in (TOKEN, TOKEN.split(":")[1], "-1001234567890"):
             self.assertNotIn(secret, said)
 
-    def test_sample_that_stops_part_way_says_how_far_it_got(self):
+    def test_sample_without_a_public_card_is_sent_as_text(self):
         http = FakeHttp()
-        accepted = FakeResponse(200, {"ok": True, "result": {"message_id": 7}})
-        http.telegram = [accepted, accepted, FakeResponse(502, None)]
+        http.images = [FakeResponse(404, None, {"Content-Type": "text/plain"})]
         code, said = self.run_sample(http, {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_CHAT_ID": "-1001234567890"})
-        more = real_edition_post()["telegram_more"]
+        self.assertEqual(code, 0)
+        fields = telegram_calls(http)[0][1]
+        self.assertEqual(json.loads(fields["link_preview_options"]), {"is_disabled": True})
+        self.assertIn("without a cover card", said)
+
+    def test_sample_that_gets_no_answer_says_so(self):
+        http = FakeHttp()
+        http.telegram = [FakeResponse(502, None)]
+        code, said = self.run_sample(http, {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_CHAT_ID": "-1001234567890"})
         self.assertEqual(code, 1)
-        self.assertEqual(len(http.calls), 3)
-        self.assertIn(f"not confirmed after 2 of {1 + len(more)} messages", said)
-        self.assertIn("full edition message 2 of", said)
+        self.assertEqual(len(telegram_calls(http)), 1)
+        self.assertIn("not confirmed", said)
         self.assertNotIn("-1001234567890", said)
 
     def test_sample_without_the_channel_sends_nothing(self):

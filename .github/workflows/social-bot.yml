@@ -25,6 +25,7 @@ on:
           - channel-setup
           - channel-test
           - channel-listen
+          - channel-view
       url:
         description: Worker URL, for set-webhook and channel-listen (https://...workers.dev)
         type: string

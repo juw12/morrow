@@ -619,5 +619,59 @@ class ListenCommandTest(unittest.TestCase):
         self.assertNotIn("5550001111", text)
 
 
+class PublicPage:
+    """Stands in for `requests` when the channel's public page is read."""
+
+    def __init__(self, text: str = "", status: int = 200, error: Exception | None = None):
+        self.text, self.status_code, self.error = text, status, error
+        self.urls: list[str] = []
+
+    def get(self, url: str, **_kwargs):
+        self.urls.append(url)
+        if self.error:
+            raise self.error
+        return self
+
+
+def page_post(number: int, inner: str) -> str:
+    return (f'<div class="tgme_widget_message" data-post="morrowbrief/{number}">{inner}'
+            f'<time datetime="2026-11-17T01:0{number % 10}:00+00:00"></time></div>')
+
+
+class ViewTest(unittest.TestCase):
+    def test_the_newest_posts_are_described_with_their_picture(self):
+        text = '<div class="tgme_widget_message_text">One <a href="https://example.com/a">story</a></div>'
+        page = PublicPage("".join([
+            page_post(1, '<a class="tgme_widget_message_photo_wrap"></a>' + text),
+            page_post(2, text),
+            page_post(3, text + '<a class="tgme_widget_message_link_preview"><i class="link_preview_image"></i></a>'),
+            page_post(4, text + '<a class="tgme_widget_message_link_preview"></a>'),
+        ]))
+        log, seen = channel.view(page, "morrowbrief", count=3)
+        self.assertEqual(page.urls, ["https://t.me/s/morrowbrief"])
+        self.assertEqual(seen, 4)
+        self.assertEqual(len(log), 4, "a heading and the three newest posts")
+        self.assertIn("post 2 · 2026-11-17T01:02:00+00:00 · 9 characters, 1 links · no picture", log[1])
+        self.assertIn("link preview with a picture", log[2])
+        self.assertIn("link preview without a picture", log[3])
+        self.assertIn("sent as a photo", channel.view(page, "morrowbrief")[0][1])
+
+    def test_a_page_without_posts_or_out_of_reach_is_said_plainly(self):
+        self.assertEqual(channel.view(PublicPage("<html></html>"), "morrowbrief")[1], 0)
+        self.assertIn("HTTP 404", channel.view(PublicPage(status=404), "morrowbrief")[0][0])
+        down = PublicPage(error=requests.exceptions.ConnectionError("no route"))
+        self.assertIn("could not be read (ConnectionError)", channel.view(down, "morrowbrief")[0][0])
+
+    def test_view_needs_no_token_and_reads_the_brief_channel_by_default(self):
+        page = PublicPage(page_post(1, ""))
+        output = io.StringIO()
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(channel, "requests", page), \
+                contextlib.redirect_stdout(output):
+            page.exceptions = requests.exceptions
+            self.assertEqual(channel.main(["view"]), 0)
+            self.assertEqual(channel.main(["view", "--chat", "https://t.me/s/other_name"]), 0)
+        self.assertEqual(page.urls, ["https://t.me/s/morrowbrief", "https://t.me/s/other_name"])
+
+
 if __name__ == "__main__":
     unittest.main()

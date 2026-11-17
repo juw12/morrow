@@ -25,6 +25,7 @@ MESSAGES = [
     ("/help", True),
     ("/today", True),
     ("/TODAY", True),
+    ("/full", True),
     ("/today@MorrowBriefBot", False),
     ("/ai", True),
     ("/bigtech", True),

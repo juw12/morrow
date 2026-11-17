@@ -1,6 +1,7 @@
 name: Morrow Brief
 
 # Posts the day's digest and a few alerts to the Morrow Brief pages when the edition changes.
+# On Telegram the digest is one message: every story of the edition, with the cover card above it.
 # The digest goes out at 08:00 Jakarta time: a run that starts between 07:00 and 08:00 waits in the
 # publish job until 08:00, then reads the newest page. With no edition in that hour, the digest goes
 # out with the first edition after 08:00.
@@ -26,7 +27,7 @@ on:
   workflow_dispatch:
     inputs:
       sample:
-        description: "Also post today's digest to the Telegram channel now, without a notification. It does not count as the day's digest."
+        description: "Also post today's digest to the Telegram channel now, as one message without a notification. It does not count as the day's digest."
         type: boolean
         default: false
 
@@ -85,6 +86,11 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/social_post.py sample --page index.html --out sample
+      # The page any reader gets, so the log says whether the post is one message and has its picture.
+      - name: What the channel's public page shows now
+        run: |
+          sleep 20
+          python scripts/social_channel.py view || echo "the public page could not be read; look in the app"
 
   publish:
     needs: test

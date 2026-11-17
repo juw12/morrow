@@ -6,6 +6,7 @@
     python scripts/social_channel.py test --chat @handle     (posts, edits, reacts, then deletes its posts)
     python scripts/social_channel.py listen --seconds 19200  (waits for the channel to show itself, then
                                                               runs setup, test and status on it)
+    python scripts/social_channel.py view                    (the newest posts as the public page shows them)
 
 Without --chat the commands use TELEGRAM_CHAT_ID. A bot cannot list the chats it is in, so `find` asks
 Telegram about each name it is given, or about the likely Morrow Brief handles, and reports where the bot
@@ -70,6 +71,7 @@ LISTEN_FEED_REFRESH_SECONDS = 900
 SETTLE_ROUNDS = 5
 # The word a channel's name must contain before the listener takes it for the Morrow channel.
 CHANNEL_NAME_WORD = "morrow"
+PUBLIC_PAGE = "https://t.me/s/"  # a public channel's posts as anyone sees them in a browser
 SEAL_NONCE_BYTES = 8
 SEAL_ID_BYTES = 24
 SEAL_CHECK_BYTES = 4
@@ -359,6 +361,41 @@ def test(http, token: str, chat_id: str, picture: bytes, sleep=time.sleep) -> tu
     return log, needed.count(False)
 
 
+def view(http, handle: str, count: int = 5) -> tuple[list[str], int]:
+    """What the channel's newest posts look like on its public page. Returns the lines and how many posts it saw.
+
+    It needs no token: this is the page any reader gets. A run uses it to check that the digest arrived
+    as one message and whether Telegram attached the cover card to it.
+    """
+    try:
+        response = http.get(PUBLIC_PAGE + handle, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
+    except requests.exceptions.RequestException as error:
+        return [f"the public page of @{handle} could not be read ({type(error).__name__})"], 0
+    if response.status_code != 200:
+        return [f"the public page of @{handle} answered HTTP {response.status_code}"], 0
+    posts = feed.BeautifulSoup(response.text, "html.parser").select(".tgme_widget_message[data-post]")
+    if not posts:
+        return [f"no posts on the public page of @{handle}: the channel is private or empty, or the page changed"], 0
+    lines = [f"@{handle}: the public page shows {len(posts)} posts, the newest {min(count, len(posts))} are:"]
+    for post in posts[-count:]:
+        body = post.select_one(".tgme_widget_message_text")
+        moment = post.select_one("time[datetime]")
+        if post.select_one(".tgme_widget_message_photo_wrap, .tgme_widget_message_video_player"):
+            picture = "sent as a photo"
+        elif post.select_one(".link_preview_image, .link_preview_right_image"):
+            picture = "link preview with a picture"
+        elif post.select_one(".tgme_widget_message_link_preview"):
+            picture = "link preview without a picture"
+        else:
+            picture = "no picture"
+        lines.append(
+            f"post {post['data-post'].rsplit('/', 1)[-1]} · {moment['datetime'] if moment else 'no time'} · "
+            f"{len(body.get_text()) if body else 0} characters, {len(body.select('a[href]')) if body else 0} links · "
+            f"{picture}"
+        )
+    return lines, len(posts)
+
+
 def target(args) -> str | None:
     """The chat a command acts on: --chat, or else TELEGRAM_CHAT_ID."""
     return chat_reference(args.chat or "") or chat_reference(os.environ.get("TELEGRAM_CHAT_ID") or "")
@@ -566,6 +603,12 @@ def run_listen(args, token: str) -> int:
 
 
 def run(args) -> int:
+    if args.command == "view":
+        named = chat_reference(args.chat or "") or ""
+        handle = named[1:] if named.startswith("@") else feed.CHANNEL_URL.rsplit("/", 1)[-1]
+        log, seen = view(requests, handle)
+        print("\n".join(log))
+        return 0 if seen else 1
     token = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
     if not token:
         print("Set TELEGRAM_BOT_TOKEN first.")
@@ -598,7 +641,7 @@ def run(args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("command", choices=["find", "status", "setup", "test", "listen"])
+    parser.add_argument("command", choices=["find", "status", "setup", "test", "listen", "view"])
     parser.add_argument("--chat", default="", help="@handle, t.me link, post link or numeric id")
     parser.add_argument("--feed", default="data/feed.json", help="listen: the feed its answers come from")
     parser.add_argument("--feed-url", default="", help="listen: where to re-read the feed while waiting")

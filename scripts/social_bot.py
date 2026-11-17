@@ -34,6 +34,7 @@ MAX_CLOSING_ROUNDS = 5
 POLL_UPDATES = ["message", "my_chat_member"]
 MENU = [
     ("today", "The five stories that matter today"),
+    ("full", "Every story of today's edition in one message"),
     ("ai", "AI and chips"),
     ("bigtech", "Big US tech"),
     ("robotics", "Robotics"),

@@ -340,81 +340,91 @@ class PostTest(unittest.TestCase):
         self.assertTrue(feed.post_problems({**post, "alts": []}))
 
 
-class FullEditionTest(unittest.TestCase):
-    """The whole edition as Telegram messages, sent after the digest."""
+class EditionMessageTest(unittest.TestCase):
+    """The whole edition as ONE Telegram message: what the channel gets every morning."""
 
-    def test_every_story_on_the_page_is_there_once_with_its_summary(self):
+    def test_every_story_on_the_page_is_there_once_as_a_linked_headline_with_its_outlet(self):
         edition = real_edition()
-        parts = feed.full_edition_telegram(edition)
-        whole = "\n".join(parts)
+        text = feed.edition_telegram(edition)
         self.assertEqual(len(edition["stories"]), 32)
         for number, item in enumerate(edition["stories"], 1):
-            self.assertEqual(whole.count(f"<b>{number}.</b> "), 1, number)
-            self.assertEqual(whole.count(f'<a href="{feed.esc(item["url"])}">{feed.esc(item["title"])}</a>'), 1,
+            self.assertEqual(text.count(f"<b>{number}.</b> "), 1, number)
+            self.assertEqual(text.count(f'<a href="{feed.esc(item["url"])}">{feed.esc(item["title"])}</a>'), 1,
                              item["title"])
-            if item["dek"] and item["dek"] != item["title"]:
-                self.assertIn(feed.esc(item["dek"]), whole, item["title"])
             if item["source"]:
-                self.assertIn(feed.esc(item["source"]), whole)
-        self.assertNotIn(f"<b>{len(edition['stories']) + 1}.</b>", whole)
+                self.assertIn(f"</a> ({feed.esc(item['source'])}", text)
+        self.assertNotIn(f"<b>{len(edition['stories']) + 1}.</b>", text)
+        self.assertNotIn("more stories", text)
+
+    def test_it_is_one_message_that_fits_telegram(self):
+        for edition in (real_edition(), hard_edition()):
+            text = feed.edition_telegram(edition)
+            self.assertIsInstance(text, str)
+            self.assertLessEqual(feed.visible_length(text), feed.EDITION_LIMIT)
+            self.assertLess(feed.EDITION_LIMIT, feed.LIMITS["telegram_message"])
+            self.assertFalse(feed.has_emoji(text))
+            self.assertTrue(text.startswith(f"<b>{feed.BRAND} · "))
+            self.assertIn(f"{len(edition['stories'])} stories from {feed.outlet_total(edition['stories'])} outlets", text)
+            self.assertTrue(text.endswith(feed.link(feed.SITE_URL, feed.SITE_SHORT)))
 
     def test_every_index_is_listed_with_its_price(self):
         edition = real_edition()
-        last = feed.full_edition_telegram(edition)[-1]
-        self.assertIn("<b>MARKETS</b>", last)
+        text = feed.edition_telegram(edition)
+        self.assertEqual(text.count("<b>INDEXES · last close</b>"), 1)
         for quote in edition["markets"]:
-            self.assertIn(feed.esc(f"{quote['name']}  {quote['price']}"), last)
-        self.assertIn("Not financial advice.", last)
-        self.assertIn(feed.SITE_URL, last)
+            self.assertIn(feed.esc(f"{quote['name']}  {quote['price']}"), text)
+        self.assertIn("Not financial advice.", text)
 
-    def test_every_message_fits_telegram_and_is_numbered(self):
-        for edition in (real_edition(), hard_edition()):
-            parts = feed.full_edition_telegram(edition)
-            self.assertGreaterEqual(len(parts), 1)
-            for number, part in enumerate(parts, 1):
-                self.assertLessEqual(feed.visible_length(part), feed.LIMITS["telegram_message"])
-                self.assertFalse(feed.has_emoji(part))
-                if len(parts) > 1:
-                    self.assertIn(f"full edition {number}/{len(parts)}", part)
-
-    def test_a_message_ends_between_two_stories_never_inside_one(self):
+    def test_sections_follow_the_page_and_numbers_run_through(self):
         edition = real_edition()
-        parts = feed.full_edition_telegram(edition, limit=900)
-        self.assertGreater(len(parts), len(feed.full_edition_telegram(edition)))
-        for item in edition["stories"]:
-            # Stories are numbered in the order they are printed, section by section, so the
-            # check is on everything after the number: it must sit whole inside one message.
-            body = feed._full_story(0, item, edition["date"]).removeprefix("<b>0.</b> ")
-            self.assertEqual(sum(body in part for part in parts), 1, item["title"])
-        self.assertTrue(any("(continued)" in part for part in parts))
-        self.assertNotIn("(continued)", parts[0])
+        text = feed.edition_telegram(edition)
+        sections = list(dict.fromkeys((item["section"] or "More").upper() for item in edition["stories"]))
+        positions = [text.index(f"<b>{feed.esc(section)}</b>\n") for section in sections]
+        self.assertEqual(positions, sorted(positions))
+        self.assertIn(f"<b>{feed.esc(sections[0])}</b>\n<b>1.</b> ", text)
 
-    def test_a_story_longer_than_the_limit_is_still_sent(self):
-        edition = edition_from([story(n, "ai", kind="lead" if n == 1 else "card") for n in range(1, 4)])
-        parts = feed.full_edition_telegram(edition, limit=10)
-        whole = "\n".join(parts)
-        for item in edition["stories"]:
-            self.assertEqual(whole.count(feed.esc(item["url"])), 1)
-
-    def test_sections_follow_the_page_and_the_lead_keeps_its_outlets(self):
+    def test_the_room_left_goes_to_whole_summaries_of_the_most_reported_stories(self):
         edition = real_edition()
-        first = feed.full_edition_telegram(edition)[0]
-        lead = edition["stories"][0]
-        self.assertIn(f"<b>{feed.esc((lead['section'] or 'More').upper())}</b>\n<b>1.</b> ", first)
-        for link in lead["related"][:1]:
-            self.assertIn(feed.esc(link["url"]), first)
-        self.assertIn(f"{len(edition['stories'])} stories from {feed.outlet_total(edition['stories'])} outlets", first)
+        text = feed.edition_telegram(edition)
+        given = [item for item in feed.ranked(edition["stories"])
+                 if item["dek"] and item["dek"] != item["title"]
+                 and f"</a> ({feed.esc(item['source'])}" in text
+                 and any(feed.esc(sentence) in text for sentence in feed.sentences(item["dek"])[:1])]
+        self.assertGreaterEqual(len(given), 3, "a real page leaves room for some summaries")
+        self.assertEqual(given[0]["id"], feed.ranked(edition["stories"])[0]["id"], "the lead gets its summary first")
+        for line in text.split("\n"):
+            if line and not line.startswith("<b>") and "href" not in line and "  " not in line:
+                self.assertFalse(line.endswith("\u2026"), f"a summary must not be cut inside a sentence: {line}")
+        self.assertIn("Every summary, the charts and the stock analysis: ", text)
 
-    def test_also_today_items_that_are_not_stories_are_added_with_their_outlet(self):
+    def test_a_short_edition_gets_every_summary(self):
         edition = edition_from([story(n, "ai", kind="lead" if n == 1 else "card") for n in range(1, 6)])
-        self.assertEqual(edition["brief"], [])
-        self.assertNotIn("ALSO TODAY", "\n".join(feed.full_edition_telegram(edition)))
-        edition["brief"] = [{"text": "A short item <only> in the brief.", "source": "Outlet & Co",
-                             "url": "https://example.com/brief-1"}]
-        last = feed.full_edition_telegram(edition)[-1]
-        self.assertIn("<b>ALSO TODAY</b>", last)
-        self.assertIn("A short item &lt;only&gt; in the brief.", last)
-        self.assertIn('<a href="https://example.com/brief-1">Outlet &amp; Co</a>', last)
+        text = feed.edition_telegram(edition)
+        for item in edition["stories"]:
+            self.assertIn(f"\n{feed.esc(item['dek'])}", text)
+        self.assertNotIn("Every summary", text)
+        self.assertIn("Charts and the stock analysis: ", text)
+
+    def test_a_smaller_limit_drops_summaries_before_any_headline(self):
+        edition = real_edition()
+        text = feed.edition_telegram(edition, limit=3000)
+        self.assertLessEqual(feed.visible_length(text), 3000)
+        self.assertLess(text.count("\n"), feed.edition_telegram(edition).count("\n"))
+        for item in edition["stories"]:
+            self.assertIn(feed.esc(item["url"]), text)
+
+    def test_when_even_short_headlines_do_not_fit_the_most_reported_stories_stay_and_the_rest_is_counted(self):
+        edition = real_edition()
+        text = feed.edition_telegram(edition, limit=1200)
+        self.assertLessEqual(feed.visible_length(text), 1200)
+        shown = [item for item in edition["stories"] if feed.esc(item["url"]) in text]
+        self.assertTrue(0 < len(shown) < len(edition["stories"]))
+        self.assertEqual({item["id"] for item in shown},
+                         {item["id"] for item in feed.ranked(edition["stories"])[:len(shown)]})
+        self.assertIn(f"+{len(edition['stories']) - len(shown)} more stories", text)
+
+    def test_a_page_without_a_date_or_stories_gives_nothing(self):
+        self.assertEqual(feed.edition_telegram({"date": "", "stories": [], "markets": [], "brief": []}), "")
 
     def test_the_brief_list_is_read_and_stories_already_listed_are_left_out(self):
         page_html = (helpers.FIXTURES / "edition.html").read_text(encoding="utf-8")
@@ -437,32 +447,25 @@ class FullEditionTest(unittest.TestCase):
         self.assertEqual(feed._parse_brief(soup, set()), [
             {"text": "Is this the end? Maybe not.", "source": "Outlet", "url": "https://example.com/q"}])
 
-    def test_published_time_is_given_in_jakarta_time(self):
-        self.assertEqual(feed.published_label({"published_iso": "2026-11-14T01:00:00+00:00"}, "2026-11-14"), "08:00 WIB")
-        self.assertEqual(feed.published_label({"published_iso": "2026-11-13T10:30:00+00:00"}, "2026-11-14"),
-                         "Fri 13 Nov 17:30 WIB")
-        for unknown in ({}, {"published_iso": ""}, {"published_iso": "not a date"}, {"published_iso": "2026-11-14T01:00:00"}):
-            self.assertEqual(feed.published_label(unknown, "2026-11-14"), "")
-
-    def test_only_a_digest_built_from_the_edition_carries_the_full_edition(self):
+    def test_only_a_digest_built_from_the_edition_carries_the_one_message_edition(self):
         edition = real_edition()
         stories = feed.pick_digest(edition["stories"])
         plain = feed.digest_post(stories, edition["markets"], edition["date"])
         full = feed.digest_post(stories, edition["markets"], edition["date"], edition)
-        self.assertNotIn("telegram_more", plain)
-        self.assertEqual(full["telegram_more"], feed.full_edition_telegram(edition))
-        self.assertEqual({key: value for key, value in full.items() if key != "telegram_more"}, plain)
+        self.assertNotIn("telegram_edition", plain)
+        self.assertEqual(full["telegram_edition"], feed.edition_telegram(edition))
+        self.assertEqual({key: value for key, value in full.items() if key != "telegram_edition"}, plain)
         self.assertEqual(feed.post_problems(plain), [])
         self.assertEqual(feed.post_problems(full), [])
-        self.assertNotIn("telegram_more", feed.story_post(edition["stories"][0], edition["date"]))
+        self.assertNotIn("telegram_edition", feed.story_post(edition["stories"][0], edition["date"]))
 
-    def test_post_problems_catches_a_bad_full_edition_message(self):
+    def test_post_problems_catches_a_bad_edition_message(self):
         edition = real_edition()
         post = feed.digest_post(feed.pick_digest(edition["stories"]), edition["markets"], edition["date"], edition)
-        too_long = feed.post_problems({**post, "telegram_more": ["word " * 900]})
-        self.assertTrue(any("telegram full edition 1" in problem for problem in too_long), too_long)
-        self.assertTrue(feed.post_problems({**post, "telegram_more": [""]}))
-        self.assertIn("emoji in the text", feed.post_problems({**post, "telegram_more": ["fine \U0001F600"]}))
+        too_long = feed.post_problems({**post, "telegram_edition": "word " * 900})
+        self.assertTrue(any("telegram edition" in problem for problem in too_long), too_long)
+        self.assertTrue(feed.post_problems({**post, "telegram_edition": ""}))
+        self.assertIn("emoji in the text", feed.post_problems({**post, "telegram_edition": "fine \U0001F600"}))
 
 
 class BotReplyTest(unittest.TestCase):
@@ -474,10 +477,11 @@ class BotReplyTest(unittest.TestCase):
 
     def test_commands_cover_every_section_on_the_page(self):
         replies = feed.bot_replies(real_edition())
-        for command in ("/start", "/help", "/today", "/about", "/tape", "/sources",
+        for command in ("/start", "/help", "/today", "/full", "/about", "/tape", "/sources",
                         "/ai", "/bigtech", "/robotics", "/space", "/tech", "/markets"):
             self.assertIn(command, replies)
         self.assertIn("32 stories from 15 outlets", replies["/sources"])
+        self.assertEqual(replies["/full"], feed.edition_telegram(real_edition()))
 
     def test_search(self):
         stories = real_edition()["stories"]

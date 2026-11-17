@@ -12,8 +12,9 @@ its cards and freezes it in state.json. `deliver` sends every frozen post that i
 Telegram through the Bot API, Instagram, Threads and X through Buffer. With no credentials nothing is
 sent and the targets are recorded as skipped, so the workflow is safe to merge before any account exists.
 
-On Telegram the digest is the cover card with its caption, then the full edition as silent text
-messages: every story on the page with its summary, the indexes and the page's "Also today" list.
+On Telegram the digest is ONE message: every story on the page as a linked headline with its outlet,
+summaries for the most reported stories, and the indexes. The cover card is shown above the text as the
+message's link preview. An alert is the story's card with a caption.
 
 Nothing is posted before 08:00 Jakarta time. `hold` is what makes the digest land at 08:00: a run that
 starts between 07:00 and 08:00 waits there until the window opens, any other run does not wait.
@@ -60,8 +61,6 @@ BUFFER_API = "https://api.buffer.com"
 TELEGRAM_API = "https://api.telegram.org"
 WAITING_STATUSES = ("pending", "failed")
 STALE_CLAIM = "an earlier run started sending and never recorded the result"
-# Telegram allows a channel about 20 messages a minute; a pause between the follow-up messages stays far below it.
-FOLLOW_UP_PAUSE_SECONDS = 1
 CREATE_POST = """
 mutation CreatePost($input: CreatePostInput!) {
   createPost(input: $input) {
@@ -263,14 +262,22 @@ def telegram_fields(post: dict, chat_id: str) -> dict:
     }
 
 
-def telegram_text_fields(text: str, chat_id: str) -> dict:
-    """A follow-up message of the full edition: silent, and without a link preview taking over the text."""
+def telegram_edition_fields(post: dict, chat_id: str, image_base: str | None) -> dict:
+    """The digest as one message: the whole edition, with the cover card above the text as its link preview.
+
+    A photo's caption holds 1,024 characters and a message 4,096, so the card rides along as the preview
+    of its public URL. With no public URL for the card the message goes out without a picture.
+    """
+    if image_base:
+        preview = {"url": image_base + post["cards"][0], "prefer_large_media": True, "show_above_text": True}
+    else:
+        preview = {"is_disabled": True}
     return {
         "chat_id": chat_id,
-        "text": text,
+        "text": post["telegram_edition"],
         "parse_mode": "HTML",
-        "disable_notification": "true",
-        "link_preview_options": json.dumps({"is_disabled": True}),
+        "disable_notification": "false",
+        "link_preview_options": json.dumps(preview),
     }
 
 
@@ -390,29 +397,22 @@ def send_telegram(http, token: str, fields: dict, card_path: Path, sleep=time.sl
     return telegram_call(http, token, "sendPhoto", sleep, data=fields, files={"photo": photo})
 
 
-def send_telegram_text(http, token: str, fields: dict, sleep=time.sleep) -> str:
-    return telegram_call(http, token, "sendMessage", sleep, data=fields)
+def send_telegram_post(http, token: str, chat_id: str, post: dict, out_dir: Path, image_base: str | None = None,
+                       sleep=time.sleep, silent: bool = False) -> str:
+    """Send one post as one Telegram message and return its reference.
 
-
-def send_telegram_post(http, token: str, chat_id: str, post: dict, out_dir: Path, refs: list[str],
-                       sleep=time.sleep, silent: bool = False) -> None:
-    """Send the card with its caption, then each message of the full edition, in order.
-
-    `refs` holds one reference per message Telegram confirmed, and gains one as each goes through.
-    A call that finds some already there carries on after them, so a retry never repeats a message.
+    A digest built from the edition is the one-message edition; an alert, or a digest frozen before that
+    existed, is the card with its caption.
     """
-    if not refs:
-        fields = telegram_fields(post, chat_id)
+    if post.get("telegram_edition"):
+        fields = telegram_edition_fields(post, chat_id, image_base)
         if silent:
             fields["disable_notification"] = "true"
-        refs.append(send_telegram(http, token, fields, out_dir / post["cards"][0], sleep))
-    more = post.get("telegram_more", [])
-    for index in range(len(refs) - 1, len(more)):
-        sleep(FOLLOW_UP_PAUSE_SECONDS)
-        try:
-            refs.append(send_telegram_text(http, token, telegram_text_fields(more[index], chat_id), sleep))
-        except (Retryable, Unconfirmed) as error:
-            raise type(error)(f"full edition message {index + 1} of {len(more)}: {error}") from error
+        return telegram_call(http, token, "sendMessage", sleep, data=fields)
+    fields = telegram_fields(post, chat_id)
+    if silent:
+        fields["disable_notification"] = "true"
+    return send_telegram(http, token, fields, out_dir / post["cards"][0], sleep)
 
 
 def find_image_base(http, candidates: list[str], probe: str, wait_seconds: int = 0, sleep=time.sleep) -> str | None:
@@ -501,12 +501,14 @@ def deliver(state: dict, out_dir: Path, env: dict, now: dt.datetime, http=reques
                 if target == "telegram":
                     if not token or not chat_id:
                         raise NotConfigured("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set")
-                    # The references live in the state, so a later run knows which messages already went out.
-                    refs = entry.setdefault("refs", [])
-                    send_telegram_post(http, token, chat_id, post, out_dir, refs, sleep)
-                    reference = refs[0]
-                    if len(refs) > 1:
-                        note = f" and {len(refs) - 1} full edition messages"
+                    if post.get("telegram_edition"):
+                        if not image_base_checked:
+                            image_base = find_image_base(http, image_bases or [], post["cards"][0], image_wait, sleep)
+                            image_base_checked = True
+                        # The news does not wait for the picture: without a public card it goes out as text.
+                        note = (", the whole edition in one message with the cover card as its preview" if image_base
+                                else ", the whole edition in one message, no cover card: it is not at a public URL yet")
+                    reference = send_telegram_post(http, token, chat_id, post, out_dir, image_base, sleep)
                 else:
                     if not api_key:
                         raise NotConfigured("BUFFER_API_KEY is not set")
@@ -679,13 +681,13 @@ def command_preview(args) -> int:
     for post, note in posts:
         cards.render_post_cards(post, edition, out_dir)
         lines += [f"## {post['id']} ({note})", "", "Cards: " + ", ".join(post["cards"]), ""]
-        lines += [f"### Telegram caption ({feed.visible_length(post['telegram'])} of {feed.LIMITS['telegram_caption']})",
+        caption_note = ", kept for a day the edition cannot be read" if post.get("telegram_edition") else ""
+        lines += [f"### Telegram caption{caption_note} ({feed.visible_length(post['telegram'])} "
+                  f"of {feed.LIMITS['telegram_caption']})",
                   "", "```html", post["telegram"], "```", ""]
-        more = post.get("telegram_more", [])
-        for number, text in enumerate(more, 1):
-            lines += [f"### Telegram full edition {number}/{len(more)} "
-                      f"({feed.visible_length(text)} of {feed.LIMITS['telegram_message']})",
-                      "", "```html", text, "```", ""]
+        if post.get("telegram_edition"):
+            lines += [f"### Telegram, the one message that is sent ({feed.visible_length(post['telegram_edition'])} "
+                      f"of {feed.LIMITS['telegram_message']})", "", "```html", post["telegram_edition"], "```", ""]
         for number, text in enumerate(post["x"], 1):
             lines += [f"### X {number}/{len(post['x'])} ({feed.x_length(text)} of {feed.LIMITS['x']})",
                       "", "```text", text, "```", ""]
@@ -694,8 +696,8 @@ def command_preview(args) -> int:
         lines += [f"### Instagram ({len(post['instagram'])} of {feed.LIMITS['instagram']})",
                   "", "```text", post["instagram"], "```", ""]
         payloads[post["id"]] = {
-            "telegram": telegram_fields(post, "<TELEGRAM_CHAT_ID>"),
-            "telegram_more": [telegram_text_fields(text, "<TELEGRAM_CHAT_ID>") for text in more],
+            "telegram": (telegram_edition_fields(post, "<TELEGRAM_CHAT_ID>", image_base)
+                         if post.get("telegram_edition") else telegram_fields(post, "<TELEGRAM_CHAT_ID>")),
             **{target: buffer_input(post, target, f"<{target}-channel-id>", image_base)
                for target in ("instagram", "threads", "x")},
         }
@@ -710,7 +712,7 @@ def command_preview(args) -> int:
 
 
 def command_sample(args, http=requests, env: dict | None = None, sleep=time.sleep) -> int:
-    """Post the digest and the full edition this page gives to the Telegram channel now, without a notification.
+    """Post the digest this page gives to the Telegram channel now, as one message without a notification.
 
     For the day a channel is connected, and to see a format change in the real app. It reads no state
     and writes none, so the day's own digest and alerts are not affected. Started by hand only.
@@ -733,18 +735,18 @@ def command_sample(args, http=requests, env: dict | None = None, sleep=time.slee
         report([f"sample not sent, {post['id']} failed its checks: " + "; ".join(problems)])
         return 1
     cards.render_post_cards(post, edition, out_dir)
-    refs: list[str] = []
-    expected = 1 + len(post["telegram_more"])
+    # The day's own cover card, if the digest already went out today; a sample publishes no card itself.
+    image_base = find_image_base(http, args.image_base or [feed.DATA_URL], post["cards"][0])
     try:
-        send_telegram_post(http, token, chat_id, post, out_dir, refs, sleep, silent=True)
+        reference = send_telegram_post(http, token, chat_id, post, out_dir, image_base, sleep, silent=True)
     except (Retryable, Unconfirmed) as error:
-        report([f"sample of {post['id']} not confirmed after {len(refs)} of {expected} messages: "
-                f"{scrub(str(error), [token, chat_id])}"])
+        report([f"sample of {post['id']} not confirmed: {scrub(str(error), [token, chat_id])}"])
         return 1
+    picture = "with the cover card as its preview" if image_base else "without a cover card (none is public for this date yet)"
     report([f"edition {edition['date']} updated {edition['updated'] or '?'}",
-            f"sample of {post['id']} posted to the Telegram channel without a notification ({refs[0]})",
-            f"full edition: {len(refs) - 1} messages accepted by Telegram, "
-            f"{len(edition['stories'])} stories and {len(edition['brief'])} more items"])
+            f"sample of {post['id']} posted to the Telegram channel without a notification ({reference})",
+            f"one message, {feed.visible_length(post['telegram_edition'])} of {feed.LIMITS['telegram_message']} "
+            f"characters, {len(edition['stories'])} stories, {picture}"])
     return 0
 
 
@@ -765,7 +767,7 @@ def main(argv: list[str] | None = None) -> int:
     send.add_argument("--now", help="ISO time, for tests")
     send.add_argument("--run", dest="run_id", help="the id given to build; targets claimed by any other run are not sent")
     send.add_argument("--image-base", action="append",
-                      help="public URL of the data folder, where Buffer fetches the cards; repeat for a fallback")
+                      help="public URL of the data folder, where Telegram and Buffer fetch the cards; repeat for a fallback")
     send.add_argument("--image-wait", type=int, default=90, help="seconds to wait for the first URL to serve a card")
     send.set_defaults(run=command_deliver)
     listing = commands.add_parser("channels")
@@ -777,6 +779,8 @@ def main(argv: list[str] | None = None) -> int:
     sample = commands.add_parser("sample")
     sample.add_argument("--page", default="index.html")
     sample.add_argument("--out", default="sample")
+    sample.add_argument("--image-base", action="append",
+                        help="public URL of a folder that already holds this date's cards; default is the data branch")
     sample.set_defaults(run=command_sample)
     args = parser.parse_args(argv)
     return args.run(args)
