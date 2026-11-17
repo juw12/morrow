@@ -661,7 +661,7 @@ class CommandTest(unittest.TestCase):
         self.assertEqual(json.loads(fields["link_preview_options"])["url"],
                          feed.DATA_URL + "cards/2026-11-14/digest.png")
         self.assertIn("sample of digest-2026-11-14 posted", said)
-        self.assertIn("32 stories, 0 stocks, with the cover card as its preview", said)
+        self.assertIn("31 stories, 0 stocks, with the cover card as its preview", said)
         self.assertFalse((self.folder / "sample" / "state.json").exists())
         self.assertFalse((self.folder / "sample" / "feed.json").exists())
         for secret in (TOKEN, TOKEN.split(":")[1], "-1001234567890"):

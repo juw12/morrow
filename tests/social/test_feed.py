@@ -39,10 +39,10 @@ class ParsingTest(unittest.TestCase):
         edition = self.edition
         self.assertEqual(edition["date"], "2026-11-14")
         self.assertRegex(edition["updated"], r"^\d{1,2}:\d{2}$")
-        self.assertEqual(len(edition["stories"]), 32)
+        self.assertEqual(len(edition["stories"]), 31)
         self.assertEqual(feed.outlet_total(edition["stories"]), 15)
         self.assertEqual(len(edition["markets"]), 5)
-        self.assertEqual(len({item["id"] for item in edition["stories"]}), 32)
+        self.assertEqual(len({item["id"] for item in edition["stories"]}), 31)
 
     def test_every_story_is_complete(self):
         for item in self.edition["stories"]:
@@ -90,6 +90,18 @@ class ParsingTest(unittest.TestCase):
         edition = edition_from(twice)
         self.assertEqual(len(edition["stories"]), 2)
         self.assertEqual(edition["stories"][0]["coverage"], 4)
+
+
+    def test_a_story_the_outlet_filed_under_lifestyle_is_left_out(self):
+        film = story(2, "markets_news", 3, url="https://www.cnbcindonesia.com/lifestyle/20261117-33-786021/film-baru")
+        tech = story(3, "markets_news", 2, url="https://www.cnbcindonesia.com/tech/20261117-37-785919/server")
+        edition = edition_from([story(1, "ai", 2, kind="lead"), film, tech])
+        self.assertEqual([item["url"] for item in edition["stories"]][1:], [tech_url := edition["stories"][1]["url"]])
+        self.assertIn("/tech/", tech_url)
+        self.assertTrue(feed.off_topic("https://example.com/Entertainment/2026/a-film?ref=lifestyle-tech"))
+        # Only a whole part of the address counts, not a word inside a headline slug.
+        self.assertFalse(feed.off_topic("https://example.com/markets/lifestyle-stocks-rise"))
+        self.assertFalse(feed.off_topic("https://example.com/tech/story?section=lifestyle"))
 
 
 class SelectionTest(unittest.TestCase):
@@ -347,7 +359,7 @@ class EditionMessageTest(unittest.TestCase):
     def test_every_story_on_the_page_is_there_once_as_a_headline_with_its_outlet_as_the_link(self):
         edition = real_edition()
         text = feed.edition_telegram(edition)
-        self.assertEqual(len(edition["stories"]), 32)
+        self.assertEqual(len(edition["stories"]), 31)
         for number, item in enumerate(edition["stories"], 1):
             label = item["source"] or item["title"]
             self.assertEqual(text.count(f"\n<b>{number}</b>  "), 1, number)
@@ -490,7 +502,7 @@ class BotReplyTest(unittest.TestCase):
         for command in ("/start", "/help", "/today", "/full", "/about", "/tape", "/sources",
                         "/ai", "/bigtech", "/robotics", "/space", "/tech", "/markets"):
             self.assertIn(command, replies)
-        self.assertIn("32 stories from 15 outlets", replies["/sources"])
+        self.assertIn("31 stories from 15 outlets", replies["/sources"])
         self.assertEqual(replies["/full"], feed.edition_telegram(real_edition()))
 
     def test_search(self):
@@ -504,7 +516,7 @@ class BotReplyTest(unittest.TestCase):
     def test_public_feed_holds_no_delivery_state(self):
         edition = real_edition()
         public = feed.public_feed(edition, [])
-        self.assertEqual(public["stats"], {"stories": 32, "outlets": 15})
+        self.assertEqual(public["stats"], {"stories": 31, "outlets": 15})
         self.assertEqual(set(public), {"brand", "site", "date", "updated", "stats", "markets", "stories", "posts", "bot"})
 
 

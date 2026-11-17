@@ -114,6 +114,10 @@ What the message is not: the articles themselves. The page holds a headline and 
 story; the full article stays with the outlet, behind the link. The page's stock analysis section (charts and
 long explanations, about 41,000 characters) and its "Also today" list are left out.
 
+One kind of story on the page is also left out: an article its outlet filed under lifestyle or entertainment
+(the address has a part such as `/lifestyle/`). On 17 November 2026 a film-casting story sat second in the
+digest under Markets. The list is `OFF_TOPIC_PATHS` in `scripts/social_feed.py`; the page itself is not changed.
+
 Until 17 November 2026 the digest was a photo with a 5-story caption, followed by the whole edition as two or
 three silent text messages. The 08:04 digest of that day was the last in that form.
 

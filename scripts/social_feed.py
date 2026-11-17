@@ -31,6 +31,9 @@ MIN_THREADS_STORIES = 3  # below this the Threads digest shortens headlines rath
 MAX_THREADS_URL = 160
 MAX_PER_SECTION = 2
 ALERT_MIN_OUTLETS = 3
+# A story whose address sits in one of these parts of its outlet's site is not tech or markets news,
+# whatever section the page filed it under. It is left out of the brief; the page is not changed.
+OFF_TOPIC_PATHS = frozenset({"lifestyle", "entertainment", "celebrity", "showbiz", "hiburan", "horoscope"})
 # The full edition goes out as text messages after the digest. Each stays under Telegram's 4096 with room to spare.
 # One Telegram message holds 4,096 characters; the margin covers anything Telegram counts differently.
 EDITION_LIMIT = 4000
@@ -126,6 +129,12 @@ def _section_titles(soup: BeautifulSoup) -> dict[str, str]:
         if heading:
             titles[clean(heading.get_text(" "))] = block["id"][2:]
     return titles
+
+
+def off_topic(url: str) -> bool:
+    """True when the outlet itself filed the article under lifestyle, entertainment or the like."""
+    path = re.sub(r"^https?://[^/]+", "", url).split("?", 1)[0].lower()
+    return any(part in OFF_TOPIC_PATHS for part in path.split("/"))
 
 
 def _parse_story(article, section_titles: dict[str, str]) -> dict | None:
@@ -260,7 +269,7 @@ def parse_edition(page_html: str) -> dict:
     seen: dict[str, dict] = {}
     for article in soup.select("article.story"):
         story = _parse_story(article, section_titles)
-        if not story:
+        if not story or off_topic(story["url"]):
             continue
         if story["id"] in seen:
             first = seen[story["id"]]
