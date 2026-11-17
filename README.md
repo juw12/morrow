@@ -29,13 +29,13 @@ A planned add-on: last night's US move plus the rupiah, coal, oil and nickel, ma
 
 ## Morrow Brief (social page)
 
-The same edition as a page channel: one morning digest of five stories, plus a few alerts for stories that three or more outlets report. Every post carries its outlet count, a link and a typographic card. Telegram is posted to directly; Instagram, Threads and X go through Buffer. A Telegram bot answers section commands and `/find`.
+The same edition as a page channel: one morning digest, plus a few alerts for stories that three or more outlets report. On Telegram the digest is one message with every story of the day as a linked headline. Every post carries its outlet count, a link and a typographic card. Telegram is posted to directly; Instagram, Threads and X go through Buffer. A Telegram bot answers section commands and `/find`.
 
-- `.github/workflows/social.yml` ("Morrow Brief") runs the tests on every pull request. On `main` it builds the posts from the published `index.html` and delivers them.
+- `.github/workflows/social.yml` ("Morrow Brief") runs the tests on every pull request. On `main` it builds the posts from the published `index.html` and delivers them. When the PC that builds the page stops publishing, the same workflow builds the page itself.
 - `.github/workflows/social-bot.yml` ("Morrow Brief bot") manages the bot: run by hand it reports the bot's status, sets its name, descriptions, command menu and profile picture, and hands the bot to the Cloudflare Worker (`bot/worker.js`) that answers each message as it arrives. It can also poll every 5 minutes as a fallback.
 - Setup, post formats, failure handling and what is not verified yet: [docs/SOCIAL.md](docs/SOCIAL.md).
 
-The bot is live: [@Morrow_brief_bot](https://t.me/Morrow_brief_bot). The pages are not: no channel or Buffer account is connected yet, so the publish job builds each day's posts and cards but sends nothing.
+Live: the Telegram channel [@morrowbrief](https://t.me/morrowbrief), which gets the digest at 08:00 Jakarta time, and the bot [@Morrow_brief_bot](https://t.me/Morrow_brief_bot). Not live: Instagram, Threads and X. No Buffer account is connected yet, so the publish job builds those posts and cards each day and sends nothing to them.
 
 ## Notes
 
