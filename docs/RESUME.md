@@ -51,6 +51,9 @@ with action `setup` (bot profile and menu) or `channel-setup` (channel descripti
 | Rotate the bot token in BotFather, save it as `TELEGRAM_BOT_TOKEN` | Juwen | it was pasted in a chat |
 | Instagram, Threads and X accounts, connected in Buffer; Buffer key as a secret | Juwen | the code for these is written and tested against fake servers only |
 | Look at the daily message and its cover on a phone | Juwen | never seen in the app during this work |
+| Share `t.me/morrowbrief` with people (own groups, LinkedIn) | Juwen | the channel had 2 subscribers on 17 Nov 2026; links on pages bring few readers |
+| Link the channel from the web edition | Juwen to decide | the page is built by the private generator |
+| Directory listing | waiting | submitted to TGDirectory (telegramchannels.io) on 17 Nov 2026, in review; TGStat has to be added by hand in a browser |
 | The generator's own publish has no retry | later | lives in the private repository |
 | Delete sample posts 16 to 21 and 23 in the channel | optional | they are test posts |
 
