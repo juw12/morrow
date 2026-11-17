@@ -7,6 +7,7 @@
     python scripts/social_channel.py listen --seconds 19200  (waits for the channel to show itself, then
                                                               runs setup, test and status on it)
     python scripts/social_channel.py view                    (the newest posts as the public page shows them)
+    python scripts/social_channel.py metrics --out data/metrics.csv   (today's subscribers and views, one line a day)
 
 Without --chat the commands use TELEGRAM_CHAT_ID. A bot cannot list the chats it is in, so `find` asks
 Telegram about each name it is given, or about the likely Morrow Brief handles, and reports where the bot
@@ -24,8 +25,10 @@ import io
 import json
 import os
 import re
+import statistics
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -396,6 +399,80 @@ def view(http, handle: str, count: int = 5) -> tuple[list[str], int]:
     return lines, len(posts)
 
 
+METRICS_HEADER = "date,subscribers,posts_counted,median_views,views_per_100_subscribers"
+JAKARTA = timezone(timedelta(hours=7))
+SETTLED_AFTER = timedelta(days=1)  # a newer post is still collecting views
+SETTLED_UNTIL = timedelta(days=8)
+
+
+def view_count(shown_text: str) -> int | None:
+    """A view counter as the public page prints it: 78, 1.2K or 3.4M."""
+    match = re.fullmatch(r"(\d+(?:\.\d+)?)\s*([KM]?)", shown_text.strip(), re.IGNORECASE)
+    if not match:
+        return None
+    return round(float(match.group(1)) * {"": 1, "K": 1_000, "M": 1_000_000}[match.group(2).upper()])
+
+
+def post_views(http, handle: str) -> tuple[list[tuple[datetime, int]], str | None]:
+    """When each post on the public page was sent and the views it shows. Returns the posts, or why there are none."""
+    try:
+        response = http.get(PUBLIC_PAGE + handle, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
+    except requests.exceptions.RequestException as error:
+        return [], f"the public page of @{handle} could not be read ({type(error).__name__})"
+    if response.status_code != 200:
+        return [], f"the public page of @{handle} answered HTTP {response.status_code}"
+    posts = []
+    for post in feed.BeautifulSoup(response.text, "html.parser").select(".tgme_widget_message[data-post]"):
+        moment = post.select_one("time[datetime]")
+        counter = post.select_one(".tgme_widget_message_views")
+        views = view_count(counter.get_text()) if counter else None
+        if not moment or views is None:
+            continue
+        try:
+            posts.append((datetime.fromisoformat(moment["datetime"]), views))
+        except ValueError:
+            continue
+    return posts, None if posts else f"no posts with a view counter on the public page of @{handle}"
+
+
+def metrics_row(now: datetime, subscribers: int, posts: list[tuple[datetime, int]]) -> str:
+    """One day's line. Only posts between one and eight days old are counted, so the views have settled."""
+    settled = [views for sent, views in posts if SETTLED_AFTER <= now - sent <= SETTLED_UNTIL]
+    typical = statistics.median(settled) if settled else None
+    share = round(100 * typical / subscribers) if settled and subscribers else None
+    cells = [now.astimezone(JAKARTA).date().isoformat(), subscribers, len(settled), typical, share]
+    return ",".join("" if cell is None else f"{cell:g}" if isinstance(cell, float) else str(cell) for cell in cells)
+
+
+def record(path: Path, row: str) -> None:
+    """Keep one line a day: a later reading on the same day replaces the earlier one."""
+    day = row.split(",", 1)[0]
+    kept = []
+    if path.exists():
+        kept = [line for line in path.read_text(encoding="utf-8").splitlines()[1:]
+                if line and not line.startswith(day + ",")]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join([METRICS_HEADER, *kept, row]) + "\n", encoding="utf-8")
+
+
+def metrics(http, token: str, chat_id: str, now: datetime) -> tuple[list[str], str | None]:
+    """Today's subscriber count and typical views. Returns the log and the line, or no line if it failed."""
+    count, error = ask(http, token, "getChatMemberCount", {"chat_id": chat_id})
+    if error:
+        return [f"subscribers could not be read: {error}"], None
+    chat, _error = ask(http, token, "getChat", {"chat_id": chat_id})
+    handle = (chat or {}).get("username")
+    if handle:
+        posts, why = post_views(http, handle)
+    else:
+        posts, why = [], "the channel has no public page"
+    row = metrics_row(now, count, posts)
+    log = [METRICS_HEADER, row]
+    if why:
+        log.append(f"views not read: {why}")
+    return log, row
+
+
 def target(args) -> str | None:
     """The chat a command acts on: --chat, or else TELEGRAM_CHAT_ID."""
     return chat_reference(args.chat or "") or chat_reference(os.environ.get("TELEGRAM_CHAT_ID") or "")
@@ -627,6 +704,13 @@ def run(args) -> int:
     if not chat_id:
         print("No channel given. Pass --chat with its @handle or a post link, or set TELEGRAM_CHAT_ID.")
         return 1
+    if args.command == "metrics":
+        log, row = metrics(requests, token, chat_id, datetime.now(timezone.utc))
+        print("\n".join(log))
+        if row and args.out:
+            record(Path(args.out), row)
+            print(f"saved to {args.out}")
+        return 0 if row else 1
     if args.command == "status":
         log, member = status(requests, token, chat_id)
         print("\n".join(log))
@@ -641,11 +725,12 @@ def run(args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("command", choices=["find", "status", "setup", "test", "listen", "view"])
+    parser.add_argument("command", choices=["find", "status", "setup", "test", "listen", "view", "metrics"])
     parser.add_argument("--chat", default="", help="@handle, t.me link, post link or numeric id")
     parser.add_argument("--feed", default="data/feed.json", help="listen: the feed its answers come from")
     parser.add_argument("--feed-url", default="", help="listen: where to re-read the feed while waiting")
     parser.add_argument("--seconds", type=int, default=600, help="listen: how long to wait for the channel")
+    parser.add_argument("--out", default="", help="metrics: the file that keeps one line a day")
     return run(parser.parse_args(argv))
 
 

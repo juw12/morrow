@@ -304,6 +304,16 @@ jobs:
             --image-base "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${DATA_SHA}/" \
             --image-base "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/social-data/"
 
+      # One line a day in data/metrics.csv: the subscribers, and the typical views of posts a day to
+      # eight days old. It is saved with the rest of the data. A failed reading never stops the run.
+      - name: Record the channel's numbers
+        if: always() && env.DATA_SHA != ''
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/social_channel.py metrics --out data/metrics.csv
+
       - name: Save the results
         if: always() && env.DATA_SHA != ''
         run: bash scripts/social_save.sh "Morrow Brief data, run $RUN_ID" "$DATA_SHA"

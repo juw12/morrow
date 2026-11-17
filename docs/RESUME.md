@@ -25,13 +25,17 @@ Morrow Brief is the social page of the Morrow news edition (https://juw12.github
   `/privacy`. Answers come from `feed.json`; the Cloudflare Worker replies at once and a workflow polls as a
   fallback.
 - **Page refresh:** when the PC stops publishing, the `edition` job of `social.yml` builds the page in the cloud.
+- **Numbers:** each run of `social.yml` writes the day's line to `metrics.csv` on the `social-data` branch:
+  subscribers, and the typical views of posts a day to eight days old. See "Readers" in SOCIAL.md.
 
 ## How to check it is healthy
 
 1. Actions, "Morrow Brief" (`social.yml`): the latest run should be green.
 2. Actions, "Morrow Brief bot" (`social-bot.yml`), run with action `channel-view`: it lists the channel's latest
    posts with their length and whether they carry a picture. Use this when `t.me` cannot be opened.
-3. Tests: `python -m unittest discover -s tests/social` and `node --test bot/worker.test.mjs`.
+3. Readers: open https://raw.githubusercontent.com/juw12/morrow/social-data/metrics.csv, or run
+   `social-bot.yml` with action `channel-metrics` to print today's line.
+4. Tests: `python -m unittest discover -s tests/social` and `node --test bot/worker.test.mjs`.
 
 ## How to try a change without waiting for 08:00
 

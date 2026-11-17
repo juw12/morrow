@@ -1,8 +1,10 @@
 """The channel commands: finding it, reading the bot's rights, setting its profile, and the capability test."""
 import contextlib
+import datetime
 import io
 import json
 import os
+import pathlib
 import tempfile
 import unittest
 from unittest import mock
@@ -673,6 +675,105 @@ class ViewTest(unittest.TestCase):
             self.assertEqual(channel.main(["view"]), 0)
             self.assertEqual(channel.main(["view", "--chat", "https://t.me/s/other_name"]), 0)
         self.assertEqual(page.urls, ["https://t.me/s/morrowbrief", "https://t.me/s/other_name"])
+
+
+class PageAndTelegram(Telegram):
+    """Stands in for `requests` when a command asks Telegram and also reads the public page."""
+
+    def __init__(self, page: PublicPage, **answers):
+        super().__init__(**answers)
+        self.page = page
+        self.exceptions = requests.exceptions
+
+    def get(self, url: str, **kwargs):
+        return self.page.get(url, **kwargs)
+
+
+NOW = datetime.datetime(2026, 11, 20, 2, 0, tzinfo=datetime.timezone.utc)
+
+
+def counted_post(number: int, sent: str, views: str) -> str:
+    return (f'<div class="tgme_widget_message" data-post="morrowbrief/{number}">'
+            f'<span class="tgme_widget_message_views">{views}</span><time datetime="{sent}"></time></div>')
+
+
+class MetricsTest(unittest.TestCase):
+    def test_view_counters_are_read_as_the_page_prints_them(self):
+        self.assertEqual(channel.view_count("78"), 78)
+        self.assertEqual(channel.view_count(" 1.2K "), 1200)
+        self.assertEqual(channel.view_count("3.4M"), 3_400_000)
+        self.assertIsNone(channel.view_count("many"))
+        self.assertIsNone(channel.view_count(""))
+
+    def test_only_posts_a_day_to_eight_days_old_are_counted(self):
+        page = PublicPage("".join([
+            counted_post(1, "2026-11-10T01:00:00+00:00", "900"),   # ten days old: too old
+            counted_post(2, "2026-11-15T01:00:00+00:00", "40"),
+            counted_post(3, "2026-11-17T01:00:00+00:00", "60"),
+            counted_post(4, "2026-11-18T01:00:00+00:00", "80"),
+            counted_post(5, "2026-11-19T23:00:00+00:00", "5"),     # three hours old: still collecting views
+            '<div class="tgme_widget_message" data-post="morrowbrief/6"><time datetime="2026-11-18T02:00:00+00:00">'
+            "</time></div>",                                       # a service post has no view counter
+        ]))
+        posts, why = channel.post_views(page, "morrowbrief")
+        self.assertIsNone(why)
+        self.assertEqual(len(posts), 5)
+        self.assertEqual(channel.metrics_row(NOW, 200, posts), "2026-11-20,200,3,60,30")
+
+    def test_the_day_is_the_jakarta_day_and_an_even_count_gives_the_middle(self):
+        late = datetime.datetime(2026, 11, 20, 18, 30, tzinfo=datetime.timezone.utc)
+        posts = [(late - datetime.timedelta(days=2), 10), (late - datetime.timedelta(days=3), 15)]
+        self.assertEqual(channel.metrics_row(late, 50, posts), "2026-11-21,50,2,12.5,25")
+
+    def test_without_settled_posts_the_subscribers_are_still_recorded(self):
+        self.assertEqual(channel.metrics_row(NOW, 2, []), "2026-11-20,2,0,,")
+        self.assertEqual(channel.metrics_row(NOW, 0, [(NOW - datetime.timedelta(days=2), 7)]), "2026-11-20,0,1,7,")
+
+    def test_one_line_a_day_is_kept(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = pathlib.Path(folder) / "data" / "metrics.csv"
+            channel.record(path, "2026-11-19,2,0,,")
+            channel.record(path, "2026-11-20,3,1,4,133")
+            channel.record(path, "2026-11-20,5,1,6,120")
+            self.assertEqual(path.read_text(encoding="utf-8").splitlines(),
+                             [channel.METRICS_HEADER, "2026-11-19,2,0,,", "2026-11-20,5,1,6,120"])
+
+    def test_the_command_reads_both_and_saves_the_line(self):
+        page = PublicPage(counted_post(3, "2026-11-17T01:00:00+00:00", "1.2K"))
+        http = PageAndTelegram(page, getChatMemberCount=ok(4000), getChat=ok(PUBLIC))
+        log, row = channel.metrics(http, TOKEN, "@morrowbrief", NOW)
+        self.assertEqual(row, "2026-11-20,4000,1,1200,30")
+        self.assertEqual(log, [channel.METRICS_HEADER, row])
+        self.assertEqual(page.urls, ["https://t.me/s/morrowbrief"])
+        output = io.StringIO()
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, "metrics.csv")
+            with mock.patch.dict(os.environ, {"TELEGRAM_BOT_TOKEN": TOKEN, "TELEGRAM_CHAT_ID": "@morrowbrief"},
+                                 clear=True), \
+                    mock.patch.object(channel, "requests", http), contextlib.redirect_stdout(output):
+                self.assertEqual(channel.main(["metrics", "--out", path]), 0)
+            with open(path, encoding="utf-8") as saved:
+                lines = saved.read().splitlines()
+        self.assertEqual(lines[0], channel.METRICS_HEADER)
+        self.assertTrue(lines[1].endswith(",4000,0,,") or lines[1].endswith(",4000,1,1200,30"), lines[1])
+        self.assertNotIn(TOKEN, output.getvalue())
+
+    def test_a_private_channel_or_an_unreadable_page_still_gives_the_subscribers(self):
+        http = PageAndTelegram(PublicPage(status=404), getChatMemberCount=ok(12), getChat=ok(PRIVATE))
+        log, row = channel.metrics(http, TOKEN, "-1009876543210", NOW)
+        self.assertEqual(row, "2026-11-20,12,0,,")
+        self.assertIn("views not read: the channel has no public page", log)
+        http = PageAndTelegram(PublicPage(status=404), getChatMemberCount=ok(12), getChat=ok(PUBLIC))
+        log, row = channel.metrics(http, TOKEN, "@morrowbrief", NOW)
+        self.assertEqual(row, "2026-11-20,12,0,,")
+        self.assertIn("HTTP 404", log[-1])
+
+    def test_no_subscriber_count_means_no_line(self):
+        http = PageAndTelegram(PublicPage(), getChatMemberCount=refused("Bad Request: chat not found"))
+        log, row = channel.metrics(http, TOKEN, "@nowhere", NOW)
+        self.assertIsNone(row)
+        self.assertIn("subscribers could not be read", log[0])
+        self.assertNotIn(TOKEN, " ".join(log))
 
 
 if __name__ == "__main__":

@@ -385,6 +385,26 @@ The poller also hears when the bot is added to a channel or group, and writes on
 `TELEGRAM_CHAT_ID`. Private chats are never written to the log. A Worker webhook only receives messages, so this
 line appears only while the poller is the one answering.
 
+## Readers
+
+The channel's numbers are recorded once a day so that growth can be read from a file and not from memory.
+The `publish` job of `social.yml` runs `scripts/social_channel.py metrics --out data/metrics.csv` after it
+delivers, and the file is saved with the rest of the data on the `social-data` branch:
+https://raw.githubusercontent.com/juw12/morrow/social-data/metrics.csv
+
+| Column | Meaning |
+| --- | --- |
+| `date` | the day in Jakarta time; a later run on the same day replaces the line |
+| `subscribers` | what Telegram reports for the channel |
+| `posts_counted` | posts on the public page that are between one and eight days old and show a view counter |
+| `median_views` | the middle view count of those posts; empty when there are none |
+| `views_per_100_subscribers` | `median_views` as a share of the subscribers, in percent |
+
+A post younger than a day is left out because it is still collecting views. The view counts come from the
+public page (`t.me/s/morrowbrief`), which shows only the newest posts and rounds large counts (1.2K). A bot
+cannot see who the subscribers are or where they came from. A failed reading does not stop the run; the day
+then has no line or a line without views.
+
 ## Setup
 
 The Telegram part (steps 1, 2 and the two Telegram secrets in step 5) is done. Until the Buffer steps are
