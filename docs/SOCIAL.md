@@ -520,6 +520,7 @@ every 3 hours since the morning, did not start a run.
 | [status](https://github.com/juw12/morrow/actions/runs/44001653880) | after the Worker was deployed again with the clock: the webhook is still the Worker's URL and no messages are waiting |
 | [sample, with stock prices and pictures](https://github.com/juw12/morrow/actions/runs/44005672421) | on commit `39f4d86`: 270 Python tests and 16 Worker tests passed. The sample job drew the cards, pushed them to the branch `social-sample` and sent: "photo cover: 6 pictures (stories 3, 5, 6, 11, 14, 28), 6 asked for", "one message, 3965 of 4096 characters, 33 stories, 22 stocks, with the photo cover as its preview", post 21. `channel-view` read the public page: 3,903 characters, 36 links, a link preview with a picture. With the stock block (about 420 characters) 2 summaries fitted, against 7 without it. The publish job of the same run sent the first alert through the normal path, post 22, "sent as a photo", 265 characters, silently, with the photo card of its story |
 | [setup](https://github.com/juw12/morrow/actions/runs/44006043832) | `setMyDescription: done` and `setMyCommands: done`, so the menu and description say `/tape` gives index and stock prices |
+| [sample, tidier layout](https://github.com/juw12/morrow/actions/runs/44008491997) | on commit `182169f`: 271 Python tests and 16 Worker tests passed. "one message, 3999 of 4096 characters, 33 stories, 22 stocks, with the photo cover as its preview", post 23. Telegram accepted the underlined headings and the two fixed-width tables. `channel-view`: 3,880 characters, 34 links (33 outlets and the page), a link preview with a picture. 2 summaries fitted |
 
 The Worker was deployed again through Cloudflare's API with the clock in it. Cloudflare reported the handlers
 `scheduled` and `fetch`, the trigger `25 1-15 * * *`, and the same single binding as before (`WEBHOOK_SECRET`).
@@ -562,6 +563,7 @@ local repository. The following have not been run against the real services:
 - how the one-message digest looks in the app. The channel's public page shows it as one post with a picture
   preview; it has not been looked at on a phone as part of this work;
 - the digest when Telegram refuses the message or does not answer: unit tests with fake servers only;
+- whether the price tables stay on one line each on a narrow phone (the widest row is 31 characters);
 - how the photo cover and the photo alert card look in the app. The log says the cover was the preview of
   post 21 and that post 22 went as a photo; the public page reports a picture on post 21. Neither picture has
   been looked at in the channel, on a phone or otherwise (`t.me` is blocked where this work was done);
