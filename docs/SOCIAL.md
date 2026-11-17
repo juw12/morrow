@@ -27,7 +27,7 @@ Girsta column reports what those posts show.
 |---|---|---|
 | Volume | separate posts through the day: 28 in the six days from 10 to 15 November, between 2 and 8 a day | one digest of 5 stories, plus at most 4 alerts a day |
 | Sourcing | no post links to the reporting behind it; 3 of the 28 name a news outlet in the text. Every link goes to its own Instagram pages or, in older posts, its Discord | every story says how many outlets report it, and the lead links to each one the page names |
-| Format | an emoji, a headline and two or three short paragraphs (66 words at the median); a photo or video on 25 of the 28 | the outlet's own headline, no emoji, and a card drawn from the text |
+| Format | an emoji, a headline and two or three short paragraphs (66 words at the median); a photo or video on 25 of the 28 | the outlet's own headline, no emoji, and a card: on Telegram a grid of the outlets' own pictures, each credited, elsewhere drawn from the text |
 | Scope | AI | AI and chips, big tech, robotics, space, tech, plus a market line |
 | Platforms | Telegram, with its Instagram pages linked under each post | built for Telegram, Instagram, Threads and X. On Telegram the bot is live and the channel is set up; the other three are not connected |
 | Bot | none named on the channel page or in the posts read | section commands and `/find <word>` |
@@ -45,7 +45,9 @@ Three more things are true of Morrow Brief on their own account, whatever a comp
 
 - **Sourcing.** Every story says how many outlets report it, and the lead links to each one the page names.
 - **Cards.** Each post carries its own typographic card: a red bar on the top edge, the headline, and the outlet
-  count as a large numeral. No publisher photos.
+  count as a large numeral. On Telegram the digest's cover and an alert's card also carry the outlets' own
+  pictures (since 17 November 2026, see [Pictures](#pictures)); the cards for Instagram, Threads and X stay
+  text only.
 - **Tone.** No emoji, and a plain statement that the selection is automated.
 
 ## What gets posted
@@ -59,13 +61,17 @@ no digest is sent.
 **On Telegram the digest is one message.** Not a post followed by more posts: one message a day, and it is the
 one that sends a notification. It holds, in this order:
 
-- the cover card, shown above the text. The card is the message's link preview, which is how a picture and a
-  long text fit in one message (a photo's own caption stops at 1,024 characters);
+- the cover, shown above the text: a grid of 6 (or 4) of the day's pictures, each with its headline, its
+  outlet and the number its story has in the text below. With fewer than 4 pictures it is the text cover card.
+  The cover is the message's link preview, which is how a picture and a long text fit in one message (a
+  photo's own caption stops at 1,024 characters);
 - every story on the page, numbered, under its section heading: the outlet's headline as a link to the
   article, then the outlet's name and how many more outlets report the story (`+2`);
 - the page's summary for as many stories as the remaining room holds, starting with the lead and then the most
   widely reported, always as whole sentences;
 - every index on the page's market tape, with its last close and its move;
+- every stock in the page's analysis table, with its last price and one-day move (`NVDA 162.85 ▼2.0%`), tickers
+  in A to Z order, US dollar prices first and rupiah prices in their own paragraph;
 - one line that links to the page for every summary, the charts and the stock analysis.
 
 One Telegram message holds 4,096 characters, and the text is built to 4,000. The edition of 17 November 2026
@@ -75,7 +81,29 @@ the page behind the link. On a day when even the headlines do not fit, they are 
 a word; if that is still not enough, the top stories are listed and the message says how many more are on the
 page.
 
-`/full` in the bot gives the same message at any time.
+The stock prices are part of the fixed content, like the headlines and the indexes, so they take room from the
+summaries: on the 09:30 edition of 17 November (33 stories, 22 stocks) the prices took about 420 characters and
+2 summaries fitted. The rest are on the page behind the link.
+
+`/full` in the bot gives the same message at any time, and `/tape` gives the indexes and the stock prices.
+
+### Pictures
+
+One Telegram message can show one picture, so the day's pictures are drawn into one cover:
+
+- the page already shows the outlet's own picture for about half of its stories. `build` asks for those
+  pictures, the lead and the most reported stories first, until it has 6 (at most 14 requests and 75 seconds);
+- with 6 it draws a grid of 6, with 4 or 5 a grid of 4, each tile with the story's number in the message, its
+  headline and the outlet's name. With fewer than 4 the text cover card is used, and the run log says how many
+  pictures could be fetched;
+- a picture that is refused, too slow, not a picture, over 8 MB or smaller than 400 x 220 is left out. Nothing
+  about a picture can delay or stop a post;
+- an alert whose story has a picture gets a photo card (the picture, the headline, the outlet count) instead
+  of the text card; without one it keeps the text card;
+- the pictures belong to their outlets. They are shown small, each with its outlet's name, next to a link to
+  the outlet's article, and the cards are kept for 7 days like every other card. If an outlet objects, remove
+  its pictures by leaving its stories out in `attach_pictures` in `scripts/social_post.py`;
+- Instagram, Threads and X get the text cards only.
 
 What the message is not: the articles themselves. The page holds a headline and one to three sentences per
 story; the full article stays with the outlet, behind the link. The page's stock analysis section (charts and
@@ -94,7 +122,7 @@ Each platform gets its own format:
 
 | Platform | Digest | Alert | Limit enforced |
 |---|---|---|---|
-| Telegram | one message: the cover card above the text (as its link preview), every story as a linked headline with its outlet, summaries for the most reported stories, the indexes, a link to the page | card, headline, summary, a link to each outlet the page names (one message) | 4096 for a message (the digest is built to 4000), 1024 for an alert's caption |
+| Telegram | one message: the cover above the text (as its link preview; a grid of the outlets' pictures, or the text card), every story as a linked headline with its outlet, summaries for the most reported stories, the indexes, the stock prices, a link to the page | card (with the outlet's picture when it has one), headline, summary, a link to each outlet the page names (one message) | 4096 for a message (the digest is built to 4000), 1024 for an alert's caption |
 | X | thread of 5, one post per story: headline, a one-sentence summary where it fits, outlets, source link; cover card on the first | one post with the card | 280, links counted as 23 |
 | Threads | one post: as many whole headlines as fit (at least 3), the rest named by outlet, linking to the edition | headline, summary, source link | 500 |
 | Instagram | carousel: cover and one card per story; the caption gives each story a summary and names its outlets | one card | 2200 |
@@ -113,7 +141,7 @@ Rules that hold for every post, each checked by a test:
 - a summary is kept as whole sentences or left out, never cut mid-sentence, in captions and on cards alike.
   When an outlet's own feed ends a summary mid-sentence, that fragment is dropped. A headline is shortened (at a
   word boundary, with an ellipsis) only when the post would not fit otherwise; today's digest shortens none;
-- cards are 1080 x 1350, drawn from text alone (no publisher photos), with every colour pair at 4.5:1 or better.
+- cards are 1080 x 1350. The text cards are drawn from text alone, with every colour pair at 4.5:1 or better.
   The cover sets the lead headline large (at least 1.6 times the rows when the text allows), with the other
   four as numbered rows and the market moves below;
 - Instagram captions carry this line: "Automated selection from published reporting. Headlines belong to their
@@ -253,7 +281,7 @@ list, no chat ids, no message history.
 | `/full` | the whole edition in one message, the same text the channel gets at 08:00 |
 | `/ai`, `/bigtech`, `/robotics`, `/space`, `/tech` | that section's stories |
 | `/markets` | the markets stories |
-| `/tape` | index moves, one per line |
+| `/tape` | index moves, one per line, then every stock of the analysis table with its last price and one-day move |
 | `/sources` | the story and outlet counts, and every outlet's name |
 | `/find <word>` | up to 6 stories whose headline, summary, topic tag or outlet contains every word given |
 | `/about` | what Morrow Brief is and how stories are chosen |

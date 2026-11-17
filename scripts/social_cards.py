@@ -1,7 +1,11 @@
-"""Morrow Brief: typographic cards (1080 x 1350) for the social posts.
+"""Morrow Brief: cards (1080 x 1350) for the social posts.
 
-Text only, in the Morrow palette, with the bundled Source Serif 4 and Source Sans 3 fonts so a card
-looks the same on the Linux runner as on a desk. No publisher photos are used.
+The cards are typographic: text only, in the Morrow palette, with the bundled Source Serif 4 and
+Source Sans 3 fonts so a card looks the same on the Linux runner as on a desk.
+
+Two more cards carry the outlets' own pictures, for Telegram only: the photo cover of the digest (a
+grid of the day's stories, each numbered as in the message and credited to its outlet) and the photo
+card of an alert. They are drawn only when the pictures could be fetched; the text cards always exist.
 """
 from __future__ import annotations
 
@@ -9,7 +13,7 @@ import datetime as dt
 from functools import lru_cache
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 import social_feed as feed
 
@@ -179,9 +183,27 @@ class Canvas:
             **extra,
         }
 
+    def photo(self, box: tuple[int, int, int, int], picture: Image.Image) -> None:
+        """Fill the box with the picture, cropped around a point a little above its centre."""
+        left, top, right, bottom = box
+        fitted = ImageOps.fit(picture.convert("RGB"), (right - left, bottom - top), Image.LANCZOS, centering=(0.5, 0.4))
+        self.image.paste(fitted, (left, top))
+
+    def shade(self, box: tuple[int, int, int, int], strongest: int = 235) -> None:
+        """Darken the box from nothing at its top to `strongest` (of 255) at its bottom, for text on a picture."""
+        left, top, right, bottom = box
+        height = bottom - top
+        ramp = Image.new("L", (1, height))
+        ramp.putdata([round(strongest * (row / max(height - 1, 1)) ** 0.5) for row in range(height)])
+        self.image.paste(Image.new("RGB", (right - left, height), (0, 0, 0)), (left, top), ramp.resize((right - left, height)))
+
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.image.save(path, format="PNG", optimize=True)
+        if path.suffix.lower() in (".jpg", ".jpeg"):
+            # A card with photographs: as a PNG it would be several megabytes.
+            self.image.save(path, format="JPEG", quality=88, optimize=True)
+        else:
+            self.image.save(path, format="PNG", optimize=True)
 
 
 def _date_label(date_iso: str) -> str:
@@ -419,6 +441,111 @@ def render_cover_card(stories: list[dict], markets: list[dict], date_iso: str, o
         canvas.save(path)
     return canvas.metrics(rows=len(stories), lead_size=lead_size, lead_lines=len(lead_lines),
                           title_size=title_size, clipped=clipped, overlaps=overlaps)
+
+
+PHOTO_GRIDS = {6: (2, 3), 4: (2, 2)}  # tiles: (columns, rows)
+PHOTO_GRID_MARGIN = 56
+PHOTO_GRID_GAP = 20
+PHOTO_TITLE_SIZES = {6: (30, 28, 26, 24), 4: (38, 34, 30)}
+PHOTO_TITLE_LINES = {6: 3, 4: 4}
+PHOTO_WHITE = (255, 255, 255)
+STORY_PHOTO_HEIGHT = 430
+STORY_PHOTO_SIZES = (74, 68, 62, 56, 52, 46, 42)
+
+
+def render_photo_cover(tiles: list[dict], date_iso: str, story_count: int, outlet_count: int,
+                       path: Path | None = None) -> dict:
+    """The digest's photo cover: the outlets' pictures in a grid, one tile per story.
+
+    A tile is {"number", "title", "source", "picture"}: the story's number in the message, its headline,
+    the outlet the picture and headline belong to, and the picture as a PIL image. 6 or 4 tiles."""
+    columns, rows = PHOTO_GRIDS[len(tiles)]
+    canvas = Canvas()
+    y = _masthead(canvas, date_iso) + 34
+    kicker = fit_line("TODAY IN PICTURES · THE NUMBERS ARE THE STORIES BELOW", font("sans_bold", 24),
+                      WIDTH - 2 * MARGIN, 2.5)
+    canvas.text((MARGIN, y), kicker, "sans_bold", 24, "accent", tracking=2.5, name="photo_kicker")
+    grid_top = y + 58
+    grid_bottom = HEIGHT - 150 - 26
+    tile_width = (WIDTH - 2 * PHOTO_GRID_MARGIN - (columns - 1) * PHOTO_GRID_GAP) // columns
+    tile_height = (grid_bottom - grid_top - (rows - 1) * PHOTO_GRID_GAP) // rows
+    pad = 18
+    boxes = []
+    clipped = False
+    for index, tile in enumerate(tiles):
+        left = PHOTO_GRID_MARGIN + (index % columns) * (tile_width + PHOTO_GRID_GAP)
+        top = grid_top + (index // columns) * (tile_height + PHOTO_GRID_GAP)
+        box = (left, top, left + tile_width, top + tile_height)
+        boxes.append(box)
+        canvas.photo(box, tile["picture"])
+        canvas.shade((left, top + tile_height // 4, left + tile_width, top + tile_height))
+
+        # Headline in white on the darkened lower part, with the outlet's name under it.
+        text_width_max = tile_width - 2 * pad
+        title = " ".join(tile["title"].split())
+        for size in PHOTO_TITLE_SIZES[len(tiles)]:
+            face = font("serif_bold", size)
+            lines = wrap(title, face, text_width_max)
+            if len(lines) <= PHOTO_TITLE_LINES[len(tiles)]:
+                break
+        if len(lines) > PHOTO_TITLE_LINES[len(tiles)]:
+            lines = clamp_lines(lines, PHOTO_TITLE_LINES[len(tiles)], face, text_width_max)
+            clipped = True
+        credit_face = font("sans_bold", 20)
+        credit = fit_line(tile["source"].upper(), credit_face, text_width_max, 1.5)
+        line_height = size * 1.14
+        text_top = top + tile_height - pad - 26 - 8 - len(lines) * line_height
+        for line_index, line in enumerate(lines):
+            canvas.draw.text((left + pad, text_top + line_index * line_height), line, font=face, fill=PHOTO_WHITE)
+        cursor = left + pad
+        for char in credit:
+            canvas.draw.text((cursor, top + tile_height - pad - 24), char, font=credit_face, fill=(226, 226, 226))
+            cursor += credit_face.getlength(char) + 1.5
+
+        # The story's number in the message, on the accent colour.
+        if tile.get("number"):
+            label = str(tile["number"])
+            number_face = font("sans_bold", 30)
+            badge_width = max(52, round(number_face.getlength(label)) + 28)
+            canvas.draw.rectangle([left, top, left + badge_width, top + 50], fill=rgb("accent"))
+            canvas.draw.text((left + (badge_width - number_face.getlength(label)) / 2, top + 6), label,
+                             font=number_face, fill=rgb("paper"))
+
+    _footer(canvas, f"{story_count} stories, read across {outlet_count} outlets")
+    if path:
+        canvas.save(path)
+    return canvas.metrics(tiles=len(tiles), boxes=boxes, clipped=clipped, grid_bottom=grid_bottom)
+
+
+def render_story_photo_card(story: dict, picture: Image.Image, date_iso: str, path: Path | None = None) -> dict:
+    """One story with the outlet's picture: picture, kicker, headline, and the outlet count underneath."""
+    canvas = Canvas()
+    inner_width = WIDTH - 2 * MARGIN
+    photo_top = _masthead(canvas, date_iso) + 40
+    photo_box = (MARGIN, photo_top, WIDTH - MARGIN, photo_top + STORY_PHOTO_HEIGHT)
+    canvas.photo(photo_box, picture)
+    y = photo_box[3] + 36
+    kicker = " · ".join(part for part in (story["section"], story["tag"]) if part).upper()
+    if kicker:
+        kicker = fit_line(kicker, font("sans_bold", 28), inner_width, 3)
+        canvas.text((MARGIN, y), kicker, "sans_bold", 28, "accent", tracking=3, name="kicker")
+        y += 56
+    coverage_top = HEIGHT - 150 - 178
+    content_limit = coverage_top - 50
+    size, lines = _fit_headline(story["title"], inner_width, content_limit - y, STORY_PHOTO_SIZES)
+    content_bottom = canvas.block((MARGIN, y), lines, "serif_bold", size, "ink", HEADLINE_LEADING, name="headline")
+    canvas.rule(coverage_top - 34, "hairline", 2)
+    _coverage_block(canvas, story, coverage_top)
+    _footer(canvas, f"Picture and headline: {story['source']}")
+    if path:
+        canvas.save(path)
+    return canvas.metrics(
+        headline_size=size,
+        headline_lines=len(lines),
+        photo_box=photo_box,
+        clipped=" ".join(lines) != " ".join(story["title"].split()),
+        overlaps=content_bottom > coverage_top - 34,
+    )
 
 
 AVATAR_SIZE = 640

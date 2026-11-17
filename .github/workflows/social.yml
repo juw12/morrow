@@ -1,7 +1,9 @@
 name: Morrow Brief
 
 # Posts the day's digest and a few alerts to the Morrow Brief pages when the edition changes.
-# On Telegram the digest is one message: every story of the edition, with the cover card above it.
+# On Telegram the digest is one message: every story of the edition, the indexes and the stock
+# prices, with the cover above it. The cover is a grid of the outlets' own pictures when at least
+# four can be fetched, else the text card.
 # The digest goes out at 08:00 Jakarta time: a run that starts between 07:00 and 08:00 waits in the
 # publish job until 08:00, then reads the newest page. With no edition in that hour, the digest goes
 # out with the first edition after 08:00.
@@ -81,6 +83,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.sample && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -90,11 +94,31 @@ jobs:
           cache-dependency-path: scripts/social_requirements.txt
       - name: Install
         run: pip install -r scripts/social_requirements.txt
+      # Telegram shows the cover as the message's link preview, so the cover has to be at a public
+      # URL before the message is sent. The sample's cards go to their own branch, social-sample,
+      # which holds one commit and is replaced by the next sample. The day's data is not touched.
+      - name: Draw the sample's cards
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          git config user.name "morrow-brief[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git worktree add --detach sample HEAD
+          git -C sample rm -rf --quiet .
+          python scripts/social_post.py sample --page index.html --out sample --render-only
+      - name: Put the cards at a public URL
+        run: |
+          sha="$(DATA_DIR=sample DATA_BRANCH=social-sample bash scripts/social_save.sh "Morrow Brief sample cards, run $GITHUB_RUN_ID")"
+          echo "SAMPLE_SHA=$sha" >> "$GITHUB_ENV"
       - name: Post today's digest to the Telegram channel, without a notification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python scripts/social_post.py sample --page index.html --out sample
+        run: |
+          python scripts/social_post.py sample --page index.html --out sample --image-wait 90 \
+            --image-base "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${SAMPLE_SHA}/" \
+            --image-base "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/social-data/"
       # The page any reader gets, so the log says whether the post is one message and has its picture.
       - name: What the channel's public page shows now
         run: |

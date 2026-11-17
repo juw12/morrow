@@ -156,6 +156,8 @@ def _parse_story(article, section_titles: dict[str, str]) -> dict | None:
     time_tag = article.select_one("time[datetime]")
     source_tag = article.select_one(".src")
     dek_tag = article.select_one(".dek")
+    image_tag = article.select_one("img[src]")
+    image = image_tag["src"].strip() if image_tag else ""
     return {
         "id": story_id(url),
         "title": title,
@@ -169,6 +171,8 @@ def _parse_story(article, section_titles: dict[str, str]) -> dict | None:
         "coverage": max(int(coverage_match.group()) if coverage_match else 1, 1 + len(related)),
         "related": related,
         "is_lead": "lead" in (article.get("class") or []),
+        # The outlet's own picture for the story, where the page shows one.
+        "image": image if image.startswith("https://") else "",
     }
 
 
@@ -192,6 +196,45 @@ def _parse_markets(soup: BeautifulSoup) -> list[dict]:
     return quotes
 
 
+def _parse_stocks(soup: BeautifulSoup) -> list[dict]:
+    """Every stock in the page's analysis table: ticker, name, last price and the one-day move.
+
+    The currency comes from the market value the page prints for the same ticker, where it prints one."""
+    analysis = soup.select_one("#analysis")
+    if not analysis:
+        return []
+    currencies: dict[str, str] = {}
+    for row in analysis.select(".an-row"):
+        ticker_tag = row.select_one(".tk b")
+        value = re.search(r"Market cap\s+\S+\s+([A-Z]{3})\b", row.get_text(" "))
+        if ticker_tag and value:
+            currencies.setdefault(clean(ticker_tag.get_text(" ")), value.group(1))
+    stocks: list[dict] = []
+    seen: set[str] = set()
+    for summary in analysis.select(".an-row > summary.tr-cols"):
+        ticker_tag = summary.select_one(".tk b")
+        name_tag = summary.select_one(".tk small")
+        numbers = [clean(cell.get_text(" ")) for cell in summary.find_all("span", class_="n", recursive=False)]
+        ticker = clean(ticker_tag.get_text(" ")) if ticker_tag else ""
+        if not ticker or ticker in seen or not numbers or not re.search(r"\d", numbers[0]):
+            continue
+        move = re.fullmatch(r"([+-]?)(\d+(?:\.\d+)?)%", numbers[1].replace("\u2212", "-")) if len(numbers) > 1 else None
+        pct = float(move.group(2)) if move else None
+        direction = "flat"
+        if pct:
+            direction = "down" if move.group(1) == "-" else "up"
+        seen.add(ticker)
+        stocks.append({
+            "ticker": ticker,
+            "name": clean(name_tag.get_text(" ")) if name_tag else "",
+            "price": numbers[0],
+            "pct": pct,
+            "dir": direction,
+            "currency": currencies.get(ticker, ""),
+        })
+    return stocks
+
+
 def _parse_brief(soup: BeautifulSoup, story_urls: set[str]) -> list[dict]:
     """The page's 'Also today' list: one line of text and the outlet it links to. Front-page stories are left out."""
     items = []
@@ -210,7 +253,7 @@ def _parse_brief(soup: BeautifulSoup, story_urls: set[str]) -> list[dict]:
 
 
 def parse_edition(page_html: str) -> dict:
-    """Read the published page into {date, updated, stories, markets, brief}. Stories keep page order."""
+    """Read the published page into {date, updated, stories, markets, stocks, brief}. Stories keep page order."""
     soup = BeautifulSoup(page_html, "html.parser")
     section_titles = _section_titles(soup)
     stories: list[dict] = []
@@ -235,6 +278,7 @@ def parse_edition(page_html: str) -> dict:
         "updated": updated.group(1) if updated else "",
         "stories": stories,
         "markets": _parse_markets(soup),
+        "stocks": _parse_stocks(soup),
         "brief": _parse_brief(soup, {story["url"] for story in stories}),
     }
 
@@ -439,6 +483,32 @@ def tape_lines(markets: list[dict]) -> list[str]:
     """Every index on the page with its last price and move, one per line."""
     arrows = {"up": "▲", "down": "▼", "flat": "="}
     return [esc(f"{quote['name']}  {quote['price']}  {arrows[quote['dir']]}{quote['pct']:.2f}%") for quote in markets]
+
+
+def stock_lines(stocks: list[dict]) -> list[str]:
+    """Every stock with its last price and one-day move: one paragraph per currency, tickers in A to Z order.
+
+    US dollars come first. The currency is named only when the page has more than one, so a price in
+    rupiah is never read as dollars."""
+    arrows = {"up": "▲", "down": "▼", "flat": "="}
+    groups: dict[str, list[dict]] = {}
+    for stock in sorted(stocks, key=lambda item: item["ticker"]):
+        groups.setdefault(stock.get("currency") or "", []).append(stock)
+    lines = []
+    for currency in sorted(groups, key=lambda name: (name != "USD", name == "", name)):
+        parts = []
+        for stock in groups[currency]:
+            move = "" if stock["pct"] is None else f" {arrows[stock['dir']]}{stock['pct']:.1f}%"
+            parts.append(f"{stock['ticker']} {stock['price']}{move}")
+        label = f"<b>{esc(currency or 'Other')}</b>  " if len(groups) > 1 else ""
+        lines.append(label + esc(" · ".join(parts)))
+    return lines
+
+
+def edition_numbers(edition_html: str) -> dict[str, int]:
+    """The number each story carries in the one-message edition, by the story's link."""
+    found = re.findall(r'<b>(\d+)\.</b> <a href="([^"]+)">', edition_html)
+    return {htmllib.unescape(url): int(number) for number, url in found}
 
 
 def hashtags(stories: list[dict], limit: int = 5) -> str:
@@ -693,7 +763,8 @@ def edition_telegram(edition: dict, limit: int = EDITION_LIMIT) -> str:
     """The whole edition as ONE Telegram message.
 
     Every story on the page is there as a linked headline with its outlet, under its section, in the
-    page's order, then every index. The room that is left goes to summaries, whole sentences only,
+    page's order, then every index and every stock of the page's analysis table with its price and
+    one-day move. The room that is left goes to summaries, whole sentences only,
     most widely reported story first. A message holds 4,096 characters and a full page needs about
     twice that with every summary, so on a big day the rest of the summaries stay on the page.
     Only when the headlines alone do not fit are they shortened, and after that the list.
@@ -719,8 +790,12 @@ def edition_telegram(edition: dict, limit: int = EDITION_LIMIT) -> str:
                     lines.append(_edition_story(number, story, title_budget, summaries.get(story["id"], "")))
             if lines:
                 blocks.append("\n".join([f"<b>{esc(section.upper())}</b>", *lines]))
+        stocks = edition.get("stocks") or []
         if edition["markets"]:
             blocks.append("\n".join(["<b>INDEXES · last close</b>", *tape_lines(edition["markets"]),
+                                     *([] if stocks else ["Not financial advice."])]))
+        if stocks:
+            blocks.append("\n".join(["<b>STOCKS · last price, 1-day move</b>", *stock_lines(stocks),
                                      "Not financial advice."]))
         left = [f"+{hidden} more stories"] if hidden else []
         if summarised - set(summaries):
@@ -807,6 +882,8 @@ def bot_replies(edition: dict) -> dict[str, str]:
                      if section in section_names]
     names = sorted({name for story in stories for name in outlet_names(story)}, key=str.lower)
     dated = f" ({date_label})" if edition["date"] else ""
+    stocks = edition.get("stocks") or []
+    tape_label = "index and stock prices" if stocks else "index moves"
     # /start is the welcome: three things to try and what is in today's edition. /help is the full list.
     start_text = "\n".join([
         f"<b>{BRAND}</b>",
@@ -826,7 +903,7 @@ def bot_replies(edition: dict) -> dict[str, str]:
     help_blocks = [
         ["<b>The brief</b>", "/today the five stories that matter", "/full every story in one message"],
         ["<b>Sections</b>", *section_lines] if section_lines else [],
-        ["<b>Numbers and sources</b>", "/tape index moves", "/sources outlets in today's edition"],
+        ["<b>Numbers and sources</b>", f"/tape {tape_label}", "/sources outlets in today's edition"],
         ["<b>Search</b>", "/find <i>word</i> search today's stories, for example /find nvidia"],
         ["<b>About</b>", "/about how stories are chosen", "/privacy what this bot stores"],
         [f"Daily channel: {link(CHANNEL_URL, CHANNEL_SHORT)}", f"Full edition: {link(SITE_URL, SITE_SHORT)}"],
@@ -876,8 +953,10 @@ def bot_replies(edition: dict) -> dict[str, str]:
         if section_stories:
             replies[command] = _list_reply(f"{section_names[section]} · {date_label}", section_stories)
     if edition["markets"]:
-        tape = [f"<b>Tape · {date_label}</b>", "", *tape_lines(edition["markets"]), "", "Not financial advice."]
-        replies["/tape"] = "\n".join(tape)
+        tape = [f"<b>Tape · {date_label}</b>", "", *tape_lines(edition["markets"])]
+        if stocks:
+            tape += ["", "<b>Stocks · last price, 1-day move</b>", *stock_lines(stocks)]
+        replies["/tape"] = "\n".join([*tape, "", "Not financial advice."])
     replies["/sources"] = (
         f"<b>{len(stories)} stories from {len(names)} outlets · {date_label}</b>\n\n" + esc(", ".join(names))
     )

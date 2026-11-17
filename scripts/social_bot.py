@@ -41,7 +41,7 @@ MENU = [
     ("space", "Space and aircraft"),
     ("tech", "Technology"),
     ("markets", "Markets news"),
-    ("tape", "Index moves"),
+    ("tape", "Index and stock prices"),
     ("sources", "Outlets in today's edition"),
     ("find", "Search today's stories, e.g. /find nvidia"),
     ("about", "How stories are chosen"),
@@ -58,7 +58,7 @@ DESCRIPTION = "\n".join([
     "Here you get:",
     "- /today: the five stories that matter",
     "- Sections: AI and chips, big tech, robotics, space, technology, markets",
-    "- /tape: index moves",
+    "- /tape: index and stock prices",
     "- /find: search today's stories",
     "",
     "Every headline links to the outlet that reported it. Nothing is rewritten. No sign-up, no ads, "

@@ -13,8 +13,13 @@ Telegram through the Bot API, Instagram, Threads and X through Buffer. With no c
 sent and the targets are recorded as skipped, so the workflow is safe to merge before any account exists.
 
 On Telegram the digest is ONE message: every story on the page as a linked headline with its outlet,
-summaries for the most reported stories, and the indexes. The cover card is shown above the text as the
-message's link preview. An alert is the story's card with a caption.
+summaries for the most reported stories, the indexes and every stock of the page's analysis table. The
+cover is shown above the text as the message's link preview. An alert is the story's card with a caption.
+
+Pictures: `build` fetches the outlets' own pictures for the day's stories. With 4 or more of them the
+Telegram cover is a photo grid, each tile numbered as its story is in the message and credited to its
+outlet; an alert whose story has a picture gets a photo card. A picture that cannot be fetched is left
+out, and with too few the text card is used, so a post never waits for or fails on a picture.
 
 Nothing is posted before 08:00 Jakarta time. `hold` is what makes the digest land at 08:00: a run that
 starts between 07:00 and 08:00 waits there until the window opens, any other run does not wait.
@@ -30,6 +35,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import io
 import json
 import math
 import os
@@ -40,6 +46,7 @@ import time
 from pathlib import Path
 
 import requests
+from PIL import Image
 
 import social_cards as cards
 import social_feed as feed
@@ -60,6 +67,14 @@ BUFFER_SERVICES = {"instagram": "instagram", "threads": "threads", "twitter": "x
 BUFFER_API = "https://api.buffer.com"
 TELEGRAM_API = "https://api.telegram.org"
 WAITING_STATUSES = ("pending", "failed")
+PHOTO_TRIES = 14  # pictures asked for at most, for one cover
+PHOTO_SECONDS = 75  # ... and the time all of them may take together
+PHOTO_MAX_BYTES = 8_000_000
+PHOTO_MIN_SIZE = (400, 220)
+PHOTO_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; MorrowBrief/1.0; +https://juw12.github.io/morrow/)",
+    "Accept": "image/avif,image/webp,image/png,image/jpeg,image/*;q=0.8",
+}
 STALE_CLAIM = "an earlier run started sending and never recorded the result"
 CREATE_POST = """
 mutation CreatePost($input: CreatePostInput!) {
@@ -210,6 +225,88 @@ def freeze(state: dict, post: dict, now: dt.datetime) -> dict:
 # --------------------------------------------------------------------------- payloads
 
 
+def fetch_picture(http, url: str) -> Image.Image | None:
+    """One outlet picture as an RGB image, or None: any refusal, timeout, odd file or small picture is a no."""
+    try:
+        response = http.get(url, timeout=15, headers=PHOTO_HEADERS, stream=True)
+        if response.status_code != 200:
+            return None
+        data = b""
+        for chunk in response.iter_content(65536):
+            data += chunk
+            if len(data) > PHOTO_MAX_BYTES:
+                return None
+        picture = Image.open(io.BytesIO(data))
+        picture.load()
+        picture = picture.convert("RGB")
+    except Exception:  # noqa: BLE001 - a picture is optional, whatever went wrong
+        return None
+    if picture.width < PHOTO_MIN_SIZE[0] or picture.height < PHOTO_MIN_SIZE[1]:
+        return None
+    return picture
+
+
+def telegram_picture(post: dict) -> str:
+    """The picture Telegram shows with a post: its photo card when one was drawn, else its text card."""
+    return post.get("telegram_cover") or post["cards"][0]
+
+
+def attach_pictures(post: dict, edition: dict, out_dir: Path, http=requests, clock=time.monotonic) -> str:
+    """Draw the post's photo card from the outlets' pictures and note it in the post. Returns a line for the log.
+
+    Never raises and never blocks a post: with too few pictures the post keeps its text card."""
+    try:
+        by_id = {story["id"]: story for story in edition["stories"]}
+        if post["kind"] == "digest":
+            if not post.get("telegram_edition"):
+                return ""
+            relative = f"cards/{post['date']}/digest-photos.jpg"
+            if (out_dir / relative).exists():
+                post["telegram_cover"] = relative
+                return "photo cover: already drawn"
+            numbers = feed.edition_numbers(post["telegram_edition"])
+            candidates = [story for story in feed.ranked(edition["stories"])
+                          if story.get("image") and story["url"] in numbers]
+            wanted = max(cards.PHOTO_GRIDS)
+            deadline = clock() + PHOTO_SECONDS
+            tiles, asked, used = [], 0, set()
+            for story in candidates[:PHOTO_TRIES]:
+                if len(tiles) >= wanted or clock() > deadline:
+                    break
+                if story["image"] in used:
+                    continue
+                used.add(story["image"])
+                asked += 1
+                picture = fetch_picture(http, story["image"])
+                if picture:
+                    tiles.append({"number": numbers[story["url"]], "title": story["title"],
+                                  "source": story["source"], "picture": picture})
+            size = next((count for count in sorted(cards.PHOTO_GRIDS, reverse=True) if len(tiles) >= count), 0)
+            if not size:
+                return (f"photo cover: not drawn, {len(tiles)} of {asked} pictures could be fetched "
+                        f"({len(candidates)} stories have one) and a cover needs {min(cards.PHOTO_GRIDS)}")
+            tiles = sorted(tiles[:size], key=lambda tile: tile["number"])
+            cards.render_photo_cover(tiles, post["date"], len(edition["stories"]),
+                                     feed.outlet_total(edition["stories"]), out_dir / relative)
+            post["telegram_cover"] = relative
+            listed = ", ".join(str(tile["number"]) for tile in tiles)
+            return f"photo cover: {size} pictures (stories {listed}), {asked} asked for"
+        story = by_id.get(post["story_ids"][0]) if post.get("story_ids") else None
+        if not story or not story.get("image"):
+            return "photo card: the page shows no picture for this story"
+        relative = f"cards/{post['date']}/{story['id']}-photo.jpg"
+        if not (out_dir / relative).exists():
+            picture = fetch_picture(http, story["image"])
+            if not picture:
+                return "photo card: the picture could not be fetched, the text card is used"
+            cards.render_story_photo_card(story, picture, post["date"], out_dir / relative)
+        post["telegram_cover"] = relative
+        return "photo card: drawn with the outlet's picture"
+    except Exception as error:  # noqa: BLE001 - pictures are optional
+        post.pop("telegram_cover", None)
+        return f"pictures: skipped ({type(error).__name__})"
+
+
 def image_assets(post: dict, image_base: str, count: int | None = None) -> list[dict]:
     pairs = list(zip(post["cards"], post["alts"]))[:count]
     return [{"image": {"url": image_base + card, "metadata": {"altText": alt}}} for card, alt in pairs]
@@ -269,7 +366,7 @@ def telegram_edition_fields(post: dict, chat_id: str, image_base: str | None) ->
     of its public URL. With no public URL for the card the message goes out without a picture.
     """
     if image_base:
-        preview = {"url": image_base + post["cards"][0], "prefer_large_media": True, "show_above_text": True}
+        preview = {"url": image_base + telegram_picture(post), "prefer_large_media": True, "show_above_text": True}
     else:
         preview = {"is_disabled": True}
     return {
@@ -393,7 +490,8 @@ def send_telegram(http, token: str, fields: dict, card_path: Path, sleep=time.sl
     if not card_path.exists():
         raise Retryable(f"card file missing: {card_path.name}")
     # The bytes, not an open file, so the second try after a rate limit sends the whole card again.
-    photo = (card_path.name, card_path.read_bytes(), "image/png")
+    kind = "image/jpeg" if card_path.suffix.lower() in (".jpg", ".jpeg") else "image/png"
+    photo = (card_path.name, card_path.read_bytes(), kind)
     return telegram_call(http, token, "sendPhoto", sleep, data=fields, files={"photo": photo})
 
 
@@ -412,7 +510,11 @@ def send_telegram_post(http, token: str, chat_id: str, post: dict, out_dir: Path
     fields = telegram_fields(post, chat_id)
     if silent:
         fields["disable_notification"] = "true"
-    return send_telegram(http, token, fields, out_dir / post["cards"][0], sleep)
+    card_path = out_dir / telegram_picture(post)
+    if not card_path.exists():
+        # The photo card is an extra: without its file the text card goes out.
+        card_path = out_dir / post["cards"][0]
+    return send_telegram(http, token, fields, card_path, sleep)
 
 
 def find_image_base(http, candidates: list[str], probe: str, wait_seconds: int = 0, sleep=time.sleep) -> str | None:
@@ -503,10 +605,11 @@ def deliver(state: dict, out_dir: Path, env: dict, now: dt.datetime, http=reques
                         raise NotConfigured("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set")
                     if post.get("telegram_edition"):
                         if not image_base_checked:
-                            image_base = find_image_base(http, image_bases or [], post["cards"][0], image_wait, sleep)
+                            image_base = find_image_base(http, image_bases or [], telegram_picture(post), image_wait, sleep)
                             image_base_checked = True
                         # The news does not wait for the picture: without a public card it goes out as text.
-                        note = (", the whole edition in one message with the cover card as its preview" if image_base
+                        cover = "photo cover" if post.get("telegram_cover") else "cover card"
+                        note = (f", the whole edition in one message with the {cover} as its preview" if image_base
                                 else ", the whole edition in one message, no cover card: it is not at a public URL yet")
                     reference = send_telegram_post(http, token, chat_id, post, out_dir, image_base, sleep)
                 else:
@@ -554,6 +657,7 @@ def deliver(state: dict, out_dir: Path, env: dict, now: dt.datetime, http=reques
 
 
 def report(lines: list[str]) -> None:
+    lines = [line for line in lines if line]
     for line in lines:
         print(line)
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -588,7 +692,7 @@ def command_hold(args, sleep=time.sleep) -> int:
     return 0
 
 
-def command_build(args) -> int:
+def command_build(args, http=requests) -> int:
     out_dir = Path(args.out)
     now = parse_now(args.now)
     edition = feed.parse_edition(Path(args.page).read_text(encoding="utf-8"))
@@ -602,8 +706,11 @@ def command_build(args) -> int:
         lines.append(f"not posted, {post['id']} failed its checks: " + "; ".join(problems))
     elif post:
         cards.render_post_cards(post, edition, out_dir)
+        pictures = attach_pictures(post, edition, out_dir, http)
         freeze(state, post, now)
         lines.append(f"frozen {post['id']}: {reason}")
+        if pictures:
+            lines.append(pictures)
     else:
         lines.append(f"no new post: {reason}")
     prune(state, out_dir, now.astimezone(WIB).date())
@@ -662,8 +769,10 @@ def sample_alert(edition: dict, digest: dict) -> tuple[dict | None, str]:
     )
 
 
-def command_preview(args) -> int:
-    """Render what would be posted from a page, without state, schedule or network. Used on pull requests."""
+def command_preview(args, http=requests) -> int:
+    """Render what would be posted from a page, without state or schedule. Used on pull requests.
+
+    The only network it uses is the outlets' pictures, and `--no-pictures` leaves those out too."""
     out_dir = Path(args.out)
     edition = feed.parse_edition(Path(args.page).read_text(encoding="utf-8"))
     stories = feed.pick_digest(edition["stories"])
@@ -680,7 +789,10 @@ def command_preview(args) -> int:
     payloads = {}
     for post, note in posts:
         cards.render_post_cards(post, edition, out_dir)
+        pictures = "" if getattr(args, "no_pictures", False) else attach_pictures(post, edition, out_dir, http)
         lines += [f"## {post['id']} ({note})", "", "Cards: " + ", ".join(post["cards"]), ""]
+        if pictures:
+            lines += [f"Telegram picture: {telegram_picture(post)} ({pictures})", ""]
         caption_note = ", kept for a day the edition cannot be read" if post.get("telegram_edition") else ""
         lines += [f"### Telegram caption{caption_note} ({feed.visible_length(post['telegram'])} "
                   f"of {feed.LIMITS['telegram_caption']})",
@@ -735,18 +847,28 @@ def command_sample(args, http=requests, env: dict | None = None, sleep=time.slee
         report([f"sample not sent, {post['id']} failed its checks: " + "; ".join(problems)])
         return 1
     cards.render_post_cards(post, edition, out_dir)
-    # The day's own cover card, if the digest already went out today; a sample publishes no card itself.
-    image_base = find_image_base(http, args.image_base or [feed.DATA_URL], post["cards"][0])
+    pictures = attach_pictures(post, edition, out_dir, http)
+    if getattr(args, "render_only", False):
+        # The workflow puts the folder at a public URL between this and the sending call.
+        report([f"edition {edition['date']} updated {edition['updated'] or '?'}",
+                f"sample cards drawn in {out_dir.name}, nothing sent", pictures])
+        return 0
+    # The cover this run drew, at the URL the workflow gave; else the day's own cover on the data branch.
+    image_base = find_image_base(http, args.image_base or [feed.DATA_URL], telegram_picture(post),
+                                 getattr(args, "image_wait", 0), sleep)
     try:
         reference = send_telegram_post(http, token, chat_id, post, out_dir, image_base, sleep, silent=True)
     except (Retryable, Unconfirmed) as error:
         report([f"sample of {post['id']} not confirmed: {scrub(str(error), [token, chat_id])}"])
         return 1
-    picture = "with the cover card as its preview" if image_base else "without a cover card (none is public for this date yet)"
+    cover = "photo cover" if post.get("telegram_cover") else "cover card"
+    picture = (f"with the {cover} as its preview" if image_base
+               else f"without a {cover} (none is public for this date yet)")
     report([f"edition {edition['date']} updated {edition['updated'] or '?'}",
             f"sample of {post['id']} posted to the Telegram channel without a notification ({reference})",
             f"one message, {feed.visible_length(post['telegram_edition'])} of {feed.LIMITS['telegram_message']} "
-            f"characters, {len(edition['stories'])} stories, {picture}"])
+            f"characters, {len(edition['stories'])} stories, {len(edition.get('stocks') or [])} stocks, {picture}",
+            pictures])
     return 0
 
 
@@ -775,12 +897,16 @@ def main(argv: list[str] | None = None) -> int:
     preview = commands.add_parser("preview")
     preview.add_argument("--page", default="index.html")
     preview.add_argument("--out", default="preview")
+    preview.add_argument("--no-pictures", action="store_true", help="do not fetch the outlets' pictures")
     preview.set_defaults(run=command_preview)
     sample = commands.add_parser("sample")
     sample.add_argument("--page", default="index.html")
     sample.add_argument("--out", default="sample")
     sample.add_argument("--image-base", action="append",
                         help="public URL of a folder that already holds this date's cards; default is the data branch")
+    sample.add_argument("--image-wait", type=int, default=0, help="seconds to wait for the first URL to serve the cover")
+    sample.add_argument("--render-only", action="store_true",
+                        help="draw the cards into --out and send nothing; the next call sends them")
     sample.set_defaults(run=command_sample)
     args = parser.parse_args(argv)
     return args.run(args)
