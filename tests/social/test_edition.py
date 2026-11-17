@@ -172,6 +172,18 @@ class AcceptTest(unittest.TestCase):
         self.assertIn("20 stories", said)
         self.assertIn("updated 10:28", said)
 
+    def test_the_written_page_keeps_the_line_ends_of_the_published_one(self):
+        multiline = built().replace("<section", "\n<section")
+        self.built.write_text(multiline, encoding="utf-8", newline="\n")
+        self.assertEqual(self.accept()[0], 0)
+        self.assertNotIn(b"\r\n", self.page.read_bytes())
+        self.page.write_bytes(public(multiline).replace("\n", "\r\n").encode("utf-8"))
+        self.assertEqual(self.accept()[0], 0)
+        written = self.page.read_bytes()
+        self.assertEqual(written.count(b"\r\n"), written.count(b"\n"))
+        self.assertGreater(written.count(b"\r\n"), 3)
+        self.assertEqual(written.decode("utf-8").replace("\r\n", "\n"), public(multiline))
+
     def test_a_bad_page_leaves_the_published_one_alone(self):
         self.built.write_text(built(5), encoding="utf-8")
         code, said = self.accept()

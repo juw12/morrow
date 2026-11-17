@@ -239,7 +239,9 @@ def command_accept(args: argparse.Namespace) -> int:
         for problem in problems:
             print(f"  - {problem}")
         return 1
-    target.write_text(page_html, encoding="utf-8", newline="\n")
+    # The PC writes Windows line ends. Keeping the published page's style keeps each edition's change small.
+    windows = target.exists() and b"\r\n" in target.read_bytes()
+    target.write_text(page_html, encoding="utf-8", newline="\r\n" if windows else "\n")
     print(f"the built page passed every check and is written to {target.name}")
     return 0
 
