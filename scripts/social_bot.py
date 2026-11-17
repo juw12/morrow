@@ -33,7 +33,7 @@ MAX_CLOSING_ROUNDS = 5
 # The poller also hears when the bot is added to a chat: that is how a new channel's id is found.
 POLL_UPDATES = ["message", "my_chat_member"]
 MENU = [
-    ("today", "The five stories that matter today"),
+    ("today", "The five most reported stories today"),
     ("full", "Every story of today's edition in one message"),
     ("ai", "AI and chips"),
     ("bigtech", "Big US tech"),
@@ -56,7 +56,7 @@ DESCRIPTION = "\n".join([
     "across outlets.",
     "",
     "Here you get:",
-    "- /today: the five stories that matter",
+    "- /today: the five most reported stories",
     "- Sections: AI and chips, big tech, robotics, space, technology, markets",
     "- /tape: index and stock prices",
     "- /find: search today's stories",

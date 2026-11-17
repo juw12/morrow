@@ -115,7 +115,9 @@ class CopyTest(unittest.TestCase):
         self.assertTrue(text.startswith(f"<b>{feed.BRAND}</b>\n"))
         self.assertFalse(feed.EMOJI_PATTERN.search(text))
         self.assertIn("Not financial advice", text)
-        self.assertIn(str(feed.DIGEST_SIZE), text)
+        self.assertIn("08:00 Jakarta time", text)
+        self.assertIn(f"{feed.ALERT_MIN_OUTLETS} or more outlets", text)
+        self.assertNotIn("that matter", text)
         urls = [button["url"] for row in buttons["inline_keyboard"] for button in row]
         self.assertEqual(urls, [feed.SITE_URL, "https://t.me/Morrow_brief_bot"])
 

@@ -572,9 +572,9 @@ def story_telegram(story: dict) -> str:
         if dek:
             lines += ["", esc(dek)]
         if len(outlet_names(story)) > 1:
-            lines += ["", f"{story['coverage']} outlets are on this. Pick your source:", outlet_links(story)]
+            lines += ["", f"Reported by {story['coverage']} outlets:", outlet_links(story)]
         elif story["coverage"] > 1:
-            lines += ["", f"{story['coverage']} outlets are on this. First: " + outlet_links(story)]
+            lines += ["", f"Reported by {story['coverage']} outlets. First: " + outlet_links(story)]
         else:
             lines += ["", "Source: " + outlet_links(story)]
         return "\n".join(lines)
@@ -901,7 +901,7 @@ def bot_replies(edition: dict) -> dict[str, str]:
         TAGLINE,
         "",
         "Start with one of these:",
-        "/today the five stories that matter",
+        "/today the five most reported stories",
         "/find <i>word</i> search today's stories, for example /find nvidia",
         "/help every command",
         "",
@@ -912,7 +912,7 @@ def bot_replies(edition: dict) -> dict[str, str]:
         f"Full edition: {link(SITE_URL, SITE_SHORT)}",
     ])
     help_blocks = [
-        ["<b>The brief</b>", "/today the five stories that matter", "/full every story in one message"],
+        ["<b>The brief</b>", "/today the five most reported stories", "/full every story in one message"],
         ["<b>Sections</b>", *section_lines] if section_lines else [],
         ["<b>Numbers and sources</b>", f"/tape {tape_label}", "/sources outlets in today's edition"],
         ["<b>Search</b>", "/find <i>word</i> search today's stories, for example /find nvidia"],

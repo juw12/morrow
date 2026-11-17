@@ -1,5 +1,7 @@
 # Morrow Brief: the social pages
 
+Picking this work up again? Start at [RESUME.md](RESUME.md).
+
 Morrow Brief is Morrow's page on Telegram, Instagram, Threads and X. It posts one digest a day and a few alerts,
 all taken from the published edition at https://juw12.github.io/morrow/. A Telegram bot answers questions about
 the day's edition.
@@ -153,6 +155,19 @@ Rules that hold for every post, each checked by a test:
 Run `python scripts/social_post.py preview --page index.html --out preview` to see exactly what today's edition
 would post. It writes `preview/preview.md`, the cards, and the request bodies, and sends nothing. The "Morrow
 Brief" workflow attaches the same preview to every pull request as the artifact `morrow-brief-preview`.
+
+### Wording
+
+Everything a reader sees is written plainly, and `tests/social/test_wording.py` checks it:
+
+- say what is in the post and where it comes from; no slogans and no claims about importance ("the five most
+  reported stories", not "the stories that matter");
+- no emoji, no exclamation marks, no questions used as headings;
+- headlines and summaries are the outlets' own and are never reworded;
+- the same thing has the same name everywhere: the daily message, an alert, the bot, the full edition.
+
+The pictures follow the same idea: they are the outlets' own photographs with a credit. Nothing is drawn by an
+image generator.
 
 ## How it runs
 

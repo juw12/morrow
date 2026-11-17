@@ -81,8 +81,7 @@ def description(bot_username: str) -> str:
     """The channel's About text: what is posted, where the full edition and the bot are."""
     return "\n".join([
         "Tech and markets, read across the outlets.",
-        f"One brief a day: the {feed.DIGEST_SIZE} stories that matter, each linked to its source. "
-        "Nothing rewritten.",
+        "Daily at 08:00 Jakarta time: every story linked to its outlet, and stock prices.",
         "",
         f"Full edition: {feed.SITE_SHORT}",
         f"Sections and search: @{bot_username}",
@@ -98,19 +97,20 @@ def welcome(bot_username: str) -> tuple[str, dict]:
         "Tech and markets, read across the outlets.",
         "",
         "<b>What is posted here</b>",
-        f"• One brief a day: the {feed.DIGEST_SIZE} stories that matter across AI and chips, big tech, robotics, "
-        "space, technology and markets.",
+        "• Every morning at 08:00 Jakarta time, one message: the day's stories by section, each with a link to "
+        "its outlet, then index and stock prices.",
         f"• An alert when {feed.ALERT_MIN_OUTLETS} or more outlets report the same story.",
-        "• Every headline links to the outlet that reported it. Nothing is rewritten.",
+        "• Nothing is rewritten. Headlines belong to their outlets.",
         "",
-        "<b>Want one section, or a search?</b>",
-        f"Ask @{bot_username}: /today, /ai, /markets, or /find nvidia. No sign-up, and it keeps no list of users.",
+        "<b>Sections and search</b>",
+        f"Send @{bot_username} a command: /today, /ai, /markets or /find nvidia. No sign-up, and it keeps no list "
+        "of users.",
         "",
         "Automated selection from published reporting. Not financial advice.",
     ])
     buttons = {"inline_keyboard": [[
         {"text": "Read today's edition", "url": feed.SITE_URL},
-        {"text": "Ask the bot", "url": f"https://t.me/{bot_username}"},
+        {"text": "Open the bot", "url": f"https://t.me/{bot_username}"},
     ]]}
     return text, buttons
 
