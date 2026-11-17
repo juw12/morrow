@@ -479,14 +479,22 @@ def markets_line(markets: list[dict], count: int = 4) -> str:
     return " · ".join(parts)
 
 
+def _table(rows: list[tuple[str, str, str]]) -> list[str]:
+    """Rows of name, price and move as columns of equal width, for a fixed-width block."""
+    name_width = max(len(name) for name, _, _ in rows)
+    price_width = max(len(price) for _, price, _ in rows)
+    return [f"{name:<{name_width}} {price:>{price_width}} {move}".rstrip() for name, price, move in rows]
+
+
 def tape_lines(markets: list[dict]) -> list[str]:
-    """Every index on the page with its last price and move, one per line."""
+    """Every index on the page with its last price and move, as one fixed-width table."""
     arrows = {"up": "▲", "down": "▼", "flat": "="}
-    return [esc(f"{quote['name']}  {quote['price']}  {arrows[quote['dir']]}{quote['pct']:.2f}%") for quote in markets]
+    rows = [(quote["name"], str(quote["price"]), f"{arrows[quote['dir']]}{quote['pct']:.2f}%") for quote in markets]
+    return ["<pre>" + esc("\n".join(_table(rows))) + "</pre>"] if rows else []
 
 
 def stock_lines(stocks: list[dict]) -> list[str]:
-    """Every stock with its last price and one-day move: one paragraph per currency, tickers in A to Z order.
+    """Every stock with its last price and one-day move, as one fixed-width table, tickers in A to Z order.
 
     US dollars come first. The currency is named only when the page has more than one, so a price in
     rupiah is never read as dollars."""
@@ -494,20 +502,20 @@ def stock_lines(stocks: list[dict]) -> list[str]:
     groups: dict[str, list[dict]] = {}
     for stock in sorted(stocks, key=lambda item: item["ticker"]):
         groups.setdefault(stock.get("currency") or "", []).append(stock)
-    lines = []
+    parts = []
     for currency in sorted(groups, key=lambda name: (name != "USD", name == "", name)):
-        parts = []
+        rows = []
         for stock in groups[currency]:
-            move = "" if stock["pct"] is None else f" {arrows[stock['dir']]}{stock['pct']:.1f}%"
-            parts.append(f"{stock['ticker']} {stock['price']}{move}")
-        label = f"<b>{esc(currency or 'Other')}</b>  " if len(groups) > 1 else ""
-        lines.append(label + esc(" · ".join(parts)))
-    return lines
+            move = "" if stock["pct"] is None else f"{arrows[stock['dir']]}{stock['pct']:.1f}%"
+            rows.append((stock["ticker"], str(stock["price"]), move))
+        heading = [f"{currency or 'Other'}"] if len(groups) > 1 else []
+        parts.append("\n".join([*heading, *_table(rows)]))
+    return ["<pre>" + esc("\n\n".join(parts)) + "</pre>"] if parts else []
 
 
 def edition_numbers(edition_html: str) -> dict[str, int]:
     """The number each story carries in the one-message edition, by the story's link."""
-    found = re.findall(r'<b>(\d+)\.</b> <a href="([^"]+)">', edition_html)
+    found = re.findall(r'<b>(\d+)</b>  [^\n]*?<a href="([^"]+)">', edition_html)
     return {htmllib.unescape(url): int(number) for number, url in found}
 
 
@@ -753,10 +761,13 @@ def digest_instagram(stories: list[dict], markets: list[dict], date_iso: str) ->
 
 def _edition_story(number: int, story: dict, title_budget: int, summary: str) -> str:
     """One story of the one-message edition: linked headline, its outlet, and the summary when it has one."""
-    extra = f" +{story['coverage'] - 1}" if story["coverage"] > 1 else ""
-    outlet = f" ({esc(story['source'])}{extra})" if story["source"] else ""
-    line = f"<b>{number}.</b> {link(story['url'], truncate(story['title'], title_budget))}{outlet}"
-    return f"{line}\n{esc(summary)}" if summary else line
+    title = truncate(story["title"], title_budget)
+    if story["source"]:
+        extra = f" +{story['coverage'] - 1}" if story["coverage"] > 1 else ""
+        line = f"<b>{number}</b>  {esc(title)} · {link(story['url'], story['source'])}{extra}"
+    else:
+        line = f"<b>{number}</b>  {link(story['url'], title)}"
+    return f"{line}\n<i>{esc(summary)}</i>" if summary else line
 
 
 def edition_telegram(edition: dict, limit: int = EDITION_LIMIT) -> str:
@@ -779,8 +790,8 @@ def edition_telegram(edition: dict, limit: int = EDITION_LIMIT) -> str:
     def build(title_budget: int, summaries: dict[str, str], shown: int) -> str:
         keep = {story["id"] for story in order[:shown]}
         hidden = len(stories) - len(keep)
-        count = f"{len(stories)} stories from {outlet_total(stories)} outlets."
-        blocks = [f"<b>{esc(BRAND)} · {short_date(date_iso)}</b>\n{count} A headline opens the article at its outlet."]
+        count = f"{len(stories)} stories · {outlet_total(stories)} outlets"
+        blocks = [f"<b>{esc(BRAND.upper())}</b> · {short_date(date_iso)}\n{count}\nTap the outlet's name to read a story."]
         number = 0
         for section in dict.fromkeys(story["section"] or "More" for story in stories):
             lines = []
@@ -789,13 +800,13 @@ def edition_telegram(edition: dict, limit: int = EDITION_LIMIT) -> str:
                     number += 1
                     lines.append(_edition_story(number, story, title_budget, summaries.get(story["id"], "")))
             if lines:
-                blocks.append("\n".join([f"<b>{esc(section.upper())}</b>", *lines]))
+                blocks.append("\n\n".join([f"<b><u>{esc(section.upper())}</u></b>", *lines]))
         stocks = edition.get("stocks") or []
         if edition["markets"]:
-            blocks.append("\n".join(["<b>INDEXES · last close</b>", *tape_lines(edition["markets"]),
+            blocks.append("\n".join(["<b><u>INDEXES</u></b> · last close", *tape_lines(edition["markets"]),
                                      *([] if stocks else ["Not financial advice."])]))
         if stocks:
-            blocks.append("\n".join(["<b>STOCKS · last price, 1-day move</b>", *stock_lines(stocks),
+            blocks.append("\n".join(["<b><u>STOCKS</u></b> · last price, 1-day move", *stock_lines(stocks),
                                      "Not financial advice."]))
         left = [f"+{hidden} more stories"] if hidden else []
         if summarised - set(summaries):
@@ -953,9 +964,9 @@ def bot_replies(edition: dict) -> dict[str, str]:
         if section_stories:
             replies[command] = _list_reply(f"{section_names[section]} · {date_label}", section_stories)
     if edition["markets"]:
-        tape = [f"<b>Tape · {date_label}</b>", "", *tape_lines(edition["markets"])]
+        tape = [f"<b>Tape · {date_label}</b>", "", "<b>Indexes</b> · last close", *tape_lines(edition["markets"])]
         if stocks:
-            tape += ["", "<b>Stocks · last price, 1-day move</b>", *stock_lines(stocks)]
+            tape += ["", "<b>Stocks</b> · last price, 1-day move", *stock_lines(stocks)]
         replies["/tape"] = "\n".join([*tape, "", "Not financial advice."])
     replies["/sources"] = (
         f"<b>{len(stories)} stories from {len(names)} outlets · {date_label}</b>\n\n" + esc(", ".join(names))

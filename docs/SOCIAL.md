@@ -9,7 +9,7 @@ the day's edition.
 Live now: the Telegram channel [@morrowbrief](https://t.me/morrowbrief) ("Morrow Brief", public, with the bot as
 its administrator), the Telegram bot [@Morrow_brief_bot](https://t.me/Morrow_brief_bot), and the publish job,
 which builds the day's posts and cards on every run. The daily digest is sent to the channel at 08:00 Jakarta
-time as one message: the cover card, every story on the page as a linked headline with its outlet, summaries
+time as one message: the cover card, every story on the page as a headline with its outlet as the link, summaries
 for the most reported stories, and the indexes. The first digest through that path went out on 17 November
 2026 at 08:04. The page behind it is built by a PC, and by a job in this repository when that PC stops
 publishing. Not live yet: Instagram, Threads and X. No Buffer key or account is connected, so those three
@@ -65,13 +65,16 @@ one that sends a notification. It holds, in this order:
   outlet and the number its story has in the text below. With fewer than 4 pictures it is the text cover card.
   The cover is the message's link preview, which is how a picture and a long text fit in one message (a
   photo's own caption stops at 1,024 characters);
-- every story on the page, numbered, under its section heading: the outlet's headline as a link to the
-  article, then the outlet's name and how many more outlets report the story (`+2`);
+- every story on the page, numbered, under its underlined section heading, each one set apart by an empty
+  line: the outlet's headline as plain text, then the outlet's name as the link to the article and how many
+  more outlets report the story (`+2`). Only the outlet's name is blue, so the list reads as text and not as a
+  wall of links;
 - the page's summary for as many stories as the remaining room holds, starting with the lead and then the most
-  widely reported, always as whole sentences;
-- every index on the page's market tape, with its last close and its move;
+  widely reported, always as whole sentences, in italics under the headline;
+- every index on the page's market tape, with its last close and its move, as a fixed-width table;
 - every stock in the page's analysis table, with its last price and one-day move (`NVDA 162.85 ▼2.0%`), tickers
-  in A to Z order, US dollar prices first and rupiah prices in their own paragraph;
+  in A to Z order, as a fixed-width table of one stock per line, US dollar prices first and rupiah prices
+  under their own `IDR` line;
 - one line that links to the page for every summary, the charts and the stock analysis.
 
 One Telegram message holds 4,096 characters, and the text is built to 4,000. The edition of 17 November 2026
@@ -122,7 +125,7 @@ Each platform gets its own format:
 
 | Platform | Digest | Alert | Limit enforced |
 |---|---|---|---|
-| Telegram | one message: the cover above the text (as its link preview; a grid of the outlets' pictures, or the text card), every story as a linked headline with its outlet, summaries for the most reported stories, the indexes, the stock prices, a link to the page | card (with the outlet's picture when it has one), headline, summary, a link to each outlet the page names (one message) | 4096 for a message (the digest is built to 4000), 1024 for an alert's caption |
+| Telegram | one message: the cover above the text (as its link preview; a grid of the outlets' pictures, or the text card), every story as a headline with its outlet as the link, summaries for the most reported stories, the indexes, the stock prices, a link to the page | card (with the outlet's picture when it has one), headline, summary, a link to each outlet the page names (one message) | 4096 for a message (the digest is built to 4000), 1024 for an alert's caption |
 | X | thread of 5, one post per story: headline, a one-sentence summary where it fits, outlets, source link; cover card on the first | one post with the card | 280, links counted as 23 |
 | Threads | one post: as many whole headlines as fit (at least 3), the rest named by outlet, linking to the edition | headline, summary, source link | 500 |
 | Instagram | carousel: cover and one card per story; the caption gives each story a summary and names its outlets | one card | 2200 |

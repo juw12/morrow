@@ -113,19 +113,18 @@ class StockTest(unittest.TestCase):
     def test_lines_group_by_currency_with_dollars_first_and_tickers_in_order(self):
         lines = feed.stock_lines(self.edition["stocks"])
         self.assertEqual(lines, [
-            "<b>USD</b>  AAPL 356.27 =0.0% · NEW 12.00 · NVDA 162.85 ▼2.0%",
-            "<b>IDR</b>  BBRI 3,150 ▲1.6%",
+            "<pre>USD\nAAPL 356.27 =0.0%\nNEW   12.00\nNVDA 162.85 ▼2.0%\n\nIDR\nBBRI 3,150 ▲1.6%</pre>",
         ])
 
     def test_one_currency_is_not_labelled(self):
         dollars = [stock for stock in self.edition["stocks"] if stock["currency"] == "USD"]
-        self.assertEqual(feed.stock_lines(dollars), ["AAPL 356.27 =0.0% · NEW 12.00 · NVDA 162.85 ▼2.0%"])
+        self.assertEqual(feed.stock_lines(dollars), ["<pre>AAPL 356.27 =0.0%\nNEW   12.00\nNVDA 162.85 ▼2.0%</pre>"])
 
     def test_the_one_message_names_every_stock_and_stays_inside_the_limit(self):
         message = feed.edition_telegram(self.edition)
-        self.assertIn("<b>STOCKS · last price, 1-day move</b>", message)
+        self.assertIn("<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>", message)
         for stock in self.edition["stocks"]:
-            self.assertIn(f"{stock['ticker']} {stock['price']}", message)
+            self.assertRegex(message, rf"(?m)^{stock['ticker']} +{stock['price']}\b")
         self.assertLessEqual(feed.visible_length(message), feed.EDITION_LIMIT)
         self.assertEqual(message.count("Not financial advice."), 1)
         self.assertLess(message.index("INDEXES"), message.index("STOCKS"))

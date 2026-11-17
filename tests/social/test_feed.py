@@ -1,4 +1,5 @@
 """Parsing, story selection and the text of every post."""
+import re
 import unittest
 
 import helpers
@@ -343,17 +344,18 @@ class PostTest(unittest.TestCase):
 class EditionMessageTest(unittest.TestCase):
     """The whole edition as ONE Telegram message: what the channel gets every morning."""
 
-    def test_every_story_on_the_page_is_there_once_as_a_linked_headline_with_its_outlet(self):
+    def test_every_story_on_the_page_is_there_once_as_a_headline_with_its_outlet_as_the_link(self):
         edition = real_edition()
         text = feed.edition_telegram(edition)
         self.assertEqual(len(edition["stories"]), 32)
         for number, item in enumerate(edition["stories"], 1):
-            self.assertEqual(text.count(f"<b>{number}.</b> "), 1, number)
-            self.assertEqual(text.count(f'<a href="{feed.esc(item["url"])}">{feed.esc(item["title"])}</a>'), 1,
+            label = item["source"] or item["title"]
+            self.assertEqual(text.count(f"\n<b>{number}</b>  "), 1, number)
+            self.assertEqual(text.count(f'<a href="{feed.esc(item["url"])}">{feed.esc(label)}</a>'), 1,
                              item["title"])
-            if item["source"]:
-                self.assertIn(f"</a> ({feed.esc(item['source'])}", text)
-        self.assertNotIn(f"<b>{len(edition['stories']) + 1}.</b>", text)
+            self.assertIn(feed.esc(item["title"]), text)
+        self.assertNotIn(f"<b>{len(edition['stories']) + 1}</b>", text)
+        self.assertEqual(len(feed.edition_numbers(text)), len(edition["stories"]))
         self.assertNotIn("more stories", text)
 
     def test_it_is_one_message_that_fits_telegram(self):
@@ -363,37 +365,45 @@ class EditionMessageTest(unittest.TestCase):
             self.assertLessEqual(feed.visible_length(text), feed.EDITION_LIMIT)
             self.assertLess(feed.EDITION_LIMIT, feed.LIMITS["telegram_message"])
             self.assertFalse(feed.has_emoji(text))
-            self.assertTrue(text.startswith(f"<b>{feed.BRAND} · "))
-            self.assertIn(f"{len(edition['stories'])} stories from {feed.outlet_total(edition['stories'])} outlets", text)
+            self.assertTrue(text.startswith(f"<b>{feed.BRAND.upper()}</b> · "))
+            self.assertIn(f"{len(edition['stories'])} stories · {feed.outlet_total(edition['stories'])} outlets", text)
             self.assertTrue(text.endswith(feed.link(feed.SITE_URL, feed.SITE_SHORT)))
 
     def test_every_index_is_listed_with_its_price(self):
         edition = real_edition()
         text = feed.edition_telegram(edition)
-        self.assertEqual(text.count("<b>INDEXES · last close</b>"), 1)
-        for quote in edition["markets"]:
-            self.assertIn(feed.esc(f"{quote['name']}  {quote['price']}"), text)
+        self.assertEqual(text.count("<b><u>INDEXES</u></b> · last close\n<pre>"), 1)
+        table = text[text.index("<pre>"):text.index("</pre>")].removeprefix("<pre>").split("\n")
+        self.assertEqual(len(table), len(edition["markets"]))
+        for quote, row in zip(edition["markets"], table):
+            self.assertTrue(row.startswith(feed.esc(quote["name"])), row)
+            self.assertIn(f" {quote['price']} ", row)
+        self.assertEqual(len({len(feed.htmllib.unescape(row)) for row in table}), 1, "the columns line up")
         self.assertIn("Not financial advice.", text)
 
     def test_sections_follow_the_page_and_numbers_run_through(self):
         edition = real_edition()
         text = feed.edition_telegram(edition)
         sections = list(dict.fromkeys((item["section"] or "More").upper() for item in edition["stories"]))
-        positions = [text.index(f"<b>{feed.esc(section)}</b>\n") for section in sections]
+        positions = [text.index(f"<b><u>{feed.esc(section)}</u></b>\n") for section in sections]
         self.assertEqual(positions, sorted(positions))
-        self.assertIn(f"<b>{feed.esc(sections[0])}</b>\n<b>1.</b> ", text)
+        self.assertIn(f"<b><u>{feed.esc(sections[0])}</u></b>\n\n<b>1</b>  ", text)
+
+    def test_every_story_stands_alone_between_empty_lines(self):
+        text = feed.edition_telegram(real_edition())
+        for block in text.split("\n\n"):
+            self.assertLessEqual(len(re.findall(r"(?m)^<b>\d+</b>  ", block)), 1, block)
 
     def test_the_room_left_goes_to_whole_summaries_of_the_most_reported_stories(self):
         edition = real_edition()
         text = feed.edition_telegram(edition)
         given = [item for item in feed.ranked(edition["stories"])
                  if item["dek"] and item["dek"] != item["title"]
-                 and f"</a> ({feed.esc(item['source'])}" in text
-                 and any(feed.esc(sentence) in text for sentence in feed.sentences(item["dek"])[:1])]
+                 and f"\n<i>{feed.esc(feed.sentences(item['dek'])[0])}" in text]
         self.assertGreaterEqual(len(given), 3, "a real page leaves room for some summaries")
         self.assertEqual(given[0]["id"], feed.ranked(edition["stories"])[0]["id"], "the lead gets its summary first")
         for line in text.split("\n"):
-            if line and not line.startswith("<b>") and "href" not in line and "  " not in line:
+            if line.startswith("<i>"):
                 self.assertFalse(line.endswith("\u2026"), f"a summary must not be cut inside a sentence: {line}")
         self.assertIn("Every summary, the charts and the stock analysis: ", text)
 
@@ -401,7 +411,7 @@ class EditionMessageTest(unittest.TestCase):
         edition = edition_from([story(n, "ai", kind="lead" if n == 1 else "card") for n in range(1, 6)])
         text = feed.edition_telegram(edition)
         for item in edition["stories"]:
-            self.assertIn(f"\n{feed.esc(item['dek'])}", text)
+            self.assertIn(f"\n<i>{feed.esc(item['dek'])}</i>", text)
         self.assertNotIn("Every summary", text)
         self.assertIn("Charts and the stock analysis: ", text)
 

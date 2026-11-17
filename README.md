@@ -29,7 +29,7 @@ A planned add-on: last night's US move plus the rupiah, coal, oil and nickel, ma
 
 ## Morrow Brief (social page)
 
-The same edition as a page channel: one morning digest, plus a few alerts for stories that three or more outlets report. On Telegram the digest is one message: a cover with the day's pictures from the outlets, every story as a linked headline, the indexes and the price of every stock on the stock desk. Every post carries its outlet count, a link and a card. Telegram is posted to directly; Instagram, Threads and X go through Buffer. A Telegram bot answers section commands and `/find`.
+The same edition as a page channel: one morning digest, plus a few alerts for stories that three or more outlets report. On Telegram the digest is one message: a cover with the day's pictures from the outlets, every story as a headline with its outlet as the link, the indexes and the price of every stock on the stock desk. Every post carries its outlet count, a link and a card. Telegram is posted to directly; Instagram, Threads and X go through Buffer. A Telegram bot answers section commands and `/find`.
 
 - `.github/workflows/social.yml` ("Morrow Brief") runs the tests on every pull request. On `main` it builds the posts from the published `index.html` and delivers them. When the PC that builds the page stops publishing, the same workflow builds the page itself.
 - `.github/workflows/social-bot.yml` ("Morrow Brief bot") manages the bot: run by hand it reports the bot's status, sets its name, descriptions, command menu and profile picture, and hands the bot to the Cloudflare Worker (`bot/worker.js`) that answers each message as it arrives. It can also poll every 5 minutes as a fallback.
