@@ -5,8 +5,11 @@ name: Morrow Brief
 # The digest goes out at 08:00 Jakarta time: a run that starts between 07:00 and 08:00 waits in the
 # publish job until 08:00, then reads the newest page. With no edition in that hour, the digest goes
 # out with the first edition after 08:00.
-# The schedule is only a fallback (its 00:17 UTC run is 07:17 in Jakarta). GitHub starts scheduled
-# runs hours late or not at all in this repository, so the edition push is what the timing rests on.
+# Three things start a run: the PC publishing an edition (the push), the clock in the bot's
+# Cloudflare Worker (once an hour, by workflow_dispatch) and the schedule below. GitHub starts
+# scheduled runs hours late or not at all in this repository, so the schedule is only a fallback.
+# When the PC has stopped publishing, the edition job builds the page here from the private generator
+# repository, so the page and the digest do not depend on that PC. See scripts/social_edition.py.
 # A run with nothing new to post changes nothing.
 # With no secrets set it sends nothing and records every target as skipped. See docs/SOCIAL.md.
 
@@ -23,9 +26,15 @@ on:
       - "assets/fonts/**"
       - ".github/workflows/social*.yml"
   schedule:
-    - cron: "17 */3 * * *"
+    # 07:23 to 22:53 in Jakarta, twice an hour.
+    - cron: "23,53 0-15 * * *"
   workflow_dispatch:
     inputs:
+      cloud_edition:
+        description: "Build the page in the cloud: auto = only if the PC has stopped publishing, build = build and check but publish nothing, publish = build and publish now, off = skip."
+        type: choice
+        options: [auto, build, publish, "off"]
+        default: auto
       sample:
         description: "Also post today's digest to the Telegram channel now, as one message without a notification. It does not count as the day's digest."
         type: boolean
@@ -92,9 +101,115 @@ jobs:
           sleep 20
           python scripts/social_channel.py view || echo "the public page could not be read; look in the app"
 
-  publish:
+  # Builds the page without the PC. It runs the generator from its private repository, which the
+  # read-only deploy key in GENERATOR_DEPLOY_KEY opens. Run logs here are public, so the generator's
+  # own output goes to a file and only a summary without feeds, tickers or paths is printed.
+  # The variable MORROW_CLOUD_EDITION=off switches it off.
+  edition:
     needs: test
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    concurrency:
+      group: morrow-edition
+      cancel-in-progress: false
+    env:
+      TZ: Asia/Jakarta
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/social_requirements.txt
+      - name: Install
+        run: pip install -r scripts/social_requirements.txt
+
+      - name: Has the PC stopped publishing?
+        id: due
+        env:
+          MODE: ${{ inputs.cloud_edition || vars.MORROW_CLOUD_EDITION || 'auto' }}
+          HAS_KEY: ${{ secrets.GENERATOR_DEPLOY_KEY != '' }}
+        run: python scripts/social_edition.py due --page index.html --mode "$MODE" --key "$HAS_KEY"
+
+      - name: Fetch the generator
+        if: steps.due.outputs.due == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: juw12/morrow-news
+          ssh-key: ${{ secrets.GENERATOR_DEPLOY_KEY }}
+          path: generator
+          persist-credentials: false
+
+      # The generator publishes by itself when it finds a GitHub login. Here it must not: the page
+      # goes through the gate in the next step first. So it is run with no token in its environment.
+      # On the automatic runs a failed build or a refused page is a warning, not a failed run: the
+      # published page simply stays. Asked for by hand (build or publish), it fails so that it shows.
+      - name: Build the page
+        id: build
+        if: steps.due.outputs.due == 'true'
+        working-directory: generator
+        env:
+          MODE: ${{ steps.due.outputs.mode }}
+        run: |
+          set +e
+          env -u GITHUB_TOKEN -u GH_TOKEN -u MP_GITHUB_TOKEN \
+            timeout 900 python build_news.py --no-open --no-email > ../build.log 2>&1
+          code=$?
+          set -e
+          python ../scripts/social_edition.py buildlog ../build.log
+          if [ "$code" -ne 0 ]; then
+            echo "::warning::the generator ended with code $code; the published page stays"
+            if [ "$MODE" = "auto" ]; then exit 0; fi
+            exit "$code"
+          fi
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check the built page and put it in place
+        id: gate
+        if: steps.build.outputs.ok == 'true'
+        env:
+          MODE: ${{ steps.due.outputs.mode }}
+        run: |
+          if python scripts/social_edition.py accept --built generator/output/latest.html --generator generator --page index.html; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::the page built in the cloud did not pass the gate; the published page stays"
+            if [ "$MODE" != "auto" ]; then exit 1; fi
+          fi
+
+      - name: Publish it
+        if: steps.gate.outputs.ok == 'true'
+        env:
+          PUSH: ${{ steps.due.outputs.push }}
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "the built page is the same as the published one; nothing to publish"
+            exit 0
+          fi
+          git diff --shortstat -- index.html
+          if [ "$PUSH" != "true" ]; then
+            echo "build mode: the page passed the gate and is not published"
+            exit 0
+          fi
+          git config user.name "morrow-brief[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit --quiet -m "edition $(date '+%Y-%m-%d %H:%M') (built in the cloud)"
+          # Not forced: if the PC published while this was building, its edition stays.
+          if git push origin HEAD:main; then
+            echo "published: $(git log -1 --format=%s)"
+          else
+            echo "main moved while this was building (the PC published); its edition stays"
+          fi
+
+  # A page pushed by the edition job does not start a new run (GitHub's rule for its own token), so
+  # this job waits for that job and then reads the newest page itself.
+  publish:
+    needs: [test, edition]
+    if: ${{ !cancelled() && needs.test.result == 'success' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     # Up to 60 minutes of waiting for 08:00, plus the work itself.
     timeout-minutes: 75

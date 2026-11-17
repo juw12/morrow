@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, test } from "node:test";
 
-import worker, { FEED_URL, replyFor, searchReply, truncate } from "./worker.js";
+import worker, { DISPATCH_URL, FEED_URL, replyFor, searchReply, truncate } from "./worker.js";
 
 const fixture = JSON.parse(
   readFileSync(new URL("../tests/social/fixtures/bot_cases.json", import.meta.url), "utf8"),
@@ -163,9 +163,39 @@ test("when the feed cannot be read the bot says the edition is not ready", async
   }
 });
 
-test("the Worker holds no bot token and calls nothing but the feed", () => {
+test("the Worker holds no bot token and calls only the feed and the workflow", () => {
   const source = readFileSync(new URL("./worker.js", import.meta.url), "utf8");
   assert.ok(!source.includes("api.telegram.org"));
   assert.ok(!/BOT_TOKEN/.test(source));
   assert.equal(FEED_URL, "https://raw.githubusercontent.com/juw12/morrow/social-data/feed.json");
+  assert.equal(DISPATCH_URL, "https://api.github.com/repos/juw12/morrow/actions/workflows/social.yml/dispatches");
+  const hosts = new Set([...source.matchAll(/https:\/\/([a-z0-9.-]+)/g)].map((match) => match[1]));
+  assert.deepEqual([...hosts].sort(), ["api.github.com", "juw12.github.io", "raw.githubusercontent.com"]);
+});
+
+test("the clock does nothing until it has its own GitHub token", async () => {
+  for (const env of [{}, undefined, { WEBHOOK_SECRET: SECRET }, { GITHUB_DISPATCH_TOKEN: "" }]) {
+    await worker.scheduled({ cron: "25 1-15 * * *" }, env);
+  }
+  assert.equal(feedRequests.length, 0);
+});
+
+test("the clock asks GitHub to start the workflow on main, once", async () => {
+  serveFeed(() => new Response(null, { status: 204 }));
+  await worker.scheduled({ cron: "25 1-15 * * *" }, { WEBHOOK_SECRET: SECRET, GITHUB_DISPATCH_TOKEN: "dispatch-token" });
+  assert.equal(feedRequests.length, 1);
+  const [call] = feedRequests;
+  assert.equal(call.url, DISPATCH_URL);
+  assert.equal(call.options.method, "POST");
+  assert.equal(call.options.headers.Authorization, "Bearer dispatch-token");
+  assert.ok(call.options.headers["User-Agent"]);
+  assert.deepEqual(JSON.parse(call.options.body), { ref: "main" });
+});
+
+test("a refusal from GitHub fails the clock run without showing the token", async () => {
+  serveFeed(() => new Response("Bad credentials", { status: 401 }));
+  await assert.rejects(
+    worker.scheduled({}, { GITHUB_DISPATCH_TOKEN: "dispatch-token" }),
+    (error) => /HTTP 401/.test(error.message) && !error.message.includes("dispatch-token"),
+  );
 });

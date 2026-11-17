@@ -2,12 +2,18 @@
 //
 // Telegram calls this Worker for every message (a webhook). The Worker reads the day's pre-rendered
 // replies from feed.json on the repo's data branch and answers in the HTTP response itself, so it
-// holds no bot token, no database and no list of users. Its only secret is WEBHOOK_SECRET, which
+// holds no bot token, no database and no list of users. Its secret is WEBHOOK_SECRET, which
 // Telegram sends back in a header so nobody else can call it.
+//
+// It is also the clock. GitHub starts its own scheduled runs late or not at all, so once an hour
+// Cloudflare calls scheduled() below, which asks GitHub to start the "Morrow Brief" workflow. That
+// needs a second secret, GITHUB_DISPATCH_TOKEN: a fine-grained GitHub token for this one repository
+// with "Actions: read and write" and nothing else. Without it the clock does nothing.
 //
 // scripts/social_bot.py gives the same answers; tests/social/fixtures/bot_cases.json keeps the two in step.
 
 export const FEED_URL = "https://raw.githubusercontent.com/juw12/morrow/social-data/feed.json";
+export const DISPATCH_URL = "https://api.github.com/repos/juw12/morrow/actions/workflows/social.yml/dispatches";
 const SITE_URL = "https://juw12.github.io/morrow/";
 const NOT_READY = `Today's edition is not ready yet. Read the latest at <a href="${SITE_URL}">juw12.github.io/morrow</a>.`;
 const SECTION_COMMANDS = ["/ai", "/bigtech", "/robotics", "/space", "/tech", "/markets", "/tape"];
@@ -101,7 +107,30 @@ async function loadFeed() {
 
 const empty = (status = 200) => new Response(null, { status });
 
+// Start the "Morrow Brief" workflow on GitHub. A run with nothing new to post changes nothing.
+export async function startWorkflow(env) {
+  if (!env || !env.GITHUB_DISPATCH_TOKEN) return false;
+  const response = await fetch(DISPATCH_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.GITHUB_DISPATCH_TOKEN}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+      "User-Agent": "morrow-brief-bot",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    body: JSON.stringify({ ref: "main" }),
+  });
+  // Thrown errors show up in the Worker's log in the Cloudflare dashboard. The token is never in them.
+  if (!response.ok) throw new Error(`GitHub did not start the workflow: HTTP ${response.status}`);
+  return true;
+}
+
 export default {
+  async scheduled(_event, env) {
+    await startWorkflow(env);
+  },
+
   async fetch(request, env) {
     if (request.method !== "POST") return new Response("Morrow Brief bot", { status: 200 });
     // With no secret configured the Worker answers nobody, so a half-finished setup is never open.
