@@ -572,8 +572,10 @@ Why the page went stale overnight, read from the generator's own log on the PC: 
 16 November to 08:02 on 17 November its refresh task ran 12 times and published none of them. 4 runs hung and
 wrote nothing, 5 logged "web publish skipped: no GitHub login on this PC" (reading the saved GitHub login took
 longer than the 15 seconds the generator allows), and 2 failed on the proxy or its certificate. The 08:03, 08:35
-and 09:00 runs on 17 November published normally. The generator does not retry a failed publish; that is in
-the private repository and was not changed here. The cloud edition is what now covers such a night.
+and 09:00 runs on 17 November published normally. At that time the generator did not retry a failed publish. Since 18 November it tries three times, after 5 and
+20 seconds, when the connection, the server or the GitHub login fails (generator commit `c1c489b`; the PC uses
+it once `Update.bat` has been run there). A run that hangs is not covered by this; the cloud edition covers
+such a night.
 
 Two commits (`6db1b78`, `1009b61`) carry a personal e-mail address as author instead of the GitHub no-reply
 address. They were not rewritten: the same address is on a commit from 8 November, 93 commits back, so only a
