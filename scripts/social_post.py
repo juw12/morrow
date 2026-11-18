@@ -600,6 +600,9 @@ def deliver(state: dict, out_dir: Path, env: dict, now: dt.datetime, http=reques
                 continue
             note = ""
             try:
+                if target == "x" and post.get("kind") != "digest":
+                    # X is the owner's own account: one thread a day, not the alerts as well.
+                    raise NotConfigured("X gets the daily digest thread only")
                 if target == "telegram":
                     if not token or not chat_id:
                         raise NotConfigured("TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set")

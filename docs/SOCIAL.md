@@ -14,7 +14,9 @@ which builds the day's posts and cards on every run. The daily digest is sent to
 time as one message: the cover card, every story on the page as a headline with its outlet as the link, summaries
 for the most reported stories, and the indexes. The first digest through that path went out on 17 November
 2026 at 08:04. The page behind it is built by a PC, and by a job in this repository when that PC stops
-publishing. Not live yet: Instagram, Threads and X. No Buffer key or account is connected, so those three
+publishing. X is switched on from 19 November 2026: the digest goes as a thread to Juwen's own X account
+(@chococakwe) through the Buffer account ReachPilot already uses; alerts do not go to X. Not live: Instagram
+(no account in Buffer) and Threads (connected in Buffer but not listed in `MORROW_BUFFER_CHANNELS`); those
 targets are recorded as `skipped`.
 [What has been run for real](#what-has-been-run-for-real) and [What is not verified](#what-is-not-verified)
 say exactly where the line is.
@@ -132,7 +134,7 @@ Each platform gets its own format:
 | Platform | Digest | Alert | Limit enforced |
 |---|---|---|---|
 | Telegram | one message: the cover above the text (as its link preview; a grid of the outlets' pictures, or the text card), every story as a headline with its outlet as the link, summaries for the most reported stories, the indexes, the stock prices, a link to the page | card (with the outlet's picture when it has one), headline, summary, a link to each outlet the page names (one message) | 4096 for a message (the digest is built to 4000), 1024 for an alert's caption |
-| X | thread of 5, one post per story: headline, a one-sentence summary where it fits, outlets, source link; cover card on the first | one post with the card | 280, links counted as 23 |
+| X | thread of 6: first the masthead, a line on what follows and the channel link (with the cover card), then one post per story: headline, a one-sentence summary where it fits, outlets, source link | not sent to X | 280, links counted as 23 |
 | Threads | one post: as many whole headlines as fit (at least 3), the rest named by outlet, linking to the edition | headline, summary, source link | 500 |
 | Instagram | carousel: cover and one card per story; the caption gives each story a summary and names its outlets | one card | 2200 |
 
@@ -411,8 +413,10 @@ then has no line or a line without views.
 
 ## Setup
 
-The Telegram part (steps 1, 2 and the two Telegram secrets in step 5) is done. Until the Buffer steps are
-done, Instagram, Threads and X are recorded as `skipped`.
+The Telegram part (steps 1, 2 and the two Telegram secrets in step 5) is done. For X (18 November 2026) the
+secret `BUFFER_API_KEY` holds the key of the Buffer account ReachPilot posts with, and `MORROW_BUFFER_CHANNELS`
+holds only that account's X channel id. To add Threads, add its id from `python scripts/social_post.py channels`.
+Instagram is still to be connected in Buffer; until then it is recorded as `skipped`.
 
 1. Create the page accounts: a Telegram channel, an Instagram professional account, Threads and X. The Telegram
    channel is `@morrowbrief` (https://t.me/morrowbrief), public since 17 November 2026. Suggested handle for the

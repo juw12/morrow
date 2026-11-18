@@ -259,10 +259,12 @@ class PostTest(unittest.TestCase):
         self.assertEqual(post["kind"], "digest")
         self.assertEqual(len(post["cards"]), 6)
         self.assertEqual(len(post["alts"]), 6)
-        self.assertEqual(len(post["x"]), 5)
+        self.assertEqual(len(post["x"]), 6)
         self.assertTrue(post["x"][0].startswith("Morrow Brief"))
-        self.assertIn("1/5", post["x"][0])
-        self.assertIn("5/5", post["x"][4])
+        self.assertIn(feed.CHANNEL_URL, post["x"][0])
+        self.assertIn("Five of this morning's", post["x"][0])
+        self.assertIn("1/5", post["x"][1])
+        self.assertIn("5/5", post["x"][5])
         self.assertIn("Markets:", post["telegram"])
         self.assertIn(feed.SITE_URL, post["telegram"])
         self.assertIn(feed.DISCLOSURE, post["instagram"])
@@ -276,7 +278,7 @@ class PostTest(unittest.TestCase):
         for number, item in enumerate(stories):
             self.assertIn(feed.esc(item["title"]), post["telegram"])
             self.assertIn(item["title"], post["instagram"])
-            self.assertIn(item["title"], post["x"][number])
+            self.assertIn(item["title"], post["x"][number + 1])
 
     def test_threads_digest_prints_whole_headlines_and_names_the_rest_by_outlet(self):
         edition = real_edition()
@@ -314,9 +316,10 @@ class PostTest(unittest.TestCase):
         stories = feed.pick_digest(edition["stories"])
         thread = feed.digest_x(stories, edition["date"])
         with_summary = 0
-        for item, text in zip(stories, thread):
+        self.assertLessEqual(feed.x_length(thread[0]), 280)
+        for item, text in zip(stories, thread[1:]):
             self.assertLessEqual(feed.x_length(text), 280)
-            middle = text.split("\n\n")[-2] if text.count("\n\n") >= 2 + (item is stories[0]) else ""
+            middle = text.split("\n\n")[-2] if text.count("\n\n") >= 2 else ""
             if middle:
                 with_summary += 1
                 self.assertIn(middle, item["dek"])

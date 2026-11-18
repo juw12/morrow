@@ -20,7 +20,9 @@ Morrow Brief is the social page of the Morrow news edition (https://juw12.github
 - **08:00 Jakarta time, every day:** one Telegram message with every story of the edition under its section,
   each with a link to its outlet, then a table of index prices and a table of every stock's price and one-day
   move. Its cover is one image with up to 6 of the outlets' pictures, numbered to match the stories.
-- **Alerts:** a short post when 3 or more outlets report the same story, with that story's picture.
+- **X (from 19 Nov 2026):** at the same time, a thread of 6 on @chococakwe: the channel link with the cover,
+  then five stories, each with its outlet's link. Sent through Buffer.
+- **Alerts:** a short post on Telegram when 3 or more outlets report the same story, with that story's picture.
 - **Bot:** `/today`, `/full`, section commands, `/tape` (index and stock prices), `/find`, `/sources`, `/about`,
   `/privacy`. Answers come from `feed.json`; the Cloudflare Worker replies at once and a workflow polls as a
   fallback.
@@ -49,7 +51,8 @@ with action `setup` (bot profile and menu) or `channel-setup` (channel descripti
 | --- | --- | --- |
 | Secret `GITHUB_DISPATCH_TOKEN` on the Cloudflare Worker | Juwen | without it the Worker's hourly clock starts nothing; steps in SOCIAL.md, Setup |
 | Rotate the bot token in BotFather, save it as `TELEGRAM_BOT_TOKEN` | Juwen | it was pasted in a chat |
-| Instagram, Threads and X accounts, connected in Buffer; Buffer key as a secret | Juwen | the code for these is written and tested against fake servers only |
+| X | running from 19 Nov 2026, check the first thread | the 08:00 digest also goes as a thread of 6 to @chococakwe through ReachPilot's Buffer account (secret `BUFFER_API_KEY`, variable `MORROW_BUFFER_CHANNELS` = its X channel only). The first post carries the channel link and the cover. Alerts do not go to X. The first real thread has not been seen yet |
+| Instagram and Threads | Juwen | Instagram has no account in Buffer; Threads is connected but left off. Add its id to `MORROW_BUFFER_CHANNELS` to switch it on |
 | Look at the daily message and its cover on a phone | Juwen | never seen in the app during this work |
 | Share `t.me/morrowbrief` with people (own groups) | Juwen | the channel had 2 subscribers on 17 and on 18 Nov 2026; links on pages bring few readers |
 | LinkedIn post about the channel | done | posted by ReachPilot on 18 Nov 2026 at 08:16 Jakarta time: https://www.linkedin.com/feed/update/urn:li:share:7528627121267814400/ . The same text went to Bluesky, Mastodon, Substack notes, Threads and X. The three links are in the post itself, because LinkedIn refused the first comment |

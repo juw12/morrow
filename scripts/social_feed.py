@@ -695,13 +695,25 @@ def digest_telegram(stories: list[dict], markets: list[dict], date_iso: str) -> 
     return build(30)
 
 
+NUMBER_WORDS = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight"}
+
+
+def digest_x_intro(count: int, date_iso: str) -> str:
+    """The thread's first post: the masthead and where the whole edition is. It carries the cover picture.
+    On X most readers see only the first post, so the channel link is there and not at the end."""
+    stories = f"{NUMBER_WORDS.get(count, count)} of this morning's tech and market stories"
+    return (f"{BRAND} · {short_date(date_iso)}\n\n"
+            f"{stories} are in the posts below, each with a link to its outlet.\n\n"
+            f"The whole edition, with index levels and stock prices, is one Telegram message every day at "
+            f"08:00 Jakarta time. Free: {CHANNEL_URL}")
+
+
 def digest_x(stories: list[dict], date_iso: str) -> list[str]:
-    """One thread: each post is a story with its summary, outlets and link. The first carries the masthead."""
+    """One thread: the intro with the channel link, then each story with its summary, outlets and link."""
     total = len(stories)
-    thread = []
+    thread = [digest_x_intro(total, date_iso)]
     for number, story in enumerate(stories, 1):
-        head = f"{BRAND} · {short_date(date_iso)}\n\n" if number == 1 else ""
-        thread.append(_x_story(story, f"{head}{number}/{total} ", 2))
+        thread.append(_x_story(story, f"{number}/{total} ", 2))
     return thread
 
 

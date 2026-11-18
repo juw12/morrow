@@ -376,6 +376,31 @@ class DeliverTest(unittest.TestCase):
         self.assertEqual(self.http.count("sendPhoto"), 1)
         self.assertEqual(self.http.count("sendMessage"), 0)
 
+    def test_x_gets_the_digest_thread_but_not_the_alerts(self):
+        edition = real_edition()
+        alert = feed.story_post(edition["stories"][7], edition["date"])
+        self.state = post_module.empty_state()
+        self.frozen = post_module.freeze(self.state, alert, at(10))
+        for card in alert["cards"]:
+            path = self.folder / card
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"\x89PNG fake")
+        self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"}, now=at(10, 5))
+        self.assertEqual(self.statuses()["x"], "skipped")
+        self.assertIn("digest thread only", self.frozen["targets"]["x"]["detail"])
+        self.assertEqual(self.http.count("createPost"), 0)
+
+    def test_the_digest_thread_opens_with_the_channel_link_and_the_cover(self):
+        self.run_deliver(env={**ENV, "MORROW_BUFFER_CHANNELS": "x-1"})
+        self.assertEqual(self.statuses()["x"], "delivered")
+        payloads = [kwargs["json"]["variables"]["input"]
+                    for _, kwargs in self.http.calls if "createPost" in (kwargs.get("json") or {}).get("query", "")]
+        self.assertEqual(len(payloads), 1)
+        thread = payloads[0]["metadata"]["twitter"]["thread"]
+        self.assertIn(feed.CHANNEL_URL, thread[0]["text"])
+        self.assertEqual(len(thread[0]["assets"]), 1)
+        self.assertTrue(all(item["assets"] == [] for item in thread[1:]))
+
     def test_a_refused_send_is_retried_then_given_up_after_three_attempts(self):
         self.http.telegram = [FakeResponse(400, {"ok": False, "description": f"Bad Request: chat not found bot{TOKEN}"})]
         env = {**ENV, "BUFFER_API_KEY": ""}
