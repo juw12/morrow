@@ -6,6 +6,15 @@
 
 A morning newspaper for markets, AI and chips, robotics, space and tech. Hundreds of headlines become one edition: coverage from several outlets is merged, there's an AI brief at the top and a "why it matters" line on every story. A stock desk sits alongside with valuation scores for big US tech and Indonesian blue chips.
 
+## Get it on your device
+
+- **Windows:** [`Morrow-Windows-Setup.exe`](https://github.com/juw12/morrow/releases/download/desktop/Morrow-Windows-Setup.exe) (no admin needed; if Windows says it protected your PC, choose *More info → Run anyway*), or without installing [`Morrow-Windows-Portable.zip`](https://github.com/juw12/morrow/releases/download/desktop/Morrow-Windows-Portable.zip).
+- **Mac:** [`Morrow-macOS-AppleSilicon.dmg`](https://github.com/juw12/morrow/releases/download/desktop/Morrow-macOS-AppleSilicon.dmg) (M1 and newer) or [`Morrow-macOS-Intel.dmg`](https://github.com/juw12/morrow/releases/download/desktop/Morrow-macOS-Intel.dmg). The first time, macOS blocks it because it is not notarized: **System Settings → Privacy & Security → Open Anyway**.
+- **Android:** [`Morrow-android.apk`](https://github.com/juw12/morrow/releases/download/android/Morrow-android.apk): open the file on the phone and allow your browser to install apps once.
+- **iPhone:** open https://juw12.github.io/morrow/ in Safari, tap Share, then **Add to Home Screen**.
+
+The Windows, Mac and Android apps are the web app in its own window ([`desktop/`](desktop/README.md), [`android/`](android/README.md)) and change with it. Each build is opened on GitHub's machines before it is published: on Windows and on a Mac the page loads, the app starts and can store data; on an Android emulator it installs, opens and stays up. They are not code-signed or notarised, and no real phone or PC has run them yet.
+
 ## What you get
 
 - **Curated news**: refreshed through the day, with stories you already saw in earlier editions skipped.
