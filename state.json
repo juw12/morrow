@@ -1,0 +1,1150 @@
+{
+  "version": 1,
+  "days": {
+    "2026-11-21": {
+      "digest": "digest-2026-11-21",
+      "alerts": [],
+      "used": [
+        "dc970c88db",
+        "3c75783da3",
+        "79c0f44d64",
+        "23c54ea7be",
+        "4371c6cf8e"
+      ],
+      "last_post_at": "2026-11-21T01:00:04+00:00"
+    },
+    "2026-11-22": {
+      "digest": "digest-2026-11-22",
+      "alerts": [],
+      "used": [
+        "0382cab26d",
+        "e9776a8605",
+        "3c75783da3",
+        "79aefadf42",
+        "0e4307d65d"
+      ],
+      "last_post_at": "2026-11-22T01:00:03+00:00"
+    },
+    "2026-11-23": {
+      "digest": "digest-2026-11-23",
+      "alerts": [],
+      "used": [
+        "fce9874c0a",
+        "4782459313",
+        "4bf8745996",
+        "8a2dbf5935",
+        "fc3f35dac0"
+      ],
+      "last_post_at": "2026-11-23T01:06:45+00:00"
+    },
+    "2026-11-24": {
+      "digest": "digest-2026-11-24",
+      "alerts": [
+        "story-aa7582161f",
+        "story-7b37625c1d",
+        "story-052f718d7f"
+      ],
+      "used": [
+        "afbf4ed7c7",
+        "c54cbd7309",
+        "27065c561f",
+        "ada2460a24",
+        "23de3667e2",
+        "aa7582161f",
+        "7b37625c1d",
+        "052f718d7f"
+      ],
+      "last_post_at": "2026-11-24T13:29:28+00:00"
+    },
+    "2026-11-25": {
+      "digest": "digest-2026-11-25",
+      "alerts": [
+        "story-2ffc129339",
+        "story-d4c272d267",
+        "story-80a5acb9a1",
+        "story-4e956f5da2"
+      ],
+      "used": [
+        "0e1dbd847d",
+        "5f077d12f5",
+        "7b37625c1d",
+        "d30af3bbf8",
+        "0f36c410d0",
+        "2ffc129339",
+        "d4c272d267",
+        "80a5acb9a1",
+        "4e956f5da2"
+      ],
+      "last_post_at": "2026-11-25T13:33:27+00:00"
+    },
+    "2026-11-26": {
+      "digest": "digest-2026-11-26",
+      "alerts": [
+        "story-aeef628587",
+        "story-c0f2de19f0",
+        "story-a3527d66d4"
+      ],
+      "used": [
+        "b8e65de04b",
+        "00e68d185a",
+        "6359c2ce09",
+        "e1845ee0b5",
+        "eae8a16c09",
+        "aeef628587",
+        "c0f2de19f0",
+        "a3527d66d4"
+      ],
+      "last_post_at": "2026-11-26T12:32:16+00:00"
+    },
+    "2026-11-27": {
+      "digest": "digest-2026-11-27",
+      "alerts": [
+        "story-2ed396617b"
+      ],
+      "used": [
+        "9f2a4f1eae",
+        "94305b427e",
+        "3b1d5c3b8f",
+        "8018eae627",
+        "948f79b6fa",
+        "2ed396617b"
+      ],
+      "last_post_at": "2026-11-27T06:32:32+00:00"
+    },
+    "2026-11-28": {
+      "digest": "digest-2026-11-28",
+      "alerts": [],
+      "used": [
+        "d2aa545b6c",
+        "18028c0bea",
+        "9f2a4f1eae",
+        "b19d92564b",
+        "94305b427e"
+      ],
+      "last_post_at": "2026-11-28T08:01:40+00:00"
+    }
+  },
+  "posts": {
+    "digest-2026-11-21": {
+      "id": "digest-2026-11-21",
+      "kind": "digest",
+      "date": "2026-11-21",
+      "story_ids": [
+        "dc970c88db",
+        "3c75783da3",
+        "79c0f44d64",
+        "23c54ea7be",
+        "4371c6cf8e"
+      ],
+      "cards": [
+        "cards/2026-11-21/digest.png",
+        "cards/2026-11-21/dc970c88db.png",
+        "cards/2026-11-21/3c75783da3.png",
+        "cards/2026-11-21/79c0f44d64.png",
+        "cards/2026-11-21/23c54ea7be.png",
+        "cards/2026-11-21/4371c6cf8e.png"
+      ],
+      "alts": [
+        "Morrow Brief for Saturday 21 November 2026: Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis; NASA’s Curiosity Mars Rover Collects Samples; Here are the Apple deals actually worth picking up ahead of Black Friday; The Internet Archive's workers are unionizing; Dow, S&P 500 enter correction as Nasdaq suffers worst week since 2020",
+        "Morrow Brief card. Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis. Reported by 2 outlets: CNBC, MarketWatch.",
+        "Morrow Brief card. NASA’s Curiosity Mars Rover Collects Samples. Reported by 2 outlets, first: NASA.",
+        "Morrow Brief card. Here are the Apple deals actually worth picking up ahead of Black Friday. Reported by 2 outlets, first: The Verge.",
+        "Morrow Brief card. The Internet Archive's workers are unionizing. Reported by 2 outlets, first: Engadget.",
+        "Morrow Brief card. Dow, S&P 500 enter correction as Nasdaq suffers worst week since 2020. Reported by 2 outlets, first: MarketWatch."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Sat 21 Nov\n\n<b>1.</b> <a href=\"https://www.cnbc.com/2026/11/20/nvidias-7-week-losing-streak-is-longest-since-2008-financial-crisis.html\">Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis</a>\nOnce the most valuable company in the world, Nvidia now ranks fourth behind Apple, Microsoft and Alphabet.\nBig US Tech · 2 outlets: <a href=\"https://www.cnbc.com/2026/11/20/nvidias-7-week-losing-streak-is-longest-since-2008-financial-crisis.html\">CNBC</a> · <a href=\"https://www.marketwatch.com/story/nvidias-stock-heads-for-a-stretch-of-weekly-losses-unseen-since-2008-91aba9a6?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>2.</b> <a href=\"https://www.nasa.gov/image-article/nasas-curiosity-mars-rover-collects-samples/\">NASA’s Curiosity Mars Rover Collects Samples</a>\nSpace &amp; Aircraft · 2 outlets, first: NASA\n\n<b>3.</b> <a href=\"https://www.theverge.com/gadgets/1035460/best-early-black-friday-apple-deals-2026\">Here are the Apple deals actually worth picking up ahead of Black Friday</a>\nBig US Tech · 2 outlets, first: The Verge\n\n<b>4.</b> <a href=\"https://www.engadget.com/2323828/the-internet-archives-workers-are-unionizing/\">The Internet Archive's workers are unionizing</a>\nTechnology · 2 outlets, first: Engadget\n\n<b>5.</b> <a href=\"https://www.marketwatch.com/story/dow-s-p-500-enter-correction-as-nasdaq-suffers-worst-week-since-2020-bd74dadf?mod=mw_rss_topstories\">Dow, S&amp;P 500 enter correction as Nasdaq suffers worst week since 2020</a>\nMarkets · 2 outlets, first: MarketWatch\n\nMarkets: S&amp;P 500 ▼3.70% · Nasdaq ▼5.28% · Dow Jones ▼1.93% · IHSG (Jakarta) ▼0.92%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Sat 21 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis\n\nOnce the most valuable company in the world, Nvidia now ranks fourth behind Apple, Microsoft and Alphabet.\n\n2 outlets: CNBC, MarketWatch\nhttps://www.cnbc.com/2026/11/20/nvidias-7-week-losing-streak-is-longest-since-2008-financial-crisis.html",
+        "2/5 NASA’s Curiosity Mars Rover Collects Samples\n\nThis Nov. 16 collage shows 49 drill holes captured by NASA’s Curiosity Mars rover as of November 2026.\n\n2 outlets, first: NASA\nhttps://www.nasa.gov/image-article/nasas-curiosity-mars-rover-collects-samples/",
+        "3/5 Here are the Apple deals actually worth picking up ahead of Black Friday\n\nA new pair of AirPods or the latest Apple Watch can make a great holiday gift, but they can also take a pretty big dent out of your budget.\n\n2 outlets, first: The Verge\nhttps://www.theverge.com/gadgets/1035460/best-early-black-friday-apple-deals-2026",
+        "4/5 The Internet Archive's workers are unionizing\n\nNone of their asks are radical: better pay, additional benefits that apply to everyone and paths for career development and promotion.\n\n2 outlets, first: Engadget\nhttps://www.engadget.com/2323828/the-internet-archives-workers-are-unionizing/",
+        "5/5 Dow, S&P 500 enter correction as Nasdaq suffers worst week since 2020\n\nAll 11 S&P 500 sectors finished more than 1% lower this week for the first time since April 2025.\n\n2 outlets, first: MarketWatch\nhttps://www.marketwatch.com/story/dow-s-p-500-enter-correction-as-nasdaq-suffers-worst-week-since-2020-bd74dadf?mod=mw_rss_topstories"
+      ],
+      "threads": "Morrow Brief · Sat 21 Nov\n\n1. Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis (CNBC +1)\n2. NASA’s Curiosity Mars Rover Collects Samples (NASA +1)\n3. Here are the Apple deals actually worth picking up ahead of Black Friday (The Verge +1)\n4. The Internet Archive's workers are unionizing (Engadget +1)\n\n+1 more from MarketWatch. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Saturday 21 November 2026\n\n1. Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis\n   Once the most valuable company in the world, Nvidia now ranks fourth behind Apple, Microsoft and Alphabet.\n   Reported by 2 outlets: CNBC, MarketWatch\n\n2. NASA’s Curiosity Mars Rover Collects Samples\n   This Nov. 16 collage shows 49 drill holes captured by NASA’s Curiosity Mars rover as of November 2026.\n   Reported by 2 outlets, first: NASA\n\n3. Here are the Apple deals actually worth picking up ahead of Black Friday\n   A new pair of AirPods or the latest Apple Watch can make a great holiday gift, but they can also take a pretty big dent out of your budget.\n   Reported by 2 outlets, first: The Verge\n\n4. The Internet Archive's workers are unionizing\n   None of their asks are radical: better pay, additional benefits that apply to everyone and paths for career development and promotion.\n   Reported by 2 outlets, first: Engadget\n\n5. Dow, S&P 500 enter correction as Nasdaq suffers worst week since 2020\n   All 11 S&P 500 sectors finished more than 1% lower this week for the first time since April 2025.\n   Reported by 2 outlets, first: MarketWatch\n\nMarkets: S&P 500 ▼3.70% · Nasdaq ▼5.28% · Dow Jones ▼1.93% · IHSG (Jakarta) ▼0.92%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Nvidia #Space #NASA #Tech",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Sat 21 Nov\n31 stories · 14 outlets\nTap the outlet's name to read a story.\n\n<b><u>BIG US TECH</u></b>\n\n<b>1</b>  Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis · <a href=\"https://www.cnbc.com/2026/11/20/nvidias-7-week-losing-streak-is-longest-since-2008-financial-crisis.html\">CNBC</a> +1\n<i>Once the most valuable company in the world, Nvidia now ranks fourth behind Apple, Microsoft and Alphabet.</i>\n\n<b>2</b>  Anthropic defied the odds in its record IPO. Now it has to reckon with AI market turbulence · <a href=\"https://www.cnbc.com/2026/11/20/anthropic-defies-odds-holding-ipo-despite-massively-disruptive-market.html\">CNBC</a>\n\n<b>3</b>  Here are the Apple deals actually worth picking up ahead of Black Friday · <a href=\"https://www.theverge.com/gadgets/1035460/best-early-black-friday-apple-deals-2026\">The Verge</a> +1\n<i>A new pair of AirPods or the latest Apple Watch can make a great holiday gift, but they can also take a pretty big dent out of your budget.</i>\n\n<b>4</b>  Google rolls out new search homepage with AI chat history and no search button · <a href=\"https://arstechnica.com/ai/2026/11/googles-latest-search-page-redesign-drops-the-search-button-adds-ai-sidebar/\">Ars Technica</a>\n\n<b>5</b>  Meta reconsiders 2030 net-zero goal amid record emissions from AI data centers · <a href=\"https://arstechnica.com/ai/2026/11/meta-reconsiders-2030-net-zero-goal-amid-record-emissions-from-ai-data-centers/\">Ars Technica</a>\n<i>Meta is “re-evaluating” 2030 sustainability goals. Will others follow?</i>\n\n<b>6</b>  Don’t Bring Jensen Back · <a href=\"https://www.wired.com/story/dont-bring-jensen-back/\">Wired</a> +1\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>7</b>  New NASA Seed Funding Primes Small Businesses for Innovation · <a href=\"https://www.nasa.gov/directorates/rtmd/new-nasa-seed-funding-primes-small-businesses-for-innovation/\">NASA</a>\n\n<b>8</b>  NASA’s Curiosity Mars Rover Collects Samples · <a href=\"https://www.nasa.gov/image-article/nasas-curiosity-mars-rover-collects-samples/\">NASA</a> +1\n<i>This Nov. 16 collage shows 49 drill holes captured by NASA’s Curiosity Mars rover as of November 2026.</i>\n\n<b>9</b>  Following Ship 42’s catch, SpaceX looks to the future · <a href=\"https://www.nasaspaceflight.com/2026/11/ship-42-catch-future/\">NASASpaceflight</a>\n\n<b>10</b>  I got to tour SpaceX's Starfactory facility in Starbase, Texas, and what I saw blew my mind · <a href=\"https://www.space.com/space-exploration/private-spaceflight/i-got-to-tour-spacexs-starfactory-facility-in-starbase-texas-and-what-i-saw-blew-my-mind\">Space.com</a>\n\n<b>11</b>  On this day in space! Nov. 20, 1998: Russia launches 1st module of International Space Station as construction begins on the largest… · <a href=\"https://www.space.com/space-exploration/on-this-day-in-space-november-20-2026\">Space.com</a>\n\n<b>12</b>  Tesla Assisted Driving (TAD) lands approval in Italy, its 12th EU country · <a href=\"https://www.teslarati.com/tesla-assisted-driving-tad-lands-approval-italy-12th-eu-country/\">Teslarati</a>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>13</b>  Anthropic mathematician claims to have solved prestigious Millennium Prize problem with Claude · <a href=\"https://www.theverge.com/ai-artificial-intelligence/1010051/anthropic-riemann-hypothesis-millennium-prize-problem\">The Verge</a>\n\n<b>14</b>  The fallout from Nvidia’s Jensen Huang scandal continues · <a href=\"https://techcrunch.com/podcast/the-fallout-from-nvidias-jensen-huang-scandal-continues/\">TechCrunch</a>\n\n<b>15</b>  Chips can survive the space environment — can their financing? · <a href=\"https://techcrunch.com/2026/11/20/chips-can-survive-the-space-environment-can-their-financing/\">TechCrunch</a>\n\n<b>16</b>  Signal is blocking Gemini and Siri AI from reading your screen · <a href=\"https://www.theverge.com/ai-artificial-intelligence/1038390/signal-blocking-ai-agent-screenshots-mobile-app\">The Verge</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>17</b>  Video Friday: Drone Squeezes Itself to Fit Through Tight Spaces · <a href=\"https://spectrum.ieee.org/video-friday-morphing-robots-quadrotor\">IEEE Spectrum</a>\n\n<b>18</b>  MassRobotics launching marine robotics facility on Boston Harbor · <a href=\"https://www.therobotreport.com/massrobotics-launching-marine-robotics-facility-on-boston-harbor/\">The Robot Report</a>\n\n<b>19</b>  Robotics enters its post-Jensen Huang era · <a href=\"https://www.therobotreport.com/robotics-enters-its-post-jensen-huang-era/\">The Robot Report</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>20</b>  The Internet Archive's workers are unionizing · <a href=\"https://www.engadget.com/2323828/the-internet-archives-workers-are-unionizing/\">Engadget</a> +1\n\n<b>21</b>  A transcription firm used by police, prosecutors, and tech giants exposed customer data online · <a href=\"https://techcrunch.com/2026/11/20/a-transcription-firm-used-by-police-prosecutors-and-tech-giants-exposed-customer-data-online/\">TechCrunch</a>\n\n<b>22</b>  Experts warn: Nearly everyone in AI is susceptible to a honey-trap scheme right now · <a href=\"https://techcrunch.com/2026/11/20/experts-warn-nearly-everyone-in-ai-is-susceptible-to-a-honey-trap-scheme-right-now/\">TechCrunch</a>\n\n<b>23</b>  OpenAI brings its collaborative Space hubs to Plus users · <a href=\"https://www.engadget.com/2323016/openai-brings-its-collaborative-space-hubs-to-plus-users/\">Engadget</a>\n\n<b>24</b>  The Best Pura Deals for Cyber Week (2026) · <a href=\"https://www.wired.com/story/pura-black-friday-2026/\">Wired</a>\n\n<b>25</b>  Regular Tech Bros Are Worried About Honeypots · <a href=\"https://www.wired.com/story/regular-tech-bros-are-worried-about-honeypots/\">Wired</a>\n\n<b><u>MARKETS</u></b>\n\n<b>26</b>  Dow, S&amp;P 500 enter correction as Nasdaq suffers worst week since 2020 · <a href=\"https://www.marketwatch.com/story/dow-s-p-500-enter-correction-as-nasdaq-suffers-worst-week-since-2020-bd74dadf?mod=mw_rss_topstories\">MarketWatch</a> +1\n\n<b>27</b>  Warsh wants Fed officials to talk less. Instead, they’re talking more · <a href=\"https://www.cnbc.com/2026/11/20/warsh-fed-forward-guidance-rate-hikes.html\">CNBC</a>\n\n<b>28</b>  The bull market has a new problem. The 'smart money' is selling · <a href=\"https://www.cnbc.com/2026/11/20/equity-issuance-bull-market-problem.html\">CNBC</a>\n\n<b>29</b>  The hidden catch in Anthropic’s IPO: Billions of locked-up shares are waiting in the wings · <a href=\"https://www.marketwatch.com/story/the-hidden-catch-in-anthropics-ipo-billions-of-locked-up-shares-are-waiting-in-the-wings-279d33ce?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>30</b>  Indeks Baru IDX Comodity 20 Meluncur, Cuan Mana Dibanding IHSG? · <a href=\"https://www.cnbcindonesia.com/market/20261120204429-17-787137/indeks-baru-idx-comodity-20-meluncur-cuan-mana-dibanding-ihsg\">CNBC Indonesia</a>\n\n<b>31</b>  8 Ojol Setop Layanan di RI hingga Ada yang Bangkrut, Ini Daftarnya · <a href=\"https://www.cnbcindonesia.com/tech/20261121065224-37-787148/8-ojol-setop-layanan-di-ri-hingga-ada-yang-bangkrut-ini-daftarnya\">CNBC Indonesia</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         6,910.39 ▼3.70%\nNasdaq         22,617.73 ▼5.28%\nDow Jones      48,147.33 ▼1.93%\nIHSG (Jakarta)  5,146.33 ▼0.92%\nGold (XAU)      3,539.00 ▼3.98%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  342.56 ▼1.9%\nAMD   424.39 ▼13.2%\nAMZN  246.82 ▼4.1%\nBRK-B 570.00 ▼0.4%\nGOOGL 265.29 ▼2.7%\nIBM   224.44 ▲0.3%\nINTC   51.28 ▼8.0%\nKO     96.99 ▲0.9%\nMAR   406.64 ▼1.8%\nMETA  560.84 ▼5.9%\nMSFT  484.52 ▼2.8%\nMU    594.51 ▼13.9%\nNVDA  125.53 ▼14.0%\nSTX   457.01 ▼12.3%\nTSLA  345.82 ▼7.6%\nTSM   318.71 ▼9.5%\n\nIDR\nANTM 2,610 =0.0%\nBBCA 5,550 ▼1.8%\nBBRI 3,080 ▼0.3%\nBMRI 3,890 ▼0.5%\nPGEO   895 ▲1.1%\nTLKM 2,070 ▼2.4%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-21/digest-photos.jpg",
+      "created_at": "2026-11-21T01:00:04+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:38",
+          "at": "2026-11-21T01:00:09+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b00ed1a20a2d09a0ac27813",
+          "at": "2026-11-21T01:00:09+00:00"
+        }
+      }
+    },
+    "digest-2026-11-22": {
+      "id": "digest-2026-11-22",
+      "kind": "digest",
+      "date": "2026-11-22",
+      "story_ids": [
+        "0382cab26d",
+        "e9776a8605",
+        "3c75783da3",
+        "79aefadf42",
+        "0e4307d65d"
+      ],
+      "cards": [
+        "cards/2026-11-22/digest.png",
+        "cards/2026-11-22/0382cab26d.png",
+        "cards/2026-11-22/e9776a8605.png",
+        "cards/2026-11-22/3c75783da3.png",
+        "cards/2026-11-22/79aefadf42.png",
+        "cards/2026-11-22/0e4307d65d.png"
+      ],
+      "alts": [
+        "Morrow Brief for Sunday 22 November 2026: Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020; The FBI and USDA were reportedly hacked; NASA’s Curiosity Mars Rover Collects Samples; Anthropic employee claims to have proven the most famous math problem using Claude; Live coverage: SpaceX to launch intelligence-gathering satellites for the National Reconnaissance Office",
+        "Morrow Brief card. Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020. Reported by CNBC.",
+        "Morrow Brief card. The FBI and USDA were reportedly hacked. Reported by 2 outlets, first: The Verge.",
+        "Morrow Brief card. NASA’s Curiosity Mars Rover Collects Samples. Reported by 2 outlets, first: NASA.",
+        "Morrow Brief card. Anthropic employee claims to have proven the most famous math problem using Claude. Reported by 2 outlets, first: Engadget.",
+        "Morrow Brief card. Live coverage: SpaceX to launch intelligence-gathering satellites for the National Reconnaissance Office. Reported by Spaceflight Now."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Sun 22 Nov\n\n<b>1.</b> <a href=\"https://www.cnbc.com/2026/11/21/anthropic-ipo-tech-selloff.html\">Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020</a>\nAnthropic held its historic Nasdaq debut a day before Nvidia's stock closed out its longest weekly losing streak since 2008.\nBig US Tech · via CNBC\n\n<b>2.</b> <a href=\"https://www.theverge.com/tech/1039543/fbi-usda-hacked\">The FBI and USDA were reportedly hacked</a>\nBig US Tech · 2 outlets, first: The Verge\n\n<b>3.</b> <a href=\"https://www.nasa.gov/image-article/nasas-curiosity-mars-rover-collects-samples/\">NASA’s Curiosity Mars Rover Collects Samples</a>\nSpace &amp; Aircraft · 2 outlets, first: NASA\n\n<b>4.</b> <a href=\"https://www.engadget.com/2324141/anthropic-employee-claims-to-have-proven-the-most-famous-math-problem-using-claude/\">Anthropic employee claims to have proven the most famous math problem using Claude</a>\nTechnology · 2 outlets, first: Engadget\n\n<b>5.</b> <a href=\"https://spaceflightnow.com/2026/11/21/live-coverage-spacex-to-launch-intelligence-gathering-satellites-for-the-national-reconnaissance-office-3/\">Live coverage: SpaceX to launch intelligence-gathering satellites for the National Reconnaissance Office</a>\nSpace &amp; Aircraft · via Spaceflight Now\n\nMarkets: S&amp;P 500 ▼3.70% · Nasdaq ▼5.28% · Dow Jones ▼1.93% · IHSG (Jakarta) ▼0.92%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Sun 22 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020\n\nAnthropic held its historic Nasdaq debut a day before Nvidia's stock closed out its longest weekly losing streak since 2008.\n\nvia CNBC\nhttps://www.cnbc.com/2026/11/21/anthropic-ipo-tech-selloff.html",
+        "2/5 The FBI and USDA were reportedly hacked\n\nFriday, it was reported that both the US Department of Agriculture (USDA) and the FBI were hacked.\n\n2 outlets, first: The Verge\nhttps://www.theverge.com/tech/1039543/fbi-usda-hacked",
+        "3/5 NASA’s Curiosity Mars Rover Collects Samples\n\nThis Nov. 16 collage shows 49 drill holes captured by NASA’s Curiosity Mars rover as of November 2026.\n\n2 outlets, first: NASA\nhttps://www.nasa.gov/image-article/nasas-curiosity-mars-rover-collects-samples/",
+        "4/5 Anthropic employee claims to have proven the most famous math problem using Claude\n\nLevent Alpöge says he worked with Claude to discover a proof of the Riemann Hypothesis.\n\n2 outlets, first: Engadget\nhttps://www.engadget.com/2324141/anthropic-employee-claims-to-have-proven-the-most-famous-math-problem-using-claude/",
+        "5/5 Live coverage: SpaceX to launch intelligence-gathering satellites for the National Reconnaissance Office\n\nvia Spaceflight Now\nhttps://spaceflightnow.com/2026/11/21/live-coverage-spacex-to-launch-intelligence-gathering-satellites-for-the-national-reconnaissance-office-3/"
+      ],
+      "threads": "Morrow Brief · Sun 22 Nov\n\n1. Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020 (CNBC)\n2. The FBI and USDA were reportedly hacked (The Verge +1)\n3. NASA’s Curiosity Mars Rover Collects Samples (NASA +1)\n4. Anthropic employee claims to have proven the most famous math problem using Claude (Engadget +1)\n\n+1 more from Spaceflight Now. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Sunday 22 November 2026\n\n1. Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020\n   Anthropic held its historic Nasdaq debut a day before Nvidia's stock closed out its longest weekly losing streak since 2008.\n   Reported by CNBC\n\n2. The FBI and USDA were reportedly hacked\n   Friday, it was reported that both the US Department of Agriculture (USDA) and the FBI were hacked.\n   Reported by 2 outlets, first: The Verge\n\n3. NASA’s Curiosity Mars Rover Collects Samples\n   This Nov. 16 collage shows 49 drill holes captured by NASA’s Curiosity Mars rover as of November 2026.\n   Reported by 2 outlets, first: NASA\n\n4. Anthropic employee claims to have proven the most famous math problem using Claude\n   Levent Alpöge says he worked with Claude to discover a proof of the Riemann Hypothesis.\n   Reported by 2 outlets, first: Engadget\n\n5. Live coverage: SpaceX to launch intelligence-gathering satellites for the National Reconnaissance Office\n   Reported by Spaceflight Now\n\nMarkets: S&P 500 ▼3.70% · Nasdaq ▼5.28% · Dow Jones ▼1.93% · IHSG (Jakarta) ▼0.92%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Nvidia #Space #Tech #Anthropic",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Sun 22 Nov\n31 stories · 14 outlets\nTap the outlet's name to read a story.\n\n<b><u>BIG US TECH</u></b>\n\n<b>1</b>  Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020 · <a href=\"https://www.cnbc.com/2026/11/21/anthropic-ipo-tech-selloff.html\">CNBC</a>\n<i>Anthropic held its historic Nasdaq debut a day before Nvidia's stock closed out its longest weekly losing streak since 2008.</i>\n\n<b>2</b>  Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis · <a href=\"https://www.cnbc.com/2026/11/20/nvidias-7-week-losing-streak-is-longest-since-2008-financial-crisis.html\">CNBC</a>\n<i>Once the most valuable company in the world, Nvidia now ranks fourth behind Apple, Microsoft and Alphabet.</i>\n\n<b>3</b>  Review: Godzilla Minus Zero joins the list of truly stellar sequels · <a href=\"https://arstechnica.com/culture/2026/11/review-godzilla-minus-zero-is-everything-we-could-want-in-a-sequel/\">Ars Technica</a>\n\n<b>4</b>  Amazon is complaining about NYC Council on shipping labels, too · <a href=\"https://www.theverge.com/tech/1039564/amazon-nyc-council-packages-shipping-label\">The Verge</a>\n\n<b>5</b>  The FBI and USDA were reportedly hacked · <a href=\"https://www.theverge.com/tech/1039543/fbi-usda-hacked\">The Verge</a> +1\n<i>Friday, it was reported that both the US Department of Agriculture (USDA) and the FBI were hacked.</i>\n\n<b>6</b>  “Race realism” isn’t realistic—and it isn’t good science · <a href=\"https://arstechnica.com/science/2026/11/race-realism-isnt-realistic-and-it-isnt-good-science/\">Ars Technica</a>\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>7</b>  Live coverage: SpaceX to launch intelligence-gathering satellites for the National Reconnaissance Office · <a href=\"https://spaceflightnow.com/2026/11/21/live-coverage-spacex-to-launch-intelligence-gathering-satellites-for-the-national-reconnaissance-office-3/\">Spaceflight Now</a>\n\n<b>8</b>  SpaceX will retire 1st Starship upper stage ever caught by 'chopsticks,' Elon Musk says · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/spacex-will-retire-1st-starship-upper-stage-ever-caught-by-chopsticks-elon-musk-says\">Space.com</a>\n\n<b>9</b>  SpaceX launches classified mission for US Space Force from California · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/spacex-falcon-9-classified-space-force-launch-ussf-317\">Space.com</a>\n\n<b>10</b>  New NASA Seed Funding Primes Small Businesses for Innovation · <a href=\"https://www.nasa.gov/directorates/rtmd/new-nasa-seed-funding-primes-small-businesses-for-innovation/\">NASA</a>\n\n<b>11</b>  Tesla Full Self-Driving v15 rollout begins: full release notes and improvements · <a href=\"https://www.teslarati.com/tesla-full-self-driving-v15-rollout-begins-full-release-notes-improvements/\">Teslarati</a>\n\n<b>12</b>  NASA’s Curiosity Mars Rover Collects Samples · <a href=\"https://www.nasa.gov/image-article/nasas-curiosity-mars-rover-collects-samples/\">NASA</a> +1\n<i>This Nov. 16 collage shows 49 drill holes captured by NASA’s Curiosity Mars rover as of November 2026.</i>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>13</b>  Can Anthropic afford to put safety first? · <a href=\"https://www.theverge.com/podcast/1038701/anthropic-ipo-ai-safety-openai-nvidia-structure\">The Verge</a>\n\n<b>14</b>  A tale of two Nvidias · <a href=\"https://techcrunch.com/2026/11/21/a-tale-of-two-nvidias/\">TechCrunch</a>\n\n<b>15</b>  Signal restricts mobile screenshots as it confronts ‘existential threat’ of AI surveillance · <a href=\"https://techcrunch.com/2026/11/21/signal-restricts-mobile-screenshots-as-it-confronts-existential-threat-of-ai-surveillance/\">TechCrunch</a>\n\n<b>16</b>  Signal is blocking Gemini and Siri AI from reading your screen · <a href=\"https://www.theverge.com/ai-artificial-intelligence/1038390/signal-blocking-ai-agent-screenshots-mobile-app\">The Verge</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>17</b>  Video Friday: Drone Squeezes Itself to Fit Through Tight Spaces · <a href=\"https://spectrum.ieee.org/video-friday-morphing-robots-quadrotor\">IEEE Spectrum</a>\n\n<b>18</b>  The manufacturing data gap holding back physical AI · <a href=\"https://www.therobotreport.com/the-manufacturing-data-gap-holding-back-physical-ai/\">The Robot Report</a>\n\n<b>19</b>  Medtronic’s Hugo surgical robot ready for bigger operation · <a href=\"https://www.therobotreport.com/medtronics-hugo-surgical-robot-ready-for-bigger-operation/\">The Robot Report</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>20</b>  Anthropic employee claims to have proven the most famous math problem using Claude · <a href=\"https://www.engadget.com/2324141/anthropic-employee-claims-to-have-proven-the-most-famous-math-problem-using-claude/\">Engadget</a> +1\n<i>Levent Alpöge says he worked with Claude to discover a proof of the Riemann Hypothesis.</i>\n\n<b>21</b>  Why Apple Vision Pro never took off like Meta's VR headsets · <a href=\"https://www.engadget.com/2318875/why-apple-vision-pro-did-not-take-off-vs-meta-vr/\">Engadget</a>\n\n<b>22</b>  The Outages Are Just Getting Started · <a href=\"https://www.wired.com/story/brace-yourself-for-years-of-outage-chaos/\">Wired</a>\n\n<b>23</b>  Alaska, your next governor is a Wikipedia nerd · <a href=\"https://techcrunch.com/2026/11/21/alaska-your-next-governor-is-a-wikipedia-nerd/\">TechCrunch</a>\n\n<b>24</b>  Startup sues Apple in India over tap-to-share contacts feature · <a href=\"https://techcrunch.com/2026/11/20/startup-sues-apple-in-india-over-tap-to-share-contacts-feature/\">TechCrunch</a>\n\n<b>25</b>  Ulta Promo Codes: Up to 20% Off in November 2026 · <a href=\"https://www.wired.com/story/ulta-coupon/\">Wired</a>\n\n<b><u>MARKETS</u></b>\n\n<b>26</b>  OJK Bongkar Lagi Manipulasi Saham, Minta Rp23,7 M Dikembalikan · <a href=\"https://www.cnbcindonesia.com/market/20261122060224-17-787252/ojk-bongkar-lagi-manipulasi-saham-minta-rp237-m-dikembalikan\">CNBC Indonesia</a>\n\n<b>27</b>  My wife is bankrolling her family’s trips to New York and it’s draining our savings. Should I ask her to stop? · <a href=\"https://www.marketwatch.com/story/my-wife-pays-thousands-of-dollars-for-her-family-to-visit-from-argentina-how-can-i-convince-her-to-stop-9381351c?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>28</b>  11 Orang Tewas, 180 Masuk RS usai Minum Racikan Maut Miras-Metanol · <a href=\"https://www.cnbcindonesia.com/news/20261121230530-4-787241/11-orang-tewas-180-masuk-rs-usai-minum-racikan-maut-miras-metanol\">CNBC Indonesia</a>\n\n<b>29</b>  ‘Buyers are out for blood’: With home sales at a record low, buyers are calling the shots · <a href=\"https://www.marketwatch.com/story/buyers-are-out-for-blood-as-housing-market-finally-hits-rock-bottom-fa5093a6?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>30</b>  Tech outages are fueling a new doomsday economy · <a href=\"https://www.cnbc.com/2026/11/21/emergency-prep-spending-tech-outages.html\">CNBC</a>\n\n<b>31</b>  Warsh wants Fed officials to talk less. Instead, they’re talking more · <a href=\"https://www.cnbc.com/2026/11/20/warsh-fed-forward-guidance-rate-hikes.html\">CNBC</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         6,910.39 ▼3.70%\nNasdaq         22,617.73 ▼5.28%\nDow Jones      48,147.33 ▼1.93%\nIHSG (Jakarta)  5,146.33 ▼0.92%\nGold (XAU)      3,515.40 ▼4.62%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  342.56 ▼1.9%\nAMD   424.39 ▼13.2%\nAMZN  246.82 ▼4.1%\nBRK-B 570.00 ▼0.4%\nGOOGL 265.29 ▼2.7%\nIBM   224.44 ▲0.3%\nINTC   51.28 ▼8.0%\nKO     96.99 ▲0.9%\nMAR   406.64 ▼1.8%\nMETA  560.84 ▼5.9%\nMSFT  484.52 ▼2.8%\nMU    594.51 ▼13.9%\nNVDA  125.53 ▼14.0%\nSTX   457.01 ▼12.3%\nTSLA  345.82 ▼7.6%\nTSM   318.71 ▼9.5%\n\nIDR\nANTM 2,610 =0.0%\nBBCA 5,550 ▼1.8%\nBBRI 3,080 ▼0.3%\nBMRI 3,890 ▼0.5%\nPGEO   895 ▲1.1%\nTLKM 2,070 ▼2.4%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-22/digest-photos.jpg",
+      "created_at": "2026-11-22T01:00:03+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:39",
+          "at": "2026-11-22T01:00:08+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b023e9acc364169c118c2a1",
+          "at": "2026-11-22T01:00:08+00:00"
+        }
+      }
+    },
+    "digest-2026-11-23": {
+      "id": "digest-2026-11-23",
+      "kind": "digest",
+      "date": "2026-11-23",
+      "story_ids": [
+        "fce9874c0a",
+        "4782459313",
+        "4bf8745996",
+        "8a2dbf5935",
+        "fc3f35dac0"
+      ],
+      "cards": [
+        "cards/2026-11-23/digest.png",
+        "cards/2026-11-23/fce9874c0a.png",
+        "cards/2026-11-23/4782459313.png",
+        "cards/2026-11-23/4bf8745996.png",
+        "cards/2026-11-23/8a2dbf5935.png",
+        "cards/2026-11-23/fc3f35dac0.png"
+      ],
+      "alts": [
+        "Morrow Brief for Monday 23 November 2026: 10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres; Nintendo’s Switch 2 console is $50 off for Black Friday; GLP-1 drugs could have a surprisingly large environmental payoff; 65 Years of Human Spaceflight at NASA Johnson; China details its path to a crewed Moon landing before 2030",
+        "Morrow Brief card. 10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres. Reported by CNBC Indonesia.",
+        "Morrow Brief card. Nintendo’s Switch 2 console is $50 off for Black Friday. Reported by 2 outlets, first: The Verge.",
+        "Morrow Brief card. GLP-1 drugs could have a surprisingly large environmental payoff. Reported by 2 outlets, first: Ars Technica.",
+        "Morrow Brief card. 65 Years of Human Spaceflight at NASA Johnson. Reported by NASA.",
+        "Morrow Brief card. China details its path to a crewed Moon landing before 2030. Reported by NASASpaceflight."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Mon 23 Nov\n\n<b>1.</b> <a href=\"https://www.cnbcindonesia.com/research/20261122223954-128-787381/10-sentimen-bayangi-ihsg-rupiah-era-baru-ri-vs-uni-eropa-isu-wapres\">10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres</a>\nData ekonomi dalam dan luar negeri akan menjadi penggerak pasar pada sepekan ke depan\nMarkets · via CNBC Indonesia\n\n<b>2.</b> <a href=\"https://www.theverge.com/gadgets/1038181/nintendo-switch-2-black-friday-deal-mario-kart-world-bundle-2026-sale\">Nintendo’s Switch 2 console is $50 off for Black Friday</a>\nBig US Tech · 2 outlets, first: The Verge\n\n<b>3.</b> <a href=\"https://arstechnica.com/health/2026/11/glp-1-drugs-could-have-a-surprisingly-large-environmental-payoff/\">GLP-1 drugs could have a surprisingly large environmental payoff</a>\nBig US Tech · 2 outlets, first: Ars Technica\n\n<b>4.</b> <a href=\"https://www.nasa.gov/centers-and-facilities/johnson/65-years-of-human-spaceflight-at-nasa-johnson/\">65 Years of Human Spaceflight at NASA Johnson</a>\nSpace &amp; Aircraft · via NASA\n\n<b>5.</b> <a href=\"https://www.nasaspaceflight.com/2026/11/china-roundup-2026-11/\">China details its path to a crewed Moon landing before 2030</a>\nSpace &amp; Aircraft · via NASASpaceflight\n\nMarkets: S&amp;P 500 ▼3.70% · Nasdaq ▼5.28% · Dow Jones ▼1.93% · IHSG (Jakarta) ▼0.92%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Mon 23 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres\n\nData ekonomi dalam dan luar negeri akan menjadi penggerak pasar pada sepekan ke depan\n\nvia CNBC Indonesia\nhttps://www.cnbcindonesia.com/research/20261122223954-128-787381/10-sentimen-bayangi-ihsg-rupiah-era-baru-ri-vs-uni-eropa-isu-wapres",
+        "2/5 Nintendo’s Switch 2 console is $50 off for Black Friday\n\n2 outlets, first: The Verge\nhttps://www.theverge.com/gadgets/1038181/nintendo-switch-2-black-friday-deal-mario-kart-world-bundle-2026-sale",
+        "3/5 GLP-1 drugs could have a surprisingly large environmental payoff\n\nGLP-1 drugs could cut food demand enough to free farmland larger than Italy.\n\n2 outlets, first: Ars Technica\nhttps://arstechnica.com/health/2026/11/glp-1-drugs-could-have-a-surprisingly-large-environmental-payoff/",
+        "4/5 65 Years of Human Spaceflight at NASA Johnson\n\nvia NASA\nhttps://www.nasa.gov/centers-and-facilities/johnson/65-years-of-human-spaceflight-at-nasa-johnson/",
+        "5/5 China details its path to a crewed Moon landing before 2030\n\nvia NASASpaceflight\nhttps://www.nasaspaceflight.com/2026/11/china-roundup-2026-11/"
+      ],
+      "threads": "Morrow Brief · Mon 23 Nov\n\n1. 10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres (CNBC Indonesia)\n2. Nintendo’s Switch 2 console is $50 off for Black Friday (The Verge +1)\n3. GLP-1 drugs could have a surprisingly large environmental payoff (Ars Technica +1)\n4. 65 Years of Human Spaceflight at NASA Johnson (NASA)\n5. China details its path to a crewed Moon landing before 2030 (NASASpaceflight)\n\nFull edition, every story linked to its source: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Monday 23 November 2026\n\n1. 10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres\n   Data ekonomi dalam dan luar negeri akan menjadi penggerak pasar pada sepekan ke depan\n   Reported by CNBC Indonesia\n\n2. Nintendo’s Switch 2 console is $50 off for Black Friday\n   Reported by 2 outlets, first: The Verge\n\n3. GLP-1 drugs could have a surprisingly large environmental payoff\n   GLP-1 drugs could cut food demand enough to free farmland larger than Italy.\n   Reported by 2 outlets, first: Ars Technica\n\n4. 65 Years of Human Spaceflight at NASA Johnson\n   Reported by NASA\n\n5. China details its path to a crewed Moon landing before 2030\n   Reported by NASASpaceflight\n\nMarkets: S&P 500 ▼3.70% · Nasdaq ▼5.28% · Dow Jones ▼1.93% · IHSG (Jakarta) ▼0.92%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#Markets #IHSG #BigTech #Space #NASA",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Mon 23 Nov\n30 stories · 15 outlets\nTap the outlet's name to read a story.\n\n<b><u>MARKETS</u></b>\n\n<b>1</b>  10 Sentimen Bayangi IHSG dan Rupiah: Era Baru RI vs Uni Eropa-Isu Wapres · <a href=\"https://www.cnbcindonesia.com/research/20261122223954-128-787381/10-sentimen-bayangi-ihsg-rupiah-era-baru-ri-vs-uni-eropa-isu-wapres\">CNBC Indonesia</a>\n<i>Data ekonomi dalam dan luar negeri akan menjadi penggerak pasar pada sepekan ke depan</i>\n\n<b>2</b>  These little-known investments could be among the best bargains in a crash · <a href=\"https://www.marketwatch.com/story/these-little-known-investments-could-be-among-the-best-bargains-in-a-crash-78a379b4?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>3</b>  Corporate America hunts for ‘generational’ growth in AI, trading cards and the L.A. airport · <a href=\"https://www.marketwatch.com/story/corporate-america-hunts-for-generational-growth-in-ai-trading-cards-and-the-l-a-airport-3072eb1a?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>4</b>  West Java's Bekasi basmati rice eyed for export to Saudi Arabia · <a href=\"https://en.antaranews.com/news/444547/west-javas-bekasi-basmati-rice-eyed-for-export-to-saudi-arabia\">Antara News</a>\n\n<b>5</b>  IEU-CEPA to scrap tariffs on over 90 pct of traded goods: Airlangga · <a href=\"https://en.antaranews.com/news/444559/ieu-cepa-to-scrap-tariffs-on-over-90-pct-of-traded-goods-airlangga\">Antara News</a>\n\n<b><u>BIG US TECH</u></b>\n\n<b>6</b>  Director of National Intelligence Jay Clayton warns Americans of 'bumps in the road' after tech outages · <a href=\"https://www.cnbc.com/2026/11/22/jay-clayton-tech-outages-faa-microsoft-thanksgiving.html\">CNBC</a>\n<i>Clayton’s warning comes ahead of Thanksgiving travel, after separate outages disrupted air travel, Microsoft 365 and some bank transactions.</i>\n\n<b>7</b>  Nintendo’s Switch 2 console is $50 off for Black Friday · <a href=\"https://www.theverge.com/gadgets/1038181/nintendo-switch-2-black-friday-deal-mario-kart-world-bundle-2026-sale\">The Verge</a> +1\n\n<b>8</b>  Employees at Eric Trump-backed robot startup lose health benefits as company's cash crunch deepens · <a href=\"https://www.cnbc.com/2026/11/22/foundation-future-industries-health-benefits-payroll-base-group.html\">CNBC</a>\n<i>Foundation is pursuing an emergency bridge loan and has been in talks with VC firms as it waits for a $150 million investment from South Korea's Base Group.</i>\n\n<b>9</b>  GLP-1 drugs could have a surprisingly large environmental payoff · <a href=\"https://arstechnica.com/health/2026/11/glp-1-drugs-could-have-a-surprisingly-large-environmental-payoff/\">Ars Technica</a> +1\n<i>GLP-1 drugs could cut food demand enough to free farmland larger than Italy.</i>\n\n<b>10</b>  Protesters storm Meta offices in India · <a href=\"https://www.theverge.com/tech/1039732/protesters-storm-meta-offices-in-india\">The Verge</a>\n<i>Members of the opposition Congress party protested outside Meta's offices in Delhi on Friday and appear to have entered the building in a video shared by CNN.</i>\n\n<b>11</b>  8 Best Travel Adapters (2026): 20+ Models Tested · <a href=\"https://www.wired.com/gallery/best-travel-adapters/\">Wired</a>\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>12</b>  65 Years of Human Spaceflight at NASA Johnson · <a href=\"https://www.nasa.gov/centers-and-facilities/johnson/65-years-of-human-spaceflight-at-nasa-johnson/\">NASA</a>\n\n<b>13</b>  China details its path to a crewed Moon landing before 2030 · <a href=\"https://www.nasaspaceflight.com/2026/11/china-roundup-2026-11/\">NASASpaceflight</a>\n\n<b>14</b>  SpaceX sends classified US spy satellites to orbit in early-morning launch from California coast · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/spacex-spy-satellite-launch-nrol-136-proliferated-architecture\">Space.com</a>\n\n<b>15</b>  Watch live on Nov. 23: Amazon launching 1st batch of internet satellites since Vulcan Centaur failure · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/arianespace-ariane-6-amazon-leo-internet-satellite-launch\">Space.com</a>\n\n<b>16</b>  SpaceX launches intelligence-gathering satellites for the National Reconnaissance Office · <a href=\"https://spaceflightnow.com/2026/11/21/live-coverage-spacex-to-launch-intelligence-gathering-satellites-for-the-national-reconnaissance-office-3/\">Spaceflight Now</a>\n\n<b>17</b>  APOD: 2026 November 22 – Swirls and Colors on Jupiter from Juno · <a href=\"https://science.nasa.gov/image-article/apod-2026-november-22-swirls-and-colors-on-jupiter-from-juno/\">NASA</a>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>18</b>  OpenAI’s chief scientist has thoughts on how to limit AI development · <a href=\"https://techcrunch.com/2026/11/22/openais-chief-scientist-has-thoughts-on-how-to-limit-ai-development/\">TechCrunch</a>\n\n<b>19</b>  Binding of Isaac developer removes AI music from Repentance Plus · <a href=\"https://www.theverge.com/games/1039770/binding-of-isaac-ai-music\">The Verge</a>\n\n<b>20</b>  A tale of two Nvidias · <a href=\"https://techcrunch.com/2026/11/21/a-tale-of-two-nvidias/\">TechCrunch</a>\n\n<b>21</b>  Can Anthropic afford to put safety first? · <a href=\"https://www.theverge.com/podcast/1038701/anthropic-ipo-ai-safety-openai-nvidia-structure\">The Verge</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>22</b>  Video Friday: Drone Squeezes Itself to Fit Through Tight Spaces · <a href=\"https://spectrum.ieee.org/video-friday-morphing-robots-quadrotor\">IEEE Spectrum</a>\n\n<b>23</b>  The manufacturing data gap holding back physical AI · <a href=\"https://www.therobotreport.com/the-manufacturing-data-gap-holding-back-physical-ai/\">The Robot Report</a>\n\n<b>24</b>  Medtronic’s Hugo surgical robot ready for bigger operation · <a href=\"https://www.therobotreport.com/medtronics-hugo-surgical-robot-ready-for-bigger-operation/\">The Robot Report</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>25</b>  This free app connects your Android phone to your Windows PC wirelessly · <a href=\"https://www.engadget.com/2319544/free-app-connects-android-phone-windows-pc-wirelessly-plainapp/\">Engadget</a>\n\n<b>26</b>  Why data centers are at the center of the Big Tech backlash · <a href=\"https://techcrunch.com/2026/11/22/why-data-centers-are-at-the-center-of-the-big-tech-backlash/\">TechCrunch</a>\n\n<b>27</b>  ‘You Can See Everything’ has made more than $100M worldwide · <a href=\"https://techcrunch.com/2026/11/22/you-can-see-everything-has-made-more-than-100m-worldwide/\">TechCrunch</a>\n\n<b>28</b>  This free 'Swiss Army Knife' for macOS can replace your utility apps · <a href=\"https://www.engadget.com/2319565/vorssaint-free-swiss-army-knife-macos-replace-utility-apps/\">Engadget</a>\n\n<b>29</b>  The Outages Are Just Getting Started · <a href=\"https://www.wired.com/story/brace-yourself-for-years-of-outage-chaos/\">Wired</a>\n\n<b>30</b>  Ulta Promo Codes: Up to 20% Off in November 2026 · <a href=\"https://www.wired.com/story/ulta-coupon/\">Wired</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         6,910.39 ▼3.70%\nNasdaq         22,617.73 ▼5.28%\nDow Jones      48,147.33 ▼1.93%\nIHSG (Jakarta)  5,146.33 ▼0.92%\nGold (XAU)      3,574.30 ▲1.68%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  342.56 ▼1.9%\nAMD   424.39 ▼13.2%\nAMZN  246.82 ▼4.1%\nBRK-B 570.00 ▼0.4%\nGOOGL 265.29 ▼2.7%\nIBM   224.44 ▲0.3%\nINTC   51.28 ▼8.0%\nKO     96.99 ▲0.9%\nMAR   406.64 ▼1.8%\nMETA  560.84 ▼5.9%\nMSFT  484.52 ▼2.8%\nMU    594.51 ▼13.9%\nNVDA  125.53 ▼14.0%\nSTX   457.01 ▼12.3%\nTSLA  345.82 ▼7.6%\nTSM   318.71 ▼9.5%\n\nIDR\nANTM 2,610 =0.0%\nBBCA 5,550 ▼1.8%\nBBRI 3,080 ▼0.3%\nBMRI 3,890 ▼0.5%\nPGEO   895 ▲1.1%\nTLKM 2,070 ▼2.4%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-23/digest-photos.jpg",
+      "created_at": "2026-11-23T01:06:45+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:40",
+          "at": "2026-11-23T01:06:51+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b0391ad846b0ee907d05d57",
+          "at": "2026-11-23T01:06:51+00:00"
+        }
+      }
+    },
+    "digest-2026-11-24": {
+      "id": "digest-2026-11-24",
+      "kind": "digest",
+      "date": "2026-11-24",
+      "story_ids": [
+        "afbf4ed7c7",
+        "c54cbd7309",
+        "27065c561f",
+        "ada2460a24",
+        "23de3667e2"
+      ],
+      "cards": [
+        "cards/2026-11-24/digest.png",
+        "cards/2026-11-24/afbf4ed7c7.png",
+        "cards/2026-11-24/c54cbd7309.png",
+        "cards/2026-11-24/27065c561f.png",
+        "cards/2026-11-24/ada2460a24.png",
+        "cards/2026-11-24/23de3667e2.png"
+      ],
+      "alts": [
+        "Morrow Brief for Tuesday 24 November 2026: States sue SpaceX to stop Grok from generating child sex images, revenge porn; Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO; Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes; Elon Musk and others rejoice as Jensen Huang is reinstated at Nvidia amid scandal; Uber now lets you book rides that…",
+        "Morrow Brief card. States sue SpaceX to stop Grok from generating child sex images, revenge porn. Reported by 4 outlets: Ars Technica, CNBC, The Verge, Wired.",
+        "Morrow Brief card. Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO. Reported by 3 outlets, first: CNBC.",
+        "Morrow Brief card. Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes. Reported by 2 outlets, first: TechCrunch.",
+        "Morrow Brief card. Elon Musk and others rejoice as Jensen Huang is reinstated at Nvidia amid scandal. Reported by 2 outlets, first: TechCrunch.",
+        "Morrow Brief card. Uber now lets you book rides that record the drive by default. Reported by 2 outlets, first: TechCrunch."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Tue 24 Nov\n\n<b>1.</b> <a href=\"https://arstechnica.com/tech-policy/2026/11/states-sue-spacex-to-stop-grok-from-generating-child-sex-images-revenge-porn/\">States sue SpaceX to stop Grok from generating child sex images, revenge porn</a>\nX says every Grok output is screened, but state AGs say Grok is still making CSAM.\nBig US Tech · 4 outlets: <a href=\"https://arstechnica.com/tech-policy/2026/11/states-sue-spacex-to-stop-grok-from-generating-child-sex-images-revenge-porn/\">Ars Technica</a> · <a href=\"https://www.cnbc.com/2026/11/23/oregon-virginia-spacex-grok-deepfake-lawsuits.html\">CNBC</a> · <a href=\"https://www.theverge.com/ai-artificial-intelligence/1040255/x-grok-ai-deepfakes-oregon-virginia-lawsuit\">The Verge</a> · <a href=\"https://www.wired.com/story/states-sue-spacex-over-grok-deepfakes/\">Wired</a>\n\n<b>2.</b> <a href=\"https://www.cnbc.com/2026/11/23/anthropic-nvidia-shares.html\">Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO</a>\nBig US Tech · 3 outlets, first: CNBC\n\n<b>3.</b> <a href=\"https://techcrunch.com/2026/11/23/anthropic-launches-claude-ship-letting-ai-agents-review-fix-and-approve-code-changes/\">Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes</a>\nAI &amp; Chips · 2 outlets, first: TechCrunch\n\n<b>4.</b> <a href=\"https://techcrunch.com/2026/11/23/elon-musk-and-others-rejoice-as-jensen-huang-is-reinstated-at-nvidia-amid-scandal/\">Elon Musk and others rejoice as Jensen Huang is reinstated at Nvidia amid scandal</a>\nAI &amp; Chips · 2 outlets, first: TechCrunch\n\n<b>5.</b> <a href=\"https://techcrunch.com/2026/11/23/uber-now-lets-you-book-rides-that-record-the-drive-by-default/\">Uber now lets you book rides that record the drive by default</a>\nTechnology · 2 outlets, first: TechCrunch\n\nMarkets: S&amp;P 500 ▲4.73% · Nasdaq ▲6.51% · Dow Jones ▲3.01% · IHSG (Jakarta) ▲1.35%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Tue 24 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 States sue SpaceX to stop Grok from generating child sex images, revenge porn\n\nX says every Grok output is screened, but state AGs say Grok is still making CSAM.\n\n4 outlets: Ars Technica, CNBC +2\nhttps://arstechnica.com/tech-policy/2026/11/states-sue-spacex-to-stop-grok-from-generating-child-sex-images-revenge-porn/",
+        "2/5 Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO\n\nThe Nasdaq slid 10% last week in its worst week since the early days of Covid in 2020.\n\n3 outlets, first: CNBC\nhttps://www.cnbc.com/2026/11/23/anthropic-nvidia-shares.html",
+        "3/5 Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes\n\n2 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/23/anthropic-launches-claude-ship-letting-ai-agents-review-fix-and-approve-code-changes/",
+        "4/5 Elon Musk and others rejoice as Jensen Huang is reinstated at Nvidia amid scandal\n\n\"The mistake has been corrected,\" Elon Musk chimed in.\n\n2 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/23/elon-musk-and-others-rejoice-as-jensen-huang-is-reinstated-at-nvidia-amid-scandal/",
+        "5/5 Uber now lets you book rides that record the drive by default\n\nThe option, which uses the front camera of the Uber driver's phone to record the entire drive, will show up as \"Recorded Rides\" in the app.\n\n2 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/23/uber-now-lets-you-book-rides-that-record-the-drive-by-default/"
+      ],
+      "threads": "Morrow Brief · Tue 24 Nov\n\n1. States sue SpaceX to stop Grok from generating child sex images, revenge porn (Ars Technica +3)\n2. Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO (CNBC +2)\n3. Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes (TechCrunch +1)\n\n+2 more from TechCrunch. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Tuesday 24 November 2026\n\n1. States sue SpaceX to stop Grok from generating child sex images, revenge porn\n   X says every Grok output is screened, but state AGs say Grok is still making CSAM.\n   Reported by 4 outlets: Ars Technica, CNBC, The Verge, Wired\n\n2. Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO\n   The Nasdaq slid 10% last week in its worst week since the early days of Covid in 2020.\n   Reported by 3 outlets, first: CNBC\n\n3. Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes\n   Reported by 2 outlets, first: TechCrunch\n\n4. Elon Musk and others rejoice as Jensen Huang is reinstated at Nvidia amid scandal\n   \"The mistake has been corrected,\" Elon Musk chimed in.\n   Reported by 2 outlets, first: TechCrunch\n\n5. Uber now lets you book rides that record the drive by default\n   The option, which uses the front camera of the Uber driver's phone to record the entire drive, will show up as \"Recorded Rides\" in the app.\n   Reported by 2 outlets, first: TechCrunch\n\nMarkets: S&P 500 ▲4.73% · Nasdaq ▲6.51% · Dow Jones ▲3.01% · IHSG (Jakarta) ▲1.35%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #SpaceX #Nvidia #AI #Chips",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Tue 24 Nov\n28 stories · 13 outlets\nTap the outlet's name to read a story.\n\n<b><u>BIG US TECH</u></b>\n\n<b>1</b>  States sue SpaceX to stop Grok from generating child sex images, revenge porn · <a href=\"https://arstechnica.com/tech-policy/2026/11/states-sue-spacex-to-stop-grok-from-generating-child-sex-images-revenge-porn/\">Ars Technica</a> +3\n<i>X says every Grok output is screened, but state AGs say Grok is still making CSAM.</i>\n\n<b>2</b>  Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO · <a href=\"https://www.cnbc.com/2026/11/23/anthropic-nvidia-shares.html\">CNBC</a> +2\n<i>The Nasdaq slid 10% last week in its worst week since the early days of Covid in 2020.</i>\n\n<b>3</b>  Jensen Huang cheered by Nvidia employees after return, pledges to be a better CEO · <a href=\"https://www.cnbc.com/2026/11/23/jensen-huang-nvidia-ceo-return.html\">CNBC</a> +1\n<i>Nvidia's Jensen Huang admitted to an affair in a note to employees on Nov. 8 and resigned as CEO on Nov. 12.</i>\n\n<b>4</b>  Jensen Huang reinstated as Nvidia CEO, board chair · <a href=\"https://arstechnica.com/ai/2026/11/jensen-huang-reinstated-as-nvidia-ceo-board-chair/\">Ars Technica</a> +1\n<i>Trump says he spoke to the board and that Huang \"did nothing wrong.\"</i>\n\n<b>5</b>  Google alternative Kagi launches an email service · <a href=\"https://www.theverge.com/tech/1041000/kagi-mail-email-google-gmail-alternative\">The Verge</a>\n\n<b>6</b>  The hacker behind early GTA VI leaks has been sentenced — and released · <a href=\"https://www.theverge.com/games/1040966/arion-kurtaj-gta-vi-leaks-sentenced-released\">The Verge</a> +1\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>7</b>  Anthropic launches Claude Ship, letting AI agents review, fix, and approve code changes · <a href=\"https://techcrunch.com/2026/11/23/anthropic-launches-claude-ship-letting-ai-agents-review-fix-and-approve-code-changes/\">TechCrunch</a> +1\n\n<b>8</b>  Elon Musk and others rejoice as Jensen Huang is reinstated at Nvidia amid scandal · <a href=\"https://techcrunch.com/2026/11/23/elon-musk-and-others-rejoice-as-jensen-huang-is-reinstated-at-nvidia-amid-scandal/\">TechCrunch</a> +1\n<i>\"The mistake has been corrected,\" Elon Musk chimed in.</i>\n\n<b>9</b>  How Jensen Huang ended up as Nvidia CEO again · <a href=\"https://www.theverge.com/tech/1040428/nvidia-jensen-huang-ceo-return\">The Verge</a>\n<i>The Jensen Huang era of Nvidia nearly came to an end this month.</i>\n\n<b>10</b>  White House brags that Trump was ‘totally involved’ in getting Jensen reinstated · <a href=\"https://www.theverge.com/policy/1040096/trump-nvidia-jensen-huang-reinstated\">The Verge</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>11</b>  Special Report: Engineering Focus on Motion Control · <a href=\"https://www.therobotreport.com/special-report-engineering-focus-on-motion-control/\">The Robot Report</a>\n\n<b>12</b>  How does Orchard AI fit into John Deere’s technology portfolio? · <a href=\"https://www.therobotreport.com/how-does-orchard-ai-fit-into-john-deeres-technology-portfolio/\">The Robot Report</a>\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>13</b>  On this day in space! Nov. 23, 2015: Blue Origin sticks 1st-ever rocket landing from space with its suborbital New Shepard rocket · <a href=\"https://www.space.com/space-exploration/on-this-day-in-space-november-23-2026\">Space.com</a>\n<i>On Nov. 23, 2015, a Blue Origin rocket made a historic landing.</i>\n\n<b>14</b>  Live coverage: Arianespace to launch Amazon Leo sats amid rocket crunch · <a href=\"https://spaceflightnow.com/2026/11/23/live-coverage-arianespaces-launches-amazon-leo-sats-amid-rocket-crunch/\">Spaceflight Now</a>\n\n<b>15</b>  Northrop books sixth Falcon 9 for Cygnus as Antares 330 waits · <a href=\"https://www.nasaspaceflight.com/2026/11/northrop-sixth-f9-cygnus-antares-waits/\">NASASpaceflight</a>\n\n<b>16</b>  NASA seeks to begin ‘intergalactic freight network’ with $1.3 billion block purchase of rockets, orbital transfer vehicles · <a href=\"https://spaceflightnow.com/2026/11/23/nasa-seeks-to-begin-intergalactic-freight-network-with-1-3-billion-block-purchase-of-rockets-orbital-transfer-vehicles/\">Spaceflight Now</a>\n\n<b>17</b>  Progress MS-36 set to launch to ISS from Baikonur · <a href=\"https://www.nasaspaceflight.com/2026/11/progress-ms-36/\">NASASpaceflight</a>\n\n<b>18</b>  NASA Awards Contract for NOAA’s Near Earth Orbit Network Program · <a href=\"https://www.nasa.gov/news-release/nasa-awards-contract-for-noaas-near-earth-orbit-network-program/\">NASA</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>19</b>  Uber now lets you book rides that record the drive by default · <a href=\"https://techcrunch.com/2026/11/23/uber-now-lets-you-book-rides-that-record-the-drive-by-default/\">TechCrunch</a> +1\n\n<b>20</b>  Meta throws out its net-zero goal — its competitors should be furious · <a href=\"https://techcrunch.com/2026/11/23/meta-throws-out-its-net-zero-goal-its-competitors-should-be-furious/\">TechCrunch</a>\n\n<b>21</b>  The biggest downsides to using Apple's Magic Mouse · <a href=\"https://www.engadget.com/2320296/apple-magic-mouse-biggest-downsides/\">Engadget</a>\n\n<b>22</b>  What you can do with your old, discontinued Mac Pro · <a href=\"https://www.engadget.com/2320292/what-do-with-old-discontinued-mac-pro/\">Engadget</a>\n\n<b><u>MARKETS</u></b>\n\n<b>23</b>  Nama Wapres Disetor, IHSG-Rupiah Bangkit! RI Siap Hadapi Amukan Dolar? · <a href=\"https://www.cnbcindonesia.com/research/20261123163404-128-787702/nama-wapres-disetor-ihsg-rupiah-bangkit-ri-siap-hadapi-amukan-dolar\">CNBC Indonesia</a>\n\n<b>24</b>  Fed's John Williams indicates higher interest rates likely 'over time' to address inflation · <a href=\"https://www.cnbc.com/2026/11/23/john-williams-fed-inflation-rate-hikes.html\">CNBC</a>\n\n<b>25</b>  ‘This establishes a bottom’: Jensen Huang’s return seen as likely to stop market sell-off, for now · <a href=\"https://www.cnbc.com/2026/11/23/nvidia-jensen-huang-ceo-market-rally.html\">CNBC</a>\n\n<b>26</b>  U.S. stocks see best day in more than a year, as return of Jensen Huang revives AI enthusiasm · <a href=\"https://www.marketwatch.com/story/u-s-stocks-see-best-day-in-more-than-a-year-as-return-of-jensen-huang-revives-ai-enthusiasm-c3b9d274?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>27</b>  Short sellers get smoked as Nvidia tallies biggest one-day gain in stock-market history · <a href=\"https://www.marketwatch.com/story/short-sellers-get-smoked-as-nvidia-tallies-biggest-one-day-gain-in-stock-market-history-e9dc6e9c?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>28</b>  Asing Serbu 10 Saham Ini saat IHSG Melaju · <a href=\"https://www.cnbcindonesia.com/market/20261124063757-17-787814/asing-serbu-10-saham-ini-saat-ihsg-melaju\">CNBC Indonesia</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         7,237.17 ▲4.73%\nNasdaq         24,089.56 ▲6.51%\nDow Jones      49,595.31 ▲3.01%\nIHSG (Jakarta)  5,215.85 ▲1.35%\nGold (XAU)      3,658.80 ▲4.08%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  349.08 ▲1.9%\nAMD   453.46 ▲6.8%\nAMZN  255.39 ▲3.5%\nBRK-B 572.36 ▲0.4%\nGOOGL 265.29 ▼2.7%\nIBM   233.00 ▲3.8%\nINTC   59.66 ▲16.3%\nKO     95.88 ▼1.1%\nMAR   415.63 ▲2.2%\nMETA  597.60 ▲6.6%\nMSFT  492.50 ▲1.6%\nMU    707.70 ▲19.0%\nNVDA  165.05 ▲31.5%\nSTX   520.10 ▲13.8%\nTSLA  385.46 ▲11.5%\nTSM   363.60 ▲14.1%\n\nIDR\nANTM 2,670 ▲2.3%\nBBCA 5,675 ▲2.3%\nBBRI 3,070 ▼0.3%\nBMRI 3,880 ▼0.3%\nPGEO   895 =0.0%\nTLKM 2,040 ▼1.4%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-24/digest-photos.jpg",
+      "created_at": "2026-11-24T01:01:52+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:41",
+          "at": "2026-11-24T01:01:55+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b04e2049a4bd32ca3e10a4e",
+          "at": "2026-11-24T01:01:55+00:00"
+        }
+      }
+    },
+    "story-aa7582161f": {
+      "id": "story-aa7582161f",
+      "kind": "alert",
+      "date": "2026-11-24",
+      "story_ids": [
+        "aa7582161f"
+      ],
+      "cards": [
+        "cards/2026-11-24/aa7582161f.png"
+      ],
+      "alts": [
+        "Morrow Brief card. Exclusive CNBC Transcript: See how Trump 'made the deal' to reinstate Huang as Nvidia CEO. Reported by 5 outlets: CNBC, MarketWatch, Wired, The Verge, The Robot Report."
+      ],
+      "telegram": "<b>Exclusive CNBC Transcript: See how Trump 'made the deal' to reinstate Huang as Nvidia CEO</b>\n\nRead CNBC’s exclusive interview with President Donald Trump on how he “made the deal” to reinstate Jensen Huang as Nvidia CEO.\n\nReported by 5 outlets:\n<a href=\"https://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang-reinstatement-cnbc-interview-transcript.html\">CNBC</a> · <a href=\"https://www.marketwatch.com/story/u-s-stocks-see-best-day-in-more-than-a-year-as-return-of-jensen-huang-revives-ai-enthusiasm-c3b9d274?mod=mw_rss_topstories\">MarketWatch</a> · <a href=\"https://www.wired.com/story/inside-nvidia-not-everyone-is-celebrating-jensen-huangs-return/\">Wired</a> · <a href=\"https://www.theverge.com/tech/1040069/jensen-huang-return-elon-musk-sam-altman-yay\">The Verge</a> · <a href=\"https://www.therobotreport.com/nvidia-reinstates-jensen-huang-after-11-day-absence/\">The Robot Report</a>",
+      "x": [
+        "Exclusive CNBC Transcript: See how Trump 'made the deal' to reinstate Huang as Nvidia CEO\n\n5 outlets: CNBC, MarketWatch, Wired +2\nhttps://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang-reinstatement-cnbc-interview-transcript.html"
+      ],
+      "threads": "Exclusive CNBC Transcript: See how Trump 'made the deal' to reinstate Huang as Nvidia CEO\n\nRead CNBC’s exclusive interview with President Donald Trump on how he “made the deal” to reinstate Jensen Huang as Nvidia CEO.\n\n5 outlets: CNBC, MarketWatch, Wired, The Verge +1\nhttps://www.cnbc.com/2026/11/23/trump-nvidia-jensen-huang-reinstatement-cnbc-interview-transcript.html",
+      "instagram": "Exclusive CNBC Transcript: See how Trump 'made the deal' to reinstate Huang as Nvidia CEO\n\nRead CNBC’s exclusive interview with President Donald Trump on how he “made the deal” to reinstate Jensen Huang as Nvidia CEO.\n\nReported by 5 outlets: CNBC, MarketWatch, Wired, The Verge, The Robot Report\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Nvidia",
+      "telegram_cover": "cards/2026-11-24/aa7582161f-photo.jpg",
+      "created_at": "2026-11-24T04:59:18+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:42",
+          "at": "2026-11-24T04:59:21+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-7b37625c1d": {
+      "id": "story-7b37625c1d",
+      "kind": "alert",
+      "date": "2026-11-24",
+      "story_ids": [
+        "7b37625c1d"
+      ],
+      "cards": [
+        "cards/2026-11-24/7b37625c1d.png"
+      ],
+      "alts": [
+        "Morrow Brief card. Nvidia shares fall 4% in premarket after Huang comeback rally. Reported by 3 outlets: CNBC, CNBC Indonesia, The Verge."
+      ],
+      "telegram": "<b>Nvidia shares fall 4% in premarket after Huang comeback rally</b>\n\nJensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.\n\nReported by 3 outlets:\n<a href=\"https://www.cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html\">CNBC</a> · <a href=\"https://www.cnbcindonesia.com/tech/20261124132625-37-787955/alasan-sebenarnya-jensen-huang-comeback-jadi-ceo-nvidia\">CNBC Indonesia</a> · <a href=\"https://www.theverge.com/ai-artificial-intelligence/1040652/jensen-huang-nvidia-trump-reinstated\">The Verge</a>",
+      "x": [
+        "Nvidia shares fall 4% in premarket after Huang comeback rally\n\nJensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.\n\n3 outlets: CNBC, CNBC Indonesia, The Verge\nhttps://www.cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html"
+      ],
+      "threads": "Nvidia shares fall 4% in premarket after Huang comeback rally\n\nJensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.\n\n3 outlets: CNBC, CNBC Indonesia, The Verge\nhttps://www.cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html",
+      "instagram": "Nvidia shares fall 4% in premarket after Huang comeback rally\n\nJensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.\n\nReported by 3 outlets: CNBC, CNBC Indonesia, The Verge\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Nvidia",
+      "telegram_cover": "cards/2026-11-24/7b37625c1d-photo.jpg",
+      "created_at": "2026-11-24T09:59:24+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:43",
+          "at": "2026-11-24T09:59:28+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-052f718d7f": {
+      "id": "story-052f718d7f",
+      "kind": "alert",
+      "date": "2026-11-24",
+      "story_ids": [
+        "052f718d7f"
+      ],
+      "cards": [
+        "cards/2026-11-24/052f718d7f.png"
+      ],
+      "alts": [
+        "Morrow Brief card. Uber and Lucid start testing fully driverless rides for their robotaxis in San Francisco. Reported by 3 outlets, first: Engadget."
+      ],
+      "telegram": "<b>Uber and Lucid start testing fully driverless rides for their robotaxis in San Francisco</b>\n\nUber's Lucid-made robotaxis, powered by Nuro, are almost ready to give rides to the public.\n\nReported by 3 outlets. First: <a href=\"https://www.engadget.com/2326365/uber-and-lucid-start-testing-fully-driverless-rides-for-their-robotaxis-in-san-francisco/\">Engadget</a>",
+      "x": [
+        "Uber and Lucid start testing fully driverless rides for their robotaxis in San Francisco\n\nUber's Lucid-made robotaxis, powered by Nuro, are almost ready to give rides to the public.\n\n3 outlets, first: Engadget\nhttps://www.engadget.com/2326365/uber-and-lucid-start-testing-fully-driverless-rides-for-their-robotaxis-in-san-francisco/"
+      ],
+      "threads": "Uber and Lucid start testing fully driverless rides for their robotaxis in San Francisco\n\nUber's Lucid-made robotaxis, powered by Nuro, are almost ready to give rides to the public.\n\n3 outlets, first: Engadget\nhttps://www.engadget.com/2326365/uber-and-lucid-start-testing-fully-driverless-rides-for-their-robotaxis-in-san-francisco/",
+      "instagram": "Uber and Lucid start testing fully driverless rides for their robotaxis in San Francisco\n\nUber's Lucid-made robotaxis, powered by Nuro, are almost ready to give rides to the public.\n\nReported by 3 outlets, first: Engadget\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#Tech",
+      "telegram_cover": "cards/2026-11-24/052f718d7f-photo.jpg",
+      "created_at": "2026-11-24T13:29:28+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:44",
+          "at": "2026-11-24T13:29:31+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "digest-2026-11-25": {
+      "id": "digest-2026-11-25",
+      "kind": "digest",
+      "date": "2026-11-25",
+      "story_ids": [
+        "0e1dbd847d",
+        "5f077d12f5",
+        "7b37625c1d",
+        "d30af3bbf8",
+        "0f36c410d0"
+      ],
+      "cards": [
+        "cards/2026-11-25/digest.png",
+        "cards/2026-11-25/0e1dbd847d.png",
+        "cards/2026-11-25/5f077d12f5.png",
+        "cards/2026-11-25/7b37625c1d.png",
+        "cards/2026-11-25/d30af3bbf8.png",
+        "cards/2026-11-25/0f36c410d0.png"
+      ],
+      "alts": [
+        "Morrow Brief for Wednesday 25 November 2026: Jensen Huang tells staff that Nvidia doesn't need a succession plan; In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy; Nvidia shares fall more than 5% as Huang comeback rally cools; Tiangong Space Station to welcome first international visitor; Commerce Department adds Megaspeed to trade blacklist",
+        "Morrow Brief card. Jensen Huang tells staff that Nvidia doesn't need a succession plan. Reported by 3 outlets: CNBC, The Verge, TechCrunch.",
+        "Morrow Brief card. In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy. Reported by 4 outlets, first: TechCrunch.",
+        "Morrow Brief card. Nvidia shares fall more than 5% as Huang comeback rally cools. Reported by 3 outlets, first: CNBC.",
+        "Morrow Brief card. Tiangong Space Station to welcome first international visitor. Reported by 2 outlets, first: NASASpaceflight.",
+        "Morrow Brief card. Commerce Department adds Megaspeed to trade blacklist. Reported by 2 outlets, first: Engadget."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Wed 25 Nov\n\n<b>1.</b> <a href=\"https://www.cnbc.com/2026/11/24/jensen-huang-nvidia-employee-meeting.html\">Jensen Huang tells staff that Nvidia doesn't need a succession plan</a>\nNvidia CEO Jensen Huang resigned after multiple reported affairs, including one with a Chinese businesswoman who is alleged to be a spy for Beijing.\nBig US Tech · 3 outlets: <a href=\"https://www.cnbc.com/2026/11/24/jensen-huang-nvidia-employee-meeting.html\">CNBC</a> · <a href=\"https://www.theverge.com/tech/1041571/jensen-huang-all-hands-nvidia-apology\">The Verge</a> · <a href=\"https://techcrunch.com/2026/11/24/trump-reportedly-says-pardoning-jensen-huang-is-an-option-but-that-he-doesnt-think-it-will-be-necessary/\">TechCrunch</a>\n\n<b>2.</b> <a href=\"https://techcrunch.com/2026/11/24/in-all-hands-meeting-jensen-huang-thanks-white-house-and-says-hes-in-therapy/\">In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy</a>\nAI &amp; Chips · 4 outlets, first: TechCrunch\n\n<b>3.</b> <a href=\"https://www.cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html\">Nvidia shares fall more than 5% as Huang comeback rally cools</a>\nBig US Tech · 3 outlets, first: CNBC\n\n<b>4.</b> <a href=\"https://www.nasaspaceflight.com/2026/11/shenzhou-24/\">Tiangong Space Station to welcome first international visitor</a>\nSpace &amp; Aircraft · 2 outlets, first: NASASpaceflight\n\n<b>5.</b> <a href=\"https://www.engadget.com/2326638/commerce-department-adds-megaspeed-to-trade-blacklist/\">Commerce Department adds Megaspeed to trade blacklist</a>\nTechnology · 2 outlets, first: Engadget\n\nMarkets: S&amp;P 500 ▼0.50% · Nasdaq ▼1.48% · Dow Jones ▲0.85% · IHSG (Jakarta) ▲0.49%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Wed 25 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 Jensen Huang tells staff that Nvidia doesn't need a succession plan\n\nNvidia CEO Jensen Huang resigned after multiple reported affairs, including one with a Chinese businesswoman who is alleged to be a spy for Beijing.\n\n3 outlets: CNBC, The Verge +1\nhttps://www.cnbc.com/2026/11/24/jensen-huang-nvidia-employee-meeting.html",
+        "2/5 In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy\n\nThe Nvidia founder apologized to his staff on Tuesday and said he was grateful for a second chance to lead the company.\n\n4 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/24/in-all-hands-meeting-jensen-huang-thanks-white-house-and-says-hes-in-therapy/",
+        "3/5 Nvidia shares fall more than 5% as Huang comeback rally cools\n\nJensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.\n\n3 outlets, first: CNBC\nhttps://www.cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html",
+        "4/5 Tiangong Space Station to welcome first international visitor\n\n2 outlets, first: NASASpaceflight\nhttps://www.nasaspaceflight.com/2026/11/shenzhou-24/",
+        "5/5 Commerce Department adds Megaspeed to trade blacklist\n\nNo American company, including NVIDIA, can sell technologies to Megaspeed without a license from the federal government.\n\n2 outlets, first: Engadget\nhttps://www.engadget.com/2326638/commerce-department-adds-megaspeed-to-trade-blacklist/"
+      ],
+      "threads": "Morrow Brief · Wed 25 Nov\n\n1. Jensen Huang tells staff that Nvidia doesn't need a succession plan (CNBC +2)\n2. In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy (TechCrunch +3)\n3. Nvidia shares fall more than 5% as Huang comeback rally cools (CNBC +2)\n4. Tiangong Space Station to welcome first international visitor (NASASpaceflight +1)\n\n+1 more from Engadget. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Wednesday 25 November 2026\n\n1. Jensen Huang tells staff that Nvidia doesn't need a succession plan\n   Nvidia CEO Jensen Huang resigned after multiple reported affairs, including one with a Chinese businesswoman who is alleged to be a spy for Beijing.\n   Reported by 3 outlets: CNBC, The Verge, TechCrunch\n\n2. In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy\n   The Nvidia founder apologized to his staff on Tuesday and said he was grateful for a second chance to lead the company.\n   Reported by 4 outlets, first: TechCrunch\n\n3. Nvidia shares fall more than 5% as Huang comeback rally cools\n   Jensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.\n   Reported by 3 outlets, first: CNBC\n\n4. Tiangong Space Station to welcome first international visitor\n   Reported by 2 outlets, first: NASASpaceflight\n\n5. Commerce Department adds Megaspeed to trade blacklist\n   No American company, including NVIDIA, can sell technologies to Megaspeed without a license from the federal government.\n   Reported by 2 outlets, first: Engadget\n\nMarkets: S&P 500 ▼0.50% · Nasdaq ▼1.48% · Dow Jones ▲0.85% · IHSG (Jakarta) ▲0.49%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Nvidia #AI #Chips #Space",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Wed 25 Nov\n30 stories · 13 outlets\nTap the outlet's name to read a story.\n\n<b><u>BIG US TECH</u></b>\n\n<b>1</b>  Jensen Huang tells staff that Nvidia doesn't need a succession plan · <a href=\"https://www.cnbc.com/2026/11/24/jensen-huang-nvidia-employee-meeting.html\">CNBC</a> +2\n<i>Nvidia CEO Jensen Huang resigned after multiple reported affairs, including one with a Chinese businesswoman who is alleged to be a spy for Beijing.</i>\n\n<b>2</b>  Nvidia shares fall more than 5% as Huang comeback rally cools · <a href=\"https://www.cnbc.com/2026/11/24/nvidia-stock-jensen-huang-return.html\">CNBC</a> +2\n<i>Jensen Huang was reinstated as CEO of Nvidia after he resigned following an acknowledgement of an extramarital affair.</i>\n\n<b>3</b>  Jensen Huang’s Return Shows Nvidia Is Too Big to Police · <a href=\"https://www.wired.com/story/jensen-huang-nvidia-us-national-security-risks/\">Wired</a> +1\n\n<b>4</b>  Amazon drone crashes on garage after delivering shampoo, draws FAA probe · <a href=\"https://arstechnica.com/gadgets/2026/11/faa-opens-probe-after-amazon-delivery-drone-clips-cable-crashes-into-garage/\">Ars Technica</a> +1\n<i>Amazon says Prime Air drones made “hundreds of thousands” of deliveries in 2026.</i>\n\n<b>5</b>  Microsoft's historic cloud outage exposed an engineering “fog of war” · <a href=\"https://arstechnica.com/gadgets/2026/11/microsofts-historic-cloud-outage-exposed-an-engineering-fog-of-war/\">Ars Technica</a>\n\n<b>6</b>  Amazon is knocking almost $50 off six months of Apple TV · <a href=\"https://www.theverge.com/gadgets/1040046/apple-tv-subscription-streaming-sale-deal-black-friday\">The Verge</a>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>7</b>  In all-hands meeting, Jensen Huang thanks White House and says he’s in therapy · <a href=\"https://techcrunch.com/2026/11/24/in-all-hands-meeting-jensen-huang-thanks-white-house-and-says-hes-in-therapy/\">TechCrunch</a> +3\n<i>The Nvidia founder apologized to his staff on Tuesday and said he was grateful for a second chance to lead the company.</i>\n\n<b>8</b>  Yale’s Sonnenfeld: Nvidia is a ‘detriment’ to U.S. industrial might — not a champion · <a href=\"https://techcrunch.com/2026/11/24/yales-sonnenfeld-nvidia-is-a-detriment-to-u-s-industrial-might-not-a-champion/\">TechCrunch</a>\n\n<b>9</b>  Jensen Huang deepfakes are the hot new AI slop · <a href=\"https://www.theverge.com/tech/1041222/jensen-huang-nvidia-scandal-deepfakes\">The Verge</a>\n<i>Jensen Huang is partying it up in Ibiza.</i>\n\n<b>10</b>  Why Does Voice AI Still Struggle With Kenyans’ Speech? · <a href=\"https://spectrum.ieee.org/swahili-speech-recognition\">IEEE Spectrum</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>11</b>  Robotics Summit 2027 opens call for speakers · <a href=\"https://www.therobotreport.com/robotics-summit-2027-opens-call-for-speakers/\">The Robot Report</a>\n\n<b>12</b>  SoftBank acquires Marc Raibert’s Robotics and AI Institute · <a href=\"https://www.therobotreport.com/softbank-acquires-marc-raiberts-robotics-and-ai-institute/\">The Robot Report</a>\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>13</b>  SpaceX launches secretive spy satellites from California for US Space Force · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/spacex-launches-secretive-spy-satellites-from-california-for-us-space-force-video\">Space.com</a>\n\n<b>14</b>  Teams Lock in Mission Architecture for NASA’s SR-1 Freedom · <a href=\"https://www.nasa.gov/general/nasa-locks-in-sr1-freedom-mission-architecture/\">NASA</a>\n\n<b>15</b>  Tiangong Space Station to welcome first international visitor · <a href=\"https://www.nasaspaceflight.com/2026/11/shenzhou-24/\">NASASpaceflight</a> +1\n\n<b>16</b>  NASA+ Content Coming to Big Screen at Greenbelt, Maryland Cinema · <a href=\"https://www.nasa.gov/nasa/nasa-content-coming-to-big-screen-at-greenbelt-maryland-cinema/\">NASA</a>\n\n<b>17</b>  BepiColombo successfully enters orbit of Mercury, suffers orbit-altering software glitch · <a href=\"https://www.nasaspaceflight.com/2026/11/bepicolombo-moi/\">NASASpaceflight</a>\n\n<b>18</b>  On this day in space! Nov. 24, 1947: The US Navy launches the 1st Aerobee sounding rocket, but it didn't reach space · <a href=\"https://www.space.com/space-exploration/on-this-day-in-space-november-24-2026\">Space.com</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>19</b>  Commerce Department adds Megaspeed to trade blacklist · <a href=\"https://www.engadget.com/2326638/commerce-department-adds-megaspeed-to-trade-blacklist/\">Engadget</a> +1\n\n<b>20</b>  Improve your Starlink Wi-Fi speed with this app setting · <a href=\"https://www.engadget.com/2321248/starlink-wifi-speed-split-network-app-setting/\">Engadget</a>\n\n<b>21</b>  UK warns AI-driven cyberattacks are exposing years of weak security · <a href=\"https://techcrunch.com/2026/11/24/uk-warns-ai-driven-cyberattacks-are-exposing-years-of-weak-security/\">TechCrunch</a>\n\n<b>22</b>  Dozens of oil and shipping tankers hacked in recent weeks, per report · <a href=\"https://techcrunch.com/2026/11/24/dozens-of-oil-and-shipping-tankers-hacked-in-recent-weeks-per-report/\">TechCrunch</a>\n\n<b>23</b>  Gift Ideas for Friends (2026): Wellness Tech, Kitchen Essentials · <a href=\"https://www.wired.com/story/gifts-for-friends/\">Wired</a>\n\n<b>24</b>  B&amp;H Photo Promo Codes and Deals This November 2026 · <a href=\"https://www.wired.com/story/bh-photo-coupon/\">Wired</a>\n\n<b><u>MARKETS</u></b>\n\n<b>25</b>  IHSG Lanjut Menguat, Asing Serempak Serbu 10 Saham Ini · <a href=\"https://www.cnbcindonesia.com/market/20261125063942-17-788121/ihsg-lanjut-menguat-asing-serempak-serbu-10-saham-ini\">CNBC Indonesia</a>\n\n<b>26</b>  RI Menanti Kinerja Danantara, The Fed Kembali Tebar Ancaman ke Dunia · <a href=\"https://www.cnbcindonesia.com/research/20261124180059-128-788078/ri-menanti-kinerja-danantara-the-fed-kembali-tebar-ancaman-ke-dunia\">CNBC Indonesia</a>\n\n<b>27</b>  Micron’s stock falls as an analyst warns about a future supply glut · <a href=\"https://www.marketwatch.com/story/microns-stock-falls-as-an-analyst-warns-about-a-future-supply-glut-f7fbeefb?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>28</b>  Consumer confidence shoots up after Democrats' midterm victories — though inflation worries persist · <a href=\"https://www.cnbc.com/2026/11/24/consumer-confidence-november-election-midterm.html\">CNBC</a>\n\n<b>29</b>  Micron boosted CEO Sanjay Mehrotra’s security budget by 2,000%, new filing shows · <a href=\"https://www.marketwatch.com/story/micron-boosted-ceo-sanjay-mehrotras-security-budget-by-2-000-new-filing-shows-d6202acc?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>30</b>  Utah drops criminal charges against Kalshi founders after company suspended operations in state · <a href=\"https://www.cnbc.com/2026/11/24/utah-drops-charges-against-kalshi-after-it-halted-operations-in-state.html\">CNBC</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         7,201.09 ▼0.50%\nNasdaq         23,733.53 ▼1.48%\nDow Jones      50,018.70 ▲0.85%\nIHSG (Jakarta)  5,241.59 ▲0.49%\nGold (XAU)      3,539.90 ▼3.05%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  354.07 ▲1.4%\nAMD   413.27 ▼8.9%\nAMZN  252.29 ▼1.2%\nBRK-B 577.21 ▲0.8%\nGOOGL 279.05 ▼1.1%\nIBM   235.62 ▲1.1%\nINTC   54.80 ▼8.1%\nKO     97.62 ▲1.8%\nMAR   416.23 ▲0.1%\nMETA  589.82 ▼1.3%\nMSFT  496.13 ▲0.7%\nMU    629.79 ▼11.0%\nNVDA  155.38 ▼5.9%\nSTX   482.48 ▼7.2%\nTSLA  384.68 ▼0.2%\nTSM   349.20 ▼4.0%\n\nIDR\nANTM 2,670 =0.0%\nBBCA 5,800 ▲2.2%\nBBRI 3,100 ▲1.0%\nBMRI 3,990 ▲2.8%\nPGEO   885 ▼1.1%\nTLKM 2,080 ▲2.0%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-25/digest-photos.jpg",
+      "created_at": "2026-11-25T01:00:04+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:45",
+          "at": "2026-11-25T01:00:09+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b06331ca2fd17422e7498dd",
+          "at": "2026-11-25T01:00:09+00:00"
+        }
+      }
+    },
+    "story-2ffc129339": {
+      "id": "story-2ffc129339",
+      "kind": "alert",
+      "date": "2026-11-25",
+      "story_ids": [
+        "2ffc129339"
+      ],
+      "cards": [
+        "cards/2026-11-25/2ffc129339.png"
+      ],
+      "alts": [
+        "Morrow Brief card. Trump open to pardoning Jensen Huang if needed: NY Post. Reported by 3 outlets: CNBC, The Verge, TechCrunch."
+      ],
+      "telegram": "<b>Trump open to pardoning Jensen Huang if needed: NY Post</b>\n\nTrump said he would be willing to pardon Jensen Huang if needed and argued that the Nvidia CEO should not have to invoke the Fifth Amendment before Congress.\n\nReported by 3 outlets:\n<a href=\"https://www.cnbc.com/2026/11/25/trump-huang-pardon-politics.html\">CNBC</a> · <a href=\"https://www.theverge.com/tech/1041571/jensen-huang-all-hands-nvidia-apology\">The Verge</a> · <a href=\"https://techcrunch.com/2026/11/24/trump-reportedly-says-pardoning-jensen-huang-is-an-option-but-that-he-doesnt-think-it-will-be-necessary/\">TechCrunch</a>",
+      "x": [
+        "Trump open to pardoning Jensen Huang if needed: NY Post\n\nTrump said he would be willing to pardon Jensen Huang if needed and argued that the Nvidia CEO should not have to invoke the Fifth Amendment before Congress.\n\n3 outlets: CNBC, The Verge, TechCrunch\nhttps://www.cnbc.com/2026/11/25/trump-huang-pardon-politics.html"
+      ],
+      "threads": "Trump open to pardoning Jensen Huang if needed: NY Post\n\nTrump said he would be willing to pardon Jensen Huang if needed and argued that the Nvidia CEO should not have to invoke the Fifth Amendment before Congress.\n\n3 outlets: CNBC, The Verge, TechCrunch\nhttps://www.cnbc.com/2026/11/25/trump-huang-pardon-politics.html",
+      "instagram": "Trump open to pardoning Jensen Huang if needed: NY Post\n\nTrump said he would be willing to pardon Jensen Huang if needed and argued that the Nvidia CEO should not have to invoke the Fifth Amendment before Congress.\n\nReported by 3 outlets: CNBC, The Verge, TechCrunch\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Nvidia",
+      "created_at": "2026-11-25T02:31:35+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:46",
+          "at": "2026-11-25T02:31:37+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-d4c272d267": {
+      "id": "story-d4c272d267",
+      "kind": "alert",
+      "date": "2026-11-25",
+      "story_ids": [
+        "d4c272d267"
+      ],
+      "cards": [
+        "cards/2026-11-25/d4c272d267.png"
+      ],
+      "alts": [
+        "Morrow Brief card. U.S. jury convicts Huawei in a criminal trial over fraud and trade secrets. Reported by 3 outlets: CNBC, The Verge, Engadget."
+      ],
+      "telegram": "<b>U.S. jury convicts Huawei in a criminal trial over fraud and trade secrets</b>\n\nHuawei was found guilty of bank fraud, money laundering and trade secret theft conspiracy in a U.S. trial.\n\nReported by 3 outlets:\n<a href=\"https://www.cnbc.com/2026/11/25/huawei-fraud-trade-trial.html\">CNBC</a> · <a href=\"https://www.theverge.com/tech/1041820/huawei-guilty-trade-secrets-trial\">The Verge</a> · <a href=\"https://www.engadget.com/2327450/huawei-is-guilty-of-conspiracy-to-steal-trade-secrets-us-jury-rules/\">Engadget</a>",
+      "x": [
+        "U.S. jury convicts Huawei in a criminal trial over fraud and trade secrets\n\nHuawei was found guilty of bank fraud, money laundering and trade secret theft conspiracy in a U.S. trial.\n\n3 outlets: CNBC, The Verge, Engadget\nhttps://www.cnbc.com/2026/11/25/huawei-fraud-trade-trial.html"
+      ],
+      "threads": "U.S. jury convicts Huawei in a criminal trial over fraud and trade secrets\n\nHuawei was found guilty of bank fraud, money laundering and trade secret theft conspiracy in a U.S. trial.\n\n3 outlets: CNBC, The Verge, Engadget\nhttps://www.cnbc.com/2026/11/25/huawei-fraud-trade-trial.html",
+      "instagram": "U.S. jury convicts Huawei in a criminal trial over fraud and trade secrets\n\nHuawei was found guilty of bank fraud, money laundering and trade secret theft conspiracy in a U.S. trial.\n\nReported by 3 outlets: CNBC, The Verge, Engadget\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech",
+      "telegram_cover": "cards/2026-11-25/d4c272d267-photo.jpg",
+      "created_at": "2026-11-25T04:16:00+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:47",
+          "at": "2026-11-25T04:16:02+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-80a5acb9a1": {
+      "id": "story-80a5acb9a1",
+      "kind": "alert",
+      "date": "2026-11-25",
+      "story_ids": [
+        "80a5acb9a1"
+      ],
+      "cards": [
+        "cards/2026-11-25/80a5acb9a1.png"
+      ],
+      "alts": [
+        "Morrow Brief card. How Meta is using Instagram to get an ad boost from its Muse personal AI agent. Reported by 3 outlets, first: CNBC."
+      ],
+      "telegram": "<b>How Meta is using Instagram to get an ad boost from its Muse personal AI agent</b>\n\nMeta doesn't serve ads in its Muse personal agent, but the tool is already boosting the company's ad business, a senior executive told CNBC.\n\nReported by 3 outlets. First: <a href=\"https://www.cnbc.com/2026/11/24/meta-instagram-muse-ad-revenue.html\">CNBC</a>",
+      "x": [
+        "How Meta is using Instagram to get an ad boost from its Muse personal AI agent\n\nMeta doesn't serve ads in its Muse personal agent, but the tool is already boosting the company's ad business, a senior executive told CNBC.\n\n3 outlets, first: CNBC\nhttps://www.cnbc.com/2026/11/24/meta-instagram-muse-ad-revenue.html"
+      ],
+      "threads": "How Meta is using Instagram to get an ad boost from its Muse personal AI agent\n\nMeta doesn't serve ads in its Muse personal agent, but the tool is already boosting the company's ad business, a senior executive told CNBC.\n\n3 outlets, first: CNBC\nhttps://www.cnbc.com/2026/11/24/meta-instagram-muse-ad-revenue.html",
+      "instagram": "How Meta is using Instagram to get an ad boost from its Muse personal AI agent\n\nMeta doesn't serve ads in its Muse personal agent, but the tool is already boosting the company's ad business, a senior executive told CNBC.\n\nReported by 3 outlets, first: CNBC\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #Meta",
+      "telegram_cover": "cards/2026-11-25/80a5acb9a1-photo.jpg",
+      "created_at": "2026-11-25T10:13:43+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:48",
+          "at": "2026-11-25T10:13:46+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-4e956f5da2": {
+      "id": "story-4e956f5da2",
+      "kind": "alert",
+      "date": "2026-11-25",
+      "story_ids": [
+        "4e956f5da2"
+      ],
+      "cards": [
+        "cards/2026-11-25/4e956f5da2.png"
+      ],
+      "alts": [
+        "Morrow Brief card. Huawei found guilty of stealing trade secrets. Reported by 3 outlets, first: The Verge."
+      ],
+      "telegram": "<b>Huawei found guilty of stealing trade secrets</b>\n\nA jury has found Huawei guilty of stealing US trade secrets, as reported earlier by NBC News and Bloomberg.\n\nReported by 3 outlets. First: <a href=\"https://www.theverge.com/tech/1041820/huawei-guilty-trade-secrets-trial\">The Verge</a>",
+      "x": [
+        "Huawei found guilty of stealing trade secrets\n\nA jury has found Huawei guilty of stealing US trade secrets, as reported earlier by NBC News and Bloomberg.\n\n3 outlets, first: The Verge\nhttps://www.theverge.com/tech/1041820/huawei-guilty-trade-secrets-trial"
+      ],
+      "threads": "Huawei found guilty of stealing trade secrets\n\nA jury has found Huawei guilty of stealing US trade secrets, as reported earlier by NBC News and Bloomberg.\n\n3 outlets, first: The Verge\nhttps://www.theverge.com/tech/1041820/huawei-guilty-trade-secrets-trial",
+      "instagram": "Huawei found guilty of stealing trade secrets\n\nA jury has found Huawei guilty of stealing US trade secrets, as reported earlier by NBC News and Bloomberg.\n\nReported by 3 outlets, first: The Verge\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech",
+      "telegram_cover": "cards/2026-11-25/4e956f5da2-photo.jpg",
+      "created_at": "2026-11-25T13:33:27+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:49",
+          "at": "2026-11-25T13:33:30+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "digest-2026-11-26": {
+      "id": "digest-2026-11-26",
+      "kind": "digest",
+      "date": "2026-11-26",
+      "story_ids": [
+        "b8e65de04b",
+        "00e68d185a",
+        "6359c2ce09",
+        "e1845ee0b5",
+        "eae8a16c09"
+      ],
+      "cards": [
+        "cards/2026-11-26/digest.png",
+        "cards/2026-11-26/b8e65de04b.png",
+        "cards/2026-11-26/00e68d185a.png",
+        "cards/2026-11-26/6359c2ce09.png",
+        "cards/2026-11-26/e1845ee0b5.png",
+        "cards/2026-11-26/eae8a16c09.png"
+      ],
+      "alts": [
+        "Morrow Brief for Thursday 26 November 2026: SpaceX wins FCC approval to deploy 1 million orbital data center satellites; SpaceX, Musk pledge to donate a share each to active Trump Accounts; FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space; Amazon is reportedly in talks to end Muse AI shopping block; How DARPA Challenged Teams to Bring Robots Into Disaster…",
+        "Morrow Brief card. SpaceX wins FCC approval to deploy 1 million orbital data center satellites. Reported by 2 outlets: CNBC, Space.com.",
+        "Morrow Brief card. SpaceX, Musk pledge to donate a share each to active Trump Accounts. Reported by 3 outlets, first: CNBC.",
+        "Morrow Brief card. FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space. Reported by 2 outlets, first: The Verge.",
+        "Morrow Brief card. Amazon is reportedly in talks to end Muse AI shopping block. Reported by 2 outlets, first: The Verge.",
+        "Morrow Brief card. How DARPA Challenged Teams to Bring Robots Into Disaster Triage. Reported by IEEE Spectrum."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Thu 26 Nov\n\n<b>1.</b> <a href=\"https://www.cnbc.com/2026/11/25/spacex-fcc-satellite-approval.html\">SpaceX wins FCC approval to deploy 1 million orbital data center satellites</a>\nSpaceX won approval from the FCC to put 1 million orbital data center satellites into space, a proposal that was opposed by Amazon and other groups.\nBig US Tech · 2 outlets: <a href=\"https://www.cnbc.com/2026/11/25/spacex-fcc-satellite-approval.html\">CNBC</a> · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/green-light-for-starmind-spacex-gets-approval-to-deploy-1-million-ai-satellites\">Space.com</a>\n\n<b>2.</b> <a href=\"https://www.cnbc.com/2026/11/25/spacex-musk-trump-account-stock.html\">SpaceX, Musk pledge to donate a share each to active Trump Accounts</a>\nBig US Tech · 3 outlets, first: CNBC\n\n<b>3.</b> <a href=\"https://www.theverge.com/science/1042278/spacex-fcc-starmind-ai-space-data-centers\">FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space</a>\nAI &amp; Chips · 2 outlets, first: The Verge\n\n<b>4.</b> <a href=\"https://www.theverge.com/tech/1042071/meta-amazon-muse-ai-shopping-discussions\">Amazon is reportedly in talks to end Muse AI shopping block</a>\nAI &amp; Chips · 2 outlets, first: The Verge\n\n<b>5.</b> <a href=\"https://spectrum.ieee.org/darpa-triage-challenge-final-robots\">How DARPA Challenged Teams to Bring Robots Into Disaster Triage</a>\nRobotics · via IEEE Spectrum\n\nMarkets: S&amp;P 500 ▼0.25% · Nasdaq ▼0.62% · Dow Jones ▲0.33% · IHSG (Jakarta) ▼0.84%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Thu 26 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 SpaceX wins FCC approval to deploy 1 million orbital data center satellites\n\n2 outlets: CNBC, Space.com\nhttps://www.cnbc.com/2026/11/25/spacex-fcc-satellite-approval.html",
+        "2/5 SpaceX, Musk pledge to donate a share each to active Trump Accounts\n\nSpaceX said it will donate one share of the company's class A stock to every active Trump Account, and CEO Elon Musk would match it.\n\n3 outlets, first: CNBC\nhttps://www.cnbc.com/2026/11/25/spacex-musk-trump-account-stock.html",
+        "3/5 FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space\n\n2 outlets, first: The Verge\nhttps://www.theverge.com/science/1042278/spacex-fcc-starmind-ai-space-data-centers",
+        "4/5 Amazon is reportedly in talks to end Muse AI shopping block\n\nAmazon has held talks about letting Meta's Muse AI agent shop on its online marketplace, according to a report from Fortune.\n\n2 outlets, first: The Verge\nhttps://www.theverge.com/tech/1042071/meta-amazon-muse-ai-shopping-discussions",
+        "5/5 How DARPA Challenged Teams to Bring Robots Into Disaster Triage\n\nvia IEEE Spectrum\nhttps://spectrum.ieee.org/darpa-triage-challenge-final-robots"
+      ],
+      "threads": "Morrow Brief · Thu 26 Nov\n\n1. SpaceX wins FCC approval to deploy 1 million orbital data center satellites (CNBC +1)\n2. SpaceX, Musk pledge to donate a share each to active Trump Accounts (CNBC +2)\n3. FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space (The Verge +1)\n4. Amazon is reportedly in talks to end Muse AI shopping block (The Verge +1)\n\n+1 more from IEEE Spectrum. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Thursday 26 November 2026\n\n1. SpaceX wins FCC approval to deploy 1 million orbital data center satellites\n   SpaceX won approval from the FCC to put 1 million orbital data center satellites into space, a proposal that was opposed by Amazon and other groups.\n   Reported by 2 outlets: CNBC, Space.com\n\n2. SpaceX, Musk pledge to donate a share each to active Trump Accounts\n   SpaceX said it will donate one share of the company's class A stock to every active Trump Account, and CEO Elon Musk would match it.\n   Reported by 3 outlets, first: CNBC\n\n3. FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space\n   Reported by 2 outlets, first: The Verge\n\n4. Amazon is reportedly in talks to end Muse AI shopping block\n   Amazon has held talks about letting Meta's Muse AI agent shop on its online marketplace, according to a report from Fortune.\n   Reported by 2 outlets, first: The Verge\n\n5. How DARPA Challenged Teams to Bring Robots Into Disaster Triage\n   Reported by IEEE Spectrum\n\nMarkets: S&P 500 ▼0.25% · Nasdaq ▼0.62% · Dow Jones ▲0.33% · IHSG (Jakarta) ▼0.84%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #SpaceX #AI #Chips #Robotics",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Thu 26 Nov\n26 stories · 12 outlets\nTap the outlet's name to read a story.\n\n<b><u>BIG US TECH</u></b>\n\n<b>1</b>  SpaceX wins FCC approval to deploy 1 million orbital data center satellites · <a href=\"https://www.cnbc.com/2026/11/25/spacex-fcc-satellite-approval.html\">CNBC</a> +1\n<i>SpaceX won approval from the FCC to put 1 million orbital data center satellites into space, a proposal that was opposed by Amazon and other groups.</i>\n\n<b>2</b>  SpaceX, Musk pledge to donate a share each to active Trump Accounts · <a href=\"https://www.cnbc.com/2026/11/25/spacex-musk-trump-account-stock.html\">CNBC</a> +2\n<i>SpaceX said it will donate one share of the company's class A stock to every active Trump Account, and CEO Elon Musk would match it.</i>\n\n<b>3</b>  WhatsApp’s new scheduled messages let you choose the right time to send · <a href=\"https://www.theverge.com/tech/1042532/whatsapp-scheduled-messages\">The Verge</a> +1\n<i>WhatsApp's 3 billion users are getting an option that Meta says is one of the most requested features, with the ability to schedule messages in advance for both private conversations and group chats.</i>\n\n<b>4</b>  EPA reports ‘zero’ airborne lead following controlled Army detonation in Iowa · <a href=\"https://www.theverge.com/science/1042109/us-army-detonation-lead-azide-explosives-iowa-ammunition-plant\">The Verge</a> +2\n\n<b>5</b>  Google search alternative Kagi launches Gmail rival · <a href=\"https://arstechnica.com/gadgets/2026/11/google-search-alternative-kagi-launches-gmail-rival/\">Ars Technica</a>\n\n<b>6</b>  Guilty: Huawei faces steep penalties for stealing T-Mobile, Cisco trade secrets · <a href=\"https://arstechnica.com/tech-policy/2026/11/jury-convicts-huawei-of-stealing-us-trade-secrets-evading-iran-sanctions/\">Ars Technica</a> +1\n<i>Huawei didn’t try very hard to hide thefts of US trade secrets, DOJ says.</i>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>7</b>  FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space · <a href=\"https://www.theverge.com/science/1042278/spacex-fcc-starmind-ai-space-data-centers\">The Verge</a> +1\n\n<b>8</b>  Amazon is reportedly in talks to end Muse AI shopping block · <a href=\"https://www.theverge.com/tech/1042071/meta-amazon-muse-ai-shopping-discussions\">The Verge</a> +1\n<i>Amazon has held talks about letting Meta's Muse AI agent shop on its online marketplace, according to a report from Fortune.</i>\n\n<b>9</b>  OpenAI says heavy ChatGPT users may hit limits sooner as it merges Chat and Work · <a href=\"https://techcrunch.com/2026/11/25/openai-says-heavy-chatgpt-users-may-hit-limits-sooner-as-it-merges-chat-and-work/\">TechCrunch</a>\n\n<b>10</b>  Anthropic’s Dario Amodei calls accusations of surrendering human control to AI ‘absurd’ · <a href=\"https://techcrunch.com/2026/11/25/anthropics-dario-amodei-calls-accusations-of-surrendering-human-control-to-ai-absurd/\">TechCrunch</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>11</b>  How DARPA Challenged Teams to Bring Robots Into Disaster Triage · <a href=\"https://spectrum.ieee.org/darpa-triage-challenge-final-robots\">IEEE Spectrum</a>\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>12</b>  NASA Eyes Crop Candidates for Future Menus · <a href=\"https://science.nasa.gov/directorates/smd/nasa-eyes-crop-candidates-for-future-menus/\">NASA</a>\n\n<b>13</b>  Watch live: Europe unveils 1st close-up views of asteroid Dimorphos after NASA's DART impact · <a href=\"https://www.space.com/space-exploration/asteroid-comet-missions/watch-live-europe-unveils-1st-close-up-views-of-asteroid-dimorphos-after-nasas-dart-impact\">Space.com</a>\n\n<b>14</b>  Childhood, Career Come Full Circle for Budget Analyst at NASA Goddard · <a href=\"https://www.nasa.gov/centers-and-facilities/goddard/childhood-career-come-full-circle-for-budget-analyst-at-nasa-goddard/\">NASA</a>\n\n<b>15</b>  Launch Preview: Russian, Chinese, and SpaceX rockets to launch space station missions · <a href=\"https://www.nasaspaceflight.com/2026/11/launch-preview-112426/\">NASASpaceflight</a>\n\n<b>16</b>  SpaceX rejects $738M fed subsidy, betting on Starlink alone · <a href=\"https://www.teslarati.com/spacex-starlink-rejects-fed-subsidy/\">Teslarati</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>17</b>  We reviewed these 10 gadgets, and they're now on sale for Black Friday · <a href=\"https://www.engadget.com/2328876/black-friday-2026-deals-on-reviewed-gadgets/\">Engadget</a>\n\n<b>18</b>  The canceled Tesla Cybertruck is the fastest-selling used truck in America · <a href=\"https://techcrunch.com/2026/11/25/the-canceled-tesla-cybertruck-is-the-fastest-selling-used-truck-in-america/\">TechCrunch</a>\n\n<b>19</b>  DOJ accuses former cyber executive of defrauding ransomware victims by secretly paying hackers · <a href=\"https://techcrunch.com/2026/11/25/doj-accuses-former-cyber-executive-of-defrauding-ransomware-victims-by-secretly-paying-hackers/\">TechCrunch</a>\n\n<b>20</b>  Can you play GTA 6 from an external hard drive on PS5 or Xbox Series X/S? · <a href=\"https://www.engadget.com/2328792/can-you-play-gta-6-from-external-hard-drive/\">Engadget</a>\n\n<b><u>MARKETS</u></b>\n\n<b>21</b>  AS Tiba-Tiba Kirim 2 Kabar Buruk Sekaligus, IHSG-Rupiah dalam Bahaya! · <a href=\"https://www.cnbcindonesia.com/research/20261126045253-128-788536/as-tiba-tiba-kirim-2-kabar-buruk-sekaligus-ihsg-rupiah-dalam-bahaya\">CNBC Indonesia</a>\n\n<b>22</b>  Fed’s preferred inflation gauge accelerated to 3.8% in October, raising the 2027 stakes for the central bank · <a href=\"https://www.cnbc.com/2026/11/25/pce-inflation-report-october-2026.html\">CNBC</a>\n\n<b>23</b>  Nvidia’s stock has given back a big chunk of Monday’s rally as dip buyers cash in · <a href=\"https://www.marketwatch.com/story/nvidias-stock-is-giving-back-more-than-half-of-mondays-rally-as-dip-buyers-cash-in-ee4fa52c?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>24</b>  HP’s stock is a standout gainer in the tech selloff, as an earnings beat still matters · <a href=\"https://www.marketwatch.com/story/hps-stock-is-a-standout-gainer-in-the-tech-rout-as-an-earnings-beat-still-matters-8f6c76ad?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>25</b>  Prediction markets push OpenAI IPO expectations later into 2027 · <a href=\"https://www.cnbc.com/2026/11/25/openai-ipo-odds-2027-prediction-markets.html\">CNBC</a>\n\n<b>26</b>  Amran-Sugiono Jalani Tes Kesehatan di RSPAD Pagi Ini · <a href=\"https://www.cnbcindonesia.com/news/20261126064657-4-788542/amran-sugiono-jalani-tes-kesehatan-di-rspad-pagi-ini\">CNBC Indonesia</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         7,182.78 ▼0.25%\nNasdaq         23,585.80 ▼0.62%\nDow Jones      50,182.95 ▲0.33%\nIHSG (Jakarta)  5,197.61 ▼0.84%\nGold (XAU)      3,606.20 ▲1.24%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  355.58 ▲0.4%\nAMD   406.03 ▼1.8%\nAMZN  244.43 ▼3.1%\nBRK-B 579.32 ▲0.4%\nGOOGL 273.10 ▼2.1%\nIBM   243.47 ▲3.3%\nINTC   54.47 ▼0.6%\nKO     97.59 =0.0%\nMAR   415.77 ▼0.1%\nMETA  609.89 ▲3.4%\nMSFT  489.93 ▼1.2%\nMU    601.25 ▼4.5%\nNVDA  149.30 ▼3.9%\nSTX   472.33 ▼2.1%\nTSLA  380.14 ▼1.2%\nTSM   342.34 ▼2.0%\n\nIDR\nANTM 2,620 ▼1.9%\nBBCA 5,825 ▲0.4%\nBBRI 3,070 ▼1.0%\nBMRI 4,000 ▲0.3%\nPGEO   870 ▼1.7%\nTLKM 2,010 ▼3.4%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-26/digest-photos.jpg",
+      "created_at": "2026-11-26T01:00:05+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:50",
+          "at": "2026-11-26T01:00:09+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b07849fd4eda4b659c59e0e",
+          "at": "2026-11-26T01:00:09+00:00"
+        }
+      }
+    },
+    "story-aeef628587": {
+      "id": "story-aeef628587",
+      "kind": "alert",
+      "date": "2026-11-26",
+      "story_ids": [
+        "aeef628587"
+      ],
+      "cards": [
+        "cards/2026-11-26/aeef628587.png"
+      ],
+      "alts": [
+        "Morrow Brief card. EPA reports ‘zero’ airborne lead following controlled Army detonation in Iowa. Reported by 3 outlets, first: The Verge."
+      ],
+      "telegram": "<b>EPA reports ‘zero’ airborne lead following controlled Army detonation in Iowa</b>\n\nSaying it was necessary to prevent the possible spontaneous explosion of a stockpile of material used in igniters and blasting caps, the US Army conducted a controlled detonation of over 9,700 pounds of lead azide today at the Iowa Army...\n\nReported by 3 outlets. First: <a href=\"https://www.theverge.com/science/1042109/us-army-detonation-lead-azide-explosives-iowa-ammunition-plant\">The Verge</a>",
+      "x": [
+        "EPA reports ‘zero’ airborne lead following controlled Army detonation in Iowa\n\n3 outlets, first: The Verge\nhttps://www.theverge.com/science/1042109/us-army-detonation-lead-azide-explosives-iowa-ammunition-plant"
+      ],
+      "threads": "EPA reports ‘zero’ airborne lead following controlled Army detonation in Iowa\n\nSaying it was necessary to prevent the possible spontaneous explosion of a stockpile of material used in igniters and blasting caps, the US Army conducted a controlled detonation of over 9,700 pounds of lead azide today at the Iowa Army...\n\n3 outlets, first: The Verge\nhttps://www.theverge.com/science/1042109/us-army-detonation-lead-azide-explosives-iowa-ammunition-plant",
+      "instagram": "EPA reports ‘zero’ airborne lead following controlled Army detonation in Iowa\n\nSaying it was necessary to prevent the possible spontaneous explosion of a stockpile of material used in igniters and blasting caps, the US Army conducted a controlled detonation of over 9,700 pounds of lead azide today at the Iowa Army...\n\nReported by 3 outlets, first: The Verge\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech",
+      "telegram_cover": "cards/2026-11-26/aeef628587-photo.jpg",
+      "created_at": "2026-11-26T02:32:35+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:51",
+          "at": "2026-11-26T02:32:37+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-c0f2de19f0": {
+      "id": "story-c0f2de19f0",
+      "kind": "alert",
+      "date": "2026-11-26",
+      "story_ids": [
+        "c0f2de19f0"
+      ],
+      "cards": [
+        "cards/2026-11-26/c0f2de19f0.png"
+      ],
+      "alts": [
+        "Morrow Brief card. 42 state AGs are trying to stop Character.AI from selling users’ chats. Reported by 3 outlets, first: The Verge."
+      ],
+      "telegram": "<b>42 state AGs are trying to stop Character.AI from selling users’ chats</b>\n\nA coalition of 42 state attorneys general is trying to prevent Character.AI from selling off user data as it navigates Chapter 11…\n\nReported by 3 outlets. First: <a href=\"https://www.theverge.com/policy/1042620/character-ai-sale-state-ags-block-selling-users-chats\">The Verge</a>",
+      "x": [
+        "42 state AGs are trying to stop Character.AI from selling users’ chats\n\n3 outlets, first: The Verge\nhttps://www.theverge.com/policy/1042620/character-ai-sale-state-ags-block-selling-users-chats"
+      ],
+      "threads": "42 state AGs are trying to stop Character.AI from selling users’ chats\n\nA coalition of 42 state attorneys general is trying to prevent Character.AI from selling off user data as it navigates Chapter 11…\n\n3 outlets, first: The Verge\nhttps://www.theverge.com/policy/1042620/character-ai-sale-state-ags-block-selling-users-chats",
+      "instagram": "42 state AGs are trying to stop Character.AI from selling users’ chats\n\nA coalition of 42 state attorneys general is trying to prevent Character.AI from selling off user data as it navigates Chapter 11…\n\nReported by 3 outlets, first: The Verge\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#AI #Chips",
+      "created_at": "2026-11-26T10:03:27+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:52",
+          "at": "2026-11-26T10:03:29+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "story-a3527d66d4": {
+      "id": "story-a3527d66d4",
+      "kind": "alert",
+      "date": "2026-11-26",
+      "story_ids": [
+        "a3527d66d4"
+      ],
+      "cards": [
+        "cards/2026-11-26/a3527d66d4.png"
+      ],
+      "alts": [
+        "Morrow Brief card. NASA sends planes to monitor US Army's lead detonation. 'Irresponsible' to compare it to Chernobyl, agency chief says. Reported by 4 outlets, first: Space.com."
+      ],
+      "telegram": "<b>NASA sends planes to monitor US Army's lead detonation. 'Irresponsible' to compare it to Chernobyl, agency chief says</b>\n\nNASA has sent three different research aircraft and is using a satellite-based instrument to support the U.S. Army's detonation of degraded explosives at the Iowa Army Ammunition Plant in Middletown, Iowa, the agency announced yesterday...\n\nReported by 4 outlets. First: <a href=\"https://www.space.com/technology/aerospace/nasa-sends-planes-to-monitor-us-armys-lead-detonation-irresponsible-to-compare-it-to-chernobyl-agency-chief-says\">Space.com</a>",
+      "x": [
+        "NASA sends planes to monitor US Army's lead detonation. 'Irresponsible' to compare it to Chernobyl, agency chief says\n\n4 outlets, first: Space.com\nhttps://www.space.com/technology/aerospace/nasa-sends-planes-to-monitor-us-armys-lead-detonation-irresponsible-to-compare-it-to-chernobyl-agency-chief-says"
+      ],
+      "threads": "NASA sends planes to monitor US Army's lead detonation. 'Irresponsible' to compare it to Chernobyl, agency chief says\n\nNASA has sent three different research aircraft and is using a satellite-based instrument to support the U.S. Army's detonation of degraded explosives at the Iowa Army Ammunition Plant in…\n\n4 outlets, first: Space.com\nhttps://www.space.com/technology/aerospace/nasa-sends-planes-to-monitor-us-armys-lead-detonation-irresponsible-to-compare-it-to-chernobyl-agency-chief-says",
+      "instagram": "NASA sends planes to monitor US Army's lead detonation. 'Irresponsible' to compare it to Chernobyl, agency chief says\n\nNASA has sent three different research aircraft and is using a satellite-based instrument to support the U.S. Army's detonation of degraded explosives at the Iowa Army Ammunition Plant in Middletown, Iowa, the agency announced yesterday...\n\nReported by 4 outlets, first: Space.com\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#Space",
+      "telegram_cover": "cards/2026-11-26/a3527d66d4-photo.jpg",
+      "created_at": "2026-11-26T12:32:16+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:53",
+          "at": "2026-11-26T12:32:19+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "digest-2026-11-27": {
+      "id": "digest-2026-11-27",
+      "kind": "digest",
+      "date": "2026-11-27",
+      "story_ids": [
+        "9f2a4f1eae",
+        "94305b427e",
+        "3b1d5c3b8f",
+        "8018eae627",
+        "948f79b6fa"
+      ],
+      "cards": [
+        "cards/2026-11-27/digest.png",
+        "cards/2026-11-27/9f2a4f1eae.png",
+        "cards/2026-11-27/94305b427e.png",
+        "cards/2026-11-27/3b1d5c3b8f.png",
+        "cards/2026-11-27/8018eae627.png",
+        "cards/2026-11-27/948f79b6fa.png"
+      ],
+      "alts": [
+        "Morrow Brief for Friday 27 November 2026: FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040; Nvidia hits pause on chip shipments to Southeast Asia; I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite?; GTA VI developers vote against unionization; A month with the iPhone Duo has changed how I use my phone",
+        "Morrow Brief card. FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040. Reported by 3 outlets: NASASpaceflight, Spaceflight Now, Engadget.",
+        "Morrow Brief card. Nvidia hits pause on chip shipments to Southeast Asia. Reported by 2 outlets, first: TechCrunch.",
+        "Morrow Brief card. I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite?. Reported by 2 outlets, first: MarketWatch.",
+        "Morrow Brief card. GTA VI developers vote against unionization. Reported by 2 outlets, first: The Verge.",
+        "Morrow Brief card. A month with the iPhone Duo has changed how I use my phone. Reported by 2 outlets, first: TechCrunch."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Fri 27 Nov\n\n<b>1.</b> <a href=\"https://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/\">FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040</a>\nSpace &amp; Aircraft · 3 outlets: <a href=\"https://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/\">NASASpaceflight</a> · <a href=\"https://spaceflightnow.com/2026/11/26/fcc-green-lights-spacexs-plan-to-launch-1-million-starmind-data-center-satellites/\">Spaceflight Now</a> · <a href=\"https://www.engadget.com/2329071/spacex-gets-fcc-approval-to-deploy-1-million-satellites-for-its-ai-orbital-data-center/\">Engadget</a>\n\n<b>2.</b> <a href=\"https://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/\">Nvidia hits pause on chip shipments to Southeast Asia</a>\nAI &amp; Chips · 2 outlets, first: TechCrunch\n\n<b>3.</b> <a href=\"https://www.marketwatch.com/story/i-hate-that-jensen-huang-is-back-at-nvidia-but-i-love-what-its-done-for-my-401-k-am-i-a-hypocrite-f63c0303?mod=mw_rss_topstories\">I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite?</a>\nMarkets · 2 outlets, first: MarketWatch\n\n<b>4.</b> <a href=\"https://www.theverge.com/games/1043169/rockstar-games-union-vote-iwgb\">GTA VI developers vote against unionization</a>\nBig US Tech · 2 outlets, first: The Verge\n\n<b>5.</b> <a href=\"https://techcrunch.com/2026/11/26/a-month-with-the-iphone-duo-has-changed-how-i-use-my-phone/\">A month with the iPhone Duo has changed how I use my phone</a>\nTechnology · 2 outlets, first: TechCrunch\n\nMarkets: S&amp;P 500 ▼0.25% · Nasdaq ▼0.62% · Dow Jones ▲0.33% · IHSG (Jakarta) ▲0.86%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Fri 27 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040\n\n3 outlets: NASASpaceflight, Spaceflight Now +1\nhttps://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/",
+        "2/5 Nvidia hits pause on chip shipments to Southeast Asia\n\n2 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/",
+        "3/5 I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite?\n\nDoing nothing and maintaining an even temperament is often the work of gods.\n\n2 outlets, first: MarketWatch\nhttps://www.marketwatch.com/story/i-hate-that-jensen-huang-is-back-at-nvidia-but-i-love-what-its-done-for-my-401-k-am-i-a-hypocrite-f63c0303?mod=mw_rss_topstories",
+        "4/5 GTA VI developers vote against unionization\n\n2 outlets, first: The Verge\nhttps://www.theverge.com/games/1043169/rockstar-games-union-vote-iwgb",
+        "5/5 A month with the iPhone Duo has changed how I use my phone\n\nFrom reading more books to breaking mindless scrolling habits, Apple's foldable has changed my daily routines in ways I didn't anticipate.\n\n2 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/26/a-month-with-the-iphone-duo-has-changed-how-i-use-my-phone/"
+      ],
+      "threads": "Morrow Brief · Fri 27 Nov\n\n1. FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040 (NASASpaceflight +2)\n2. Nvidia hits pause on chip shipments to Southeast Asia (TechCrunch +1)\n3. I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite? (MarketWatch +1)\n4. GTA VI developers vote against unionization (The Verge +1)\n\n+1 more from TechCrunch. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Friday 27 November 2026\n\n1. FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040\n   Reported by 3 outlets: NASASpaceflight, Spaceflight Now, Engadget\n\n2. Nvidia hits pause on chip shipments to Southeast Asia\n   Reported by 2 outlets, first: TechCrunch\n\n3. I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite?\n   Doing nothing and maintaining an even temperament is often the work of gods.\n   Reported by 2 outlets, first: MarketWatch\n\n4. GTA VI developers vote against unionization\n   Reported by 2 outlets, first: The Verge\n\n5. A month with the iPhone Duo has changed how I use my phone\n   From reading more books to breaking mindless scrolling habits, Apple's foldable has changed my daily routines in ways I didn't anticipate.\n   Reported by 2 outlets, first: TechCrunch\n\nMarkets: S&P 500 ▼0.25% · Nasdaq ▼0.62% · Dow Jones ▲0.33% · IHSG (Jakarta) ▲0.86%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#Space #SpaceX #AI #Chips #Nvidia",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Fri 27 Nov\n24 stories · 13 outlets\nTap the outlet's name to read a story.\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>1</b>  FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040 · <a href=\"https://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/\">NASASpaceflight</a> +2\n\n<b>2</b>  Rocket Lab sending Japanese satellite to orbit on Thanksgiving Day launch: Watch it live · <a href=\"https://www.space.com/space-exploration/launches-spacecraft/rocket-lab-sending-japanese-satellite-to-orbit-on-thanksgiving-day-launch-watch-it-live\">Space.com</a>\n\n<b>3</b>  APOD: 2026 November 26 – Eye in the Sky: The Milky Way over Lençóis · <a href=\"https://science.nasa.gov/image-article/apod-2026-november-26-eye-in-the-sky-the-milky-way-over-lencois/\">NASA</a>\n\n<b>4</b>  Seeking Refuge on Resolution Island · <a href=\"https://science.nasa.gov/earth/earth-observatory/seeking-refuge-on-resolution-island/\">NASA</a>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>5</b>  Nvidia hits pause on chip shipments to Southeast Asia · <a href=\"https://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/\">TechCrunch</a> +1\n\n<b>6</b>  Grand Theft Auto VI proves why efficiency isn’t a virtue · <a href=\"https://techcrunch.com/2026/11/26/as-anthropic-ipos-grand-theft-auto-vi-proves-why-efficiency-isnt-a-virtue/\">TechCrunch</a>\n\n<b>7</b>  42 state AGs are trying to stop Character.AI from selling users’ chats · <a href=\"https://www.theverge.com/policy/1042620/character-ai-sale-state-ags-block-selling-users-chats\">The Verge</a>\n\n<b><u>MARKETS</u></b>\n\n<b>8</b>  I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite? · <a href=\"https://www.marketwatch.com/story/i-hate-that-jensen-huang-is-back-at-nvidia-but-i-love-what-its-done-for-my-401-k-am-i-a-hypocrite-f63c0303?mod=mw_rss_topstories\">MarketWatch</a> +1\n<i>Doing nothing and maintaining an even temperament is often the work of gods.</i>\n\n<b>9</b>  IHSG Hijau, Asing Malah Banyak Lepas 10 Saham Ini · <a href=\"https://www.cnbcindonesia.com/market/20261127071243-17-788911/ihsg-hijau-asing-malah-banyak-lepas-10-saham-ini\">CNBC Indonesia</a>\n\n<b>10</b>  Nasib Karyawan Setelah Dipecat Gara-Gara Rekam Ucapan Bos Saat Rapat · <a href=\"https://www.cnbcindonesia.com/tech/20261126142547-37-788756/nasib-karyawan-setelah-dipecat-gara-gara-rekam-ucapan-bos-saat-rapat\">CNBC Indonesia</a>\n\n<b>11</b>  Buyer beware? Nvidia's volatile swings expose risks of single-stock ETFs · <a href=\"https://www.cnbc.com/2026/11/26/nvidias-volatile-swings-expose-risks-of-single-stock-etfs.html\">CNBC</a>\n\n<b>12</b>  Kioxia and NVIDIA Collaborate to Expand Effective High-Bandwidth Memory Capacity with SSDs · <a href=\"https://en.antaranews.com/news/445719/kioxia-and-nvidia-collaborate-to-expand-effective-high-bandwidth-memory-capacity-with-ssds\">Antara News</a>\n\n<b>13</b>  I’m terrified of a market crash. Should I put $400,000 of my $1 million retirement savings into an annuity? · <a href=\"https://www.marketwatch.com/story/were-in-our-50s-and-terrified-of-a-market-crash-should-we-put-400-000-of-our-1-million-retirement-savings-into-an-annuity-1943f240?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b><u>BIG US TECH</u></b>\n\n<b>14</b>  GTA VI developers vote against unionization · <a href=\"https://www.theverge.com/games/1043169/rockstar-games-union-vote-iwgb\">The Verge</a> +1\n\n<b>15</b>  Nvidia chip buyers told to rule out Chinese renters to purchase GPUs, sources say · <a href=\"https://www.cnbc.com/2026/11/26/neoclouds-nvidia-china-ai.html\">CNBC</a>\n<i>A new BIS rule was intended to close \"loopholes,\" U.S. Trade Representative Jamieson Greer told CNBC's \"Squawk Box\" on Wednesday.</i>\n\n<b>16</b>  Android app developers will soon have to share their address publicly · <a href=\"https://www.theverge.com/tech/1043228/android-play-store-google-developer-address-eu\">The Verge</a>\n<i>Independent Android app developers are worried about their privacy after Google announced that from next year many of them will be required to share a phone number and address publicly.</i>\n\n<b>17</b>  Ford unveils the GT41 as it hopes to win Le Mans again · <a href=\"https://arstechnica.com/cars/2026/11/ford-unveils-the-gt41-as-it-hopes-to-win-le-mans-again/\">Ars Technica</a>\n<i>Ford enters the World Endurance Championship in 2027 with the new prototype.</i>\n\n<b>18</b>  Meta Refused to Share Muse for Testing, UK Financial Watchdog Complains · <a href=\"https://www.wired.com/story/meta-refused-to-share-muse-for-testing-uk-financial-watchdog-complains/\">Wired</a>\n<i>The FCA warned against “another force of attack” from agents after the company declined a request to work on joint testing ahead of rolling out its personal agent in the UK on Tuesday.</i>\n\n<b>19</b>  Robots could be doing household chores in just 1-2 years, Chinese EV firm says · <a href=\"https://www.cnbc.com/2026/11/26/china-ev-xpeng-humanoid-robots-household-chores.html\">CNBC</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>20</b>  A month with the iPhone Duo has changed how I use my phone · <a href=\"https://techcrunch.com/2026/11/26/a-month-with-the-iphone-duo-has-changed-how-i-use-my-phone/\">TechCrunch</a> +1\n<i>From reading more books to breaking mindless scrolling habits, Apple's foldable has changed my daily routines in ways I didn't anticipate.</i>\n\n<b>21</b>  X finally gets parental controls after 20 years · <a href=\"https://techcrunch.com/2026/11/26/x-finally-gets-parental-controls-after-20-years/\">TechCrunch</a> +1\n<i>Elon Musk's social network X has finally added parental controls for teenagers, giving parents and guardians a way to manage what their kids see on the platform.</i>\n\n<b>22</b>  Amazon workers around the world plan strikes and protests on Black Friday and Cyber Monday · <a href=\"https://www.engadget.com/2329231/amazon-workers-plan-protests-on-black-friday-and-cyber-monday/\">Engadget</a>\n\n<b>23</b>  Backloggd urges users to change their passwords after a breach · <a href=\"https://www.engadget.com/2329256/backloggd-breach-november-2026-password-reset/\">Engadget</a>\n<i>If you use Backloggd, you might need to log in again and reset your password.</i>\n\n<b>24</b>  AT&amp;T Promo Codes: $50 Off This November 2026 · <a href=\"https://www.wired.com/story/att-promo-code/\">Wired</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         7,182.78 ▼0.25%\nNasdaq         23,585.80 ▼0.62%\nDow Jones      50,182.95 ▲0.33%\nIHSG (Jakarta)  5,242.17 ▲0.86%\nGold (XAU)      3,598.20 ▲1.76%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  355.58 ▲0.4%\nAMD   406.03 ▼1.8%\nAMZN  244.43 ▼3.1%\nBRK-B 579.32 ▲0.4%\nGOOGL 273.10 ▼2.1%\nIBM   243.47 ▲3.3%\nINTC   54.47 ▼0.6%\nKO     97.59 =0.0%\nMAR   415.77 ▼0.1%\nMETA  609.89 ▲3.4%\nMSFT  489.93 ▼1.2%\nMU    601.25 ▼4.5%\nNVDA  149.30 ▼3.9%\nSTX   472.33 ▼2.1%\nTSLA  380.14 ▼1.2%\nTSM   342.34 ▼2.0%\n\nIDR\nANTM 2,640 ▲0.8%\nBBCA 5,900 ▲1.3%\nBBRI 3,080 ▲0.3%\nBMRI 3,990 ▼0.2%\nPGEO   880 ▲1.1%\nTLKM 2,010 =0.0%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-27/digest-photos.jpg",
+      "created_at": "2026-11-27T01:00:04+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:54",
+          "at": "2026-11-27T01:00:08+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b08d61b9131f7416c5f8bb0",
+          "at": "2026-11-27T01:00:08+00:00"
+        }
+      }
+    },
+    "story-2ed396617b": {
+      "id": "story-2ed396617b",
+      "kind": "alert",
+      "date": "2026-11-27",
+      "story_ids": [
+        "2ed396617b"
+      ],
+      "cards": [
+        "cards/2026-11-27/2ed396617b.png"
+      ],
+      "alts": [
+        "Morrow Brief card. Nike Promo Codes and Discounts: 30% for November 2026. Reported by 3 outlets, first: Wired."
+      ],
+      "telegram": "<b>Nike Promo Codes and Discounts: 30% for November 2026</b>\n\nCheck out our deals for Nike this November 2026, including 15% off select purchases.\n\nReported by 3 outlets. First: <a href=\"https://www.wired.com/story/nike-promo-code/\">Wired</a>",
+      "x": [
+        "Nike Promo Codes and Discounts: 30% for November 2026\n\nCheck out our deals for Nike this November 2026, including 15% off select purchases.\n\n3 outlets, first: Wired\nhttps://www.wired.com/story/nike-promo-code/"
+      ],
+      "threads": "Nike Promo Codes and Discounts: 30% for November 2026\n\nCheck out our deals for Nike this November 2026, including 15% off select purchases.\n\n3 outlets, first: Wired\nhttps://www.wired.com/story/nike-promo-code/",
+      "instagram": "Nike Promo Codes and Discounts: 30% for November 2026\n\nCheck out our deals for Nike this November 2026, including 15% off select purchases.\n\nReported by 3 outlets, first: Wired\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech",
+      "telegram_cover": "cards/2026-11-27/2ed396617b-photo.jpg",
+      "created_at": "2026-11-27T06:32:32+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:55",
+          "at": "2026-11-27T06:32:35+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "X gets the daily digest thread only"
+        }
+      }
+    },
+    "digest-2026-11-28": {
+      "id": "digest-2026-11-28",
+      "kind": "digest",
+      "date": "2026-11-28",
+      "story_ids": [
+        "d2aa545b6c",
+        "18028c0bea",
+        "9f2a4f1eae",
+        "b19d92564b",
+        "94305b427e"
+      ],
+      "cards": [
+        "cards/2026-11-28/digest.png",
+        "cards/2026-11-28/d2aa545b6c.png",
+        "cards/2026-11-28/18028c0bea.png",
+        "cards/2026-11-28/9f2a4f1eae.png",
+        "cards/2026-11-28/b19d92564b.png",
+        "cards/2026-11-28/94305b427e.png"
+      ],
+      "alts": [
+        "Morrow Brief for Saturday 28 November 2026: AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth; SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations; FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040; Artemis III Astronaut Andre Douglas Visits VAB…",
+        "Morrow Brief card. AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth. Reported by CNBC.",
+        "Morrow Brief card. SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations. Reported by 3 outlets, first: CNBC.",
+        "Morrow Brief card. FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040. Reported by 3 outlets, first: NASASpaceflight.",
+        "Morrow Brief card. Artemis III Astronaut Andre Douglas Visits VAB. Reported by 2 outlets, first: NASA.",
+        "Morrow Brief card. Nvidia hits pause on chip shipments to Southeast Asia. Reported by 2 outlets, first: TechCrunch."
+      ],
+      "telegram": "<b>Morrow Brief</b> · Sat 28 Nov\n\n<b>1.</b> <a href=\"https://www.cnbc.com/2026/11/27/ai-shopping-agents-retailer-blocks.html\">AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth</a>\nAI shopping agents from OpenAI, Meta, Google and Instinct promise to help users shop, but they're hitting roadblocks at Amazon and other retailers.\nBig US Tech · via CNBC\n\n<b>2.</b> <a href=\"https://www.cnbc.com/2026/11/27/spacex-shares-musk-donations.html\">SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations</a>\nBig US Tech · 3 outlets, first: CNBC\n\n<b>3.</b> <a href=\"https://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/\">FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040</a>\nSpace &amp; Aircraft · 3 outlets, first: NASASpaceflight\n\n<b>4.</b> <a href=\"https://www.nasa.gov/image-article/artemis-iii-astronaut-andre-douglas-visits-vab/\">Artemis III Astronaut Andre Douglas Visits VAB</a>\nSpace &amp; Aircraft · 2 outlets, first: NASA\n\n<b>5.</b> <a href=\"https://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/\">Nvidia hits pause on chip shipments to Southeast Asia</a>\nAI &amp; Chips · 2 outlets, first: TechCrunch\n\nMarkets: S&amp;P 500 ▲1.60% · Nasdaq ▲2.31% · Dow Jones ▲1.18% · IHSG (Jakarta) ▲1.84%\n\n<a href=\"https://juw12.github.io/morrow/\">Read the full edition</a>",
+      "x": [
+        "Morrow Brief · Sat 28 Nov\n\nFive of this morning's tech and market stories are in the posts below, each with a link to its outlet.\n\nThe whole edition, with index levels and stock prices, is one Telegram message every day at 08:00 Jakarta time. Free: https://t.me/morrowbrief",
+        "1/5 AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth\n\nvia CNBC\nhttps://www.cnbc.com/2026/11/27/ai-shopping-agents-retailer-blocks.html",
+        "2/5 SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations\n\n3 outlets, first: CNBC\nhttps://www.cnbc.com/2026/11/27/spacex-shares-musk-donations.html",
+        "3/5 FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040\n\n3 outlets, first: NASASpaceflight\nhttps://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/",
+        "4/5 Artemis III Astronaut Andre Douglas Visits VAB\n\n2 outlets, first: NASA\nhttps://www.nasa.gov/image-article/artemis-iii-astronaut-andre-douglas-visits-vab/",
+        "5/5 Nvidia hits pause on chip shipments to Southeast Asia\n\n2 outlets, first: TechCrunch\nhttps://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/"
+      ],
+      "threads": "Morrow Brief · Sat 28 Nov\n\n1. AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth (CNBC)\n2. SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations (CNBC +2)\n3. FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040 (NASASpaceflight +2)\n\n+2 more from NASA, TechCrunch. Full edition, every story sourced: https://juw12.github.io/morrow/",
+      "instagram": "Morrow Brief · Saturday 28 November 2026\n\n1. AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth\n   AI shopping agents from OpenAI, Meta, Google and Instinct promise to help users shop, but they're hitting roadblocks at Amazon and other retailers.\n   Reported by CNBC\n\n2. SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations\n   SpaceX shares jumped in trading Friday after Elon Musk said on X that he would donate shares to American children every year.\n   Reported by 3 outlets, first: CNBC\n\n3. FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040\n   Reported by 3 outlets, first: NASASpaceflight\n\n4. Artemis III Astronaut Andre Douglas Visits VAB\n   Reported by 2 outlets, first: NASA\n\n5. Nvidia hits pause on chip shipments to Southeast Asia\n   Nvidia has told manufacturing partners to pause server shipments to Malaysia, Singapore, Thailand and Indonesia as the U.S. tightens its push to keep AI chips out of China.\n   Reported by 2 outlets, first: TechCrunch\n\nMarkets: S&P 500 ▲1.60% · Nasdaq ▲2.31% · Dow Jones ▲1.18% · IHSG (Jakarta) ▲1.84%\n\nEvery story links to its source: juw12.github.io/morrow (link in bio).\nAutomated selection from published reporting. Headlines belong to their outlets; every story names its source.\n\n#BigTech #OpenAI #SpaceX #Space #NASA",
+      "telegram_edition": "<b>MORROW BRIEF</b> · Sat 28 Nov\n31 stories · 12 outlets\nTap the outlet's name to read a story.\n\n<b><u>BIG US TECH</u></b>\n\n<b>1</b>  AI shopping agents are having a moment, but Amazon and a growing number of sites threaten to stunt their growth · <a href=\"https://www.cnbc.com/2026/11/27/ai-shopping-agents-retailer-blocks.html\">CNBC</a>\n<i>AI shopping agents from OpenAI, Meta, Google and Instinct promise to help users shop, but they're hitting roadblocks at Amazon and other retailers.</i>\n\n<b>2</b>  SpaceX shares jump over 4% amid tech rally and after Musk says he will expand on Trump Account share donations · <a href=\"https://www.cnbc.com/2026/11/27/spacex-shares-musk-donations.html\">CNBC</a> +2\n<i>SpaceX shares jumped in trading Friday after Elon Musk said on X that he would donate shares to American children every year.</i>\n\n<b>3</b>  The M5 MacBook Air just got its biggest discount since Apple raised the price · <a href=\"https://www.theverge.com/gadgets/1044771/m5-macbook-air-black-friday-2026-deal-sale\">The Verge</a>\n\n<b>4</b>  The best Black Friday deals you can still get on AirPods, Macs, and other Apple gear · <a href=\"https://www.theverge.com/gadgets/1043935/best-black-friday-apple-deals-2026\">The Verge</a> +1\n\n<b>5</b>  Best Black Friday Google Pixel Deals (2026): Up to $400 Off · <a href=\"https://www.wired.com/story/best-google-pixel-black-friday-deals-11-27-2026/\">Wired</a> +2\n\n<b>6</b>  Best Amazon Device Black Friday Deals I’ve Found (2026): Kindles, Echo Speakers · <a href=\"https://www.wired.com/story/best-amazon-device-black-friday-deals-11-27-2026/\">Wired</a>\n\n<b><u>SPACE &amp; AIRCRAFT</u></b>\n\n<b>7</b>  Artemis III Astronaut Andre Douglas Visits VAB · <a href=\"https://www.nasa.gov/image-article/artemis-iii-astronaut-andre-douglas-visits-vab/\">NASA</a> +1\n\n<b>8</b>  APOD: 2026 November 28 – Apollo 17 VIP Site Anaglyph · <a href=\"https://science.nasa.gov/image-article/apod-2026-november-28-apollo-17-vip-site-anaglyph/\">NASA</a>\n\n<b>9</b>  FCC authorizes SpaceX to deploy up to 1 million Starmind AI satellites by 2040 · <a href=\"https://www.nasaspaceflight.com/2026/11/fcc-authorizes-spacex-1-million-starmind-2040/\">NASASpaceflight</a> +2\n\n<b>10</b>  Stoke Space’s Nova Pathfinder booster arrives at SLC-14 ahead of 2027 debut · <a href=\"https://www.nasaspaceflight.com/2026/11/stoke-nova-booster-slc-14-2027-debut/\">NASASpaceflight</a>\n\n<b>11</b>  Dropping missiles from orbit? 2 European companies sign agreement to study the idea · <a href=\"https://www.space.com/technology/dropping-missiles-from-orbit-2-european-companies-sign-agreement-to-study-the-idea\">Space.com</a>\n\n<b><u>AI &amp; CHIPS</u></b>\n\n<b>12</b>  This ER Doctor Became a Hospital’s First Clinical AI Engineer · <a href=\"https://spectrum.ieee.org/clinical-ai-engineer-dinesh-rai\">IEEE Spectrum</a>\n\n<b>13</b>  Nvidia hits pause on chip shipments to Southeast Asia · <a href=\"https://techcrunch.com/2026/11/26/nvidia-hits-pause-on-chip-shipments-to-southeast-asia/\">TechCrunch</a> +1\n\n<b>14</b>  42 state AGs are trying to stop Character.AI from selling users’ chats · <a href=\"https://www.theverge.com/policy/1042620/character-ai-sale-state-ags-block-selling-users-chats\">The Verge</a> +1\n\n<b>15</b>  FCC signs off on SpaceX’s plan to put up to 1 million data center satellites into space · <a href=\"https://www.theverge.com/science/1042278/spacex-fcc-starmind-ai-space-data-centers\">The Verge</a> +1\n\n<b>16</b>  OpenAI says heavy ChatGPT users may hit limits sooner as it merges Chat and Work · <a href=\"https://techcrunch.com/2026/11/25/openai-says-heavy-chatgpt-users-may-hit-limits-sooner-as-it-merges-chat-and-work/\">TechCrunch</a>\n\n<b><u>ROBOTICS</u></b>\n\n<b>17</b>  How DARPA Challenged Teams to Bring Robots Into Disaster Triage · <a href=\"https://spectrum.ieee.org/darpa-triage-challenge-final-robots\">IEEE Spectrum</a>\n\n<b>18</b>  GXO doubling down on robotics in 2027 · <a href=\"https://www.therobotreport.com/gxo-doubling-down-on-robotics-in-2027/\">The Robot Report</a>\n\n<b>19</b>  FCC should focus on robot security, not country of origin · <a href=\"https://www.therobotreport.com/fcc-should-focus-on-robot-security-not-country-of-origin/\">The Robot Report</a>\n\n<b><u>TECHNOLOGY</u></b>\n\n<b>20</b>  OpenAI countersues Apple and accuses it of stealing trade secrets · <a href=\"https://www.engadget.com/2329747/openai-countersues-apple-and-accuses-it-of-stealing-trade-secrets/\">Engadget</a> +1\n\n<b>21</b>  Restricted NVIDIA chips were installed at a Chinese data center linked to Alice Huang · <a href=\"https://www.engadget.com/2329748/restricted-nvidia-chips-were-installed-at-a-chinese-data-center-linked-to-alice-huang/\">Engadget</a> +1\n\n<b>22</b>  2026’s Best Black Friday Deals: We’ve Been Tracking Since 4 AM · <a href=\"https://www.wired.com/story/best-black-friday-deals-11-27-2026/\">Wired</a>\n\n<b>23</b>  15 Best Buy Black Friday Deals on Hot Tech (2026): Up to 65% Off · <a href=\"https://www.wired.com/story/black-friday-best-buy-deals-11-27-2026/\">Wired</a>\n\n<b>24</b>  X finally gets parental controls after 20 years · <a href=\"https://techcrunch.com/2026/11/26/x-finally-gets-parental-controls-after-20-years/\">TechCrunch</a> +1\n\n<b>25</b>  The canceled Tesla Cybertruck is the fastest-selling used truck in America · <a href=\"https://techcrunch.com/2026/11/25/the-canceled-tesla-cybertruck-is-the-fastest-selling-used-truck-in-america/\">TechCrunch</a>\n\n<b><u>MARKETS</u></b>\n\n<b>26</b>  Asing Mulai Ramai Masuk RI, Net Buy di IHSG Tertinggi Hampir 3 Bulan · <a href=\"https://www.cnbcindonesia.com/research/20261128082307-128-789271/asing-mulai-ramai-masuk-ri-net-buy-di-ihsg-tertinggi-hampir-3-bulan\">CNBC Indonesia</a>\n\n<b>27</b>  Saudi Arabia shifts Vision 2030 spending amid economic and security pressure · <a href=\"https://www.cnbc.com/2026/11/28/saudi-arabia-vision-2030-spending.html\">CNBC</a>\n\n<b>28</b>  KKP-Polri Perkuat Ekonomi Biru Lewat Program Blue Policing · <a href=\"https://www.cnbcindonesia.com/news/20261128102832-4-789284/kkp-polri-perkuat-ekonomi-biru-lewat-program-blue-policing\">CNBC Indonesia</a> +1\n\n<b>29</b>  Even the price of toys is on the rise. How Americans are scaling back holiday plans · <a href=\"https://www.cnbc.com/2026/11/25/holiday-inflation-thanksgiving-travel-food-gifts.html\">CNBC</a>\n\n<b>30</b>  These stocks soared the most during a wild week highlighted by Huang’s return to Nvidia · <a href=\"https://www.marketwatch.com/story/these-stocks-soared-the-most-during-a-wild-week-highlighted-by-huangs-return-to-nvidia-578b3f9a?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b>31</b>  I hate that Jensen Huang is back at Nvidia, but I love what it’s done for my 401(k). Am I a hypocrite? · <a href=\"https://www.marketwatch.com/story/i-hate-that-jensen-huang-is-back-at-nvidia-but-i-love-what-its-done-for-my-401-k-am-i-a-hypocrite-f63c0303?mod=mw_rss_topstories\">MarketWatch</a>\n\n<b><u>INDEXES</u></b> · last close\n<pre>S&amp;P 500         7,297.49 ▲1.60%\nNasdaq         24,129.50 ▲2.31%\nDow Jones      50,774.94 ▲1.18%\nIHSG (Jakarta)  5,338.46 ▲1.84%\nGold (XAU)      3,668.50 ▲3.75%</pre>\n\n<b><u>STOCKS</u></b> · last price, 1-day move\n<pre>USD\nAAPL  358.54 ▲0.8%\nAMD   424.54 ▲4.6%\nAMZN  254.12 ▲4.0%\nBRK-B 580.79 ▲0.3%\nGOOGL 274.96 ▲0.7%\nIBM   248.08 ▲1.9%\nINTC   57.40 ▲5.4%\nKO     97.40 ▼0.2%\nMAR   421.01 ▲1.3%\nMETA  628.96 ▲3.1%\nMSFT  492.85 ▲0.6%\nMU    646.95 ▲7.6%\nNVDA  150.49 ▲0.8%\nSTX   509.66 ▲7.9%\nTSLA  400.00 ▲5.2%\nTSM   353.34 ▲3.2%\n\nIDR\nANTM 2,720 ▲3.0%\nBBCA 6,000 ▲1.7%\nBBRI 3,100 ▲0.6%\nBMRI 4,020 ▲0.8%\nPGEO   875 ▼0.6%\nTLKM 2,040 ▲1.5%</pre>\nNot financial advice.\n\nEvery summary, the charts and the stock analysis: <a href=\"https://juw12.github.io/morrow/\">juw12.github.io/morrow</a>",
+      "telegram_cover": "cards/2026-11-28/digest-photos.jpg",
+      "created_at": "2026-11-28T08:01:40+00:00",
+      "targets": {
+        "telegram": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "telegram:56",
+          "at": "2026-11-28T08:01:44+00:00"
+        },
+        "instagram": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for instagram"
+        },
+        "threads": {
+          "status": "skipped",
+          "attempts": 0,
+          "detail": "no allowed, connected Buffer channel for threads"
+        },
+        "x": {
+          "status": "delivered",
+          "attempts": 1,
+          "ref": "buffer:6b0a8a6ad718580fbd6cbfc8",
+          "at": "2026-11-28T08:01:44+00:00"
+        }
+      }
+    }
+  }
+}
